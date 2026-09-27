@@ -1,0 +1,22 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+
+frontend/.env
+frontend/.env.*
+backend/.env
+backend/.env.*
+
+# Dependencies
+frontend/node_modules/
+
+# Build
+frontend/dist/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
