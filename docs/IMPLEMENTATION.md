@@ -42,3 +42,11 @@ See `CONTENT_AUDIT.md` and `CONTENT_REVIEW_REQUIRED.md` for publication requirem
 ## September 28 refinement
 
 The approved Hero and its shared dependencies are locked by `docs/HERO_LOCK.json`; validate them with `node frontend/scripts/check-hero-lock.mjs` from the repository root. New post-Hero and interior styles live in `src/styles/editorial.css`, with bounded motion in `src/directives/editorialMotion.ts`. Research, design decisions and validation are recorded in `docs/REFINEMENT_RESEARCH.md`; the limited security review is in `docs/SECURITY_REVIEW.md`. No animation dependencies or backend changes were added.
+
+### Authorized Hero text refinement
+
+The subsequent text-only request supersedes the earlier lock for Hero typography rules in `src/style.css`. All chapters now use one fixed-height composition area (680px maximum width), so differing headline lengths and the empty phase of the existing out-in transition cannot recenter the container. Desktop is anchored at 50% viewport height; mobile uses 24px side insets and a 16svh bottom offset. Short landscape screens use a compact shared anchor below the header. Middle headlines are capped at 88px instead of 100px, with responsive mobile sizes; transitions use opacity and ±12px vertical movement. The existing gradient remains sufficient and unchanged.
+
+Only the stylesheet hash in `HERO_LOCK.json` was refreshed for this authorized exception. The Hero Vue component, copy, fonts, MP4, poster, video synchronization, scroll distance, header, controls, and all other website styling remain unchanged.
+
+Validation: production build and whitespace checks pass. Browser measurements confirm identical settled anchor and headline origins across all four chapters and reverse scrolling in Latvian, Russian, and English at 1440×900, 1024×768, 768×1024, 390×844, 320×700, 844×390, 667×375, and 568×320. Text and CTA fit above the controls at each size. Desktop/mobile animation-frame sampling confirms an unchanged container rectangle, no horizontal transition movement, and at most 12px vertical movement. Video time mapping, original tour heights, manual static mode, and reduced-motion mode pass. All other protected file hashes still match the previous baseline.

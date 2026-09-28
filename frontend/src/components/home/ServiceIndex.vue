@@ -52,9 +52,9 @@ const current = computed(() => services[selected.value]!);
             @focus="selected = i"
             ><span class="index-number">0{{ i + 1 }}</span>
             <h3>{{ local(s.title) }}</h3>
-            <span class="index-arrow" aria-hidden="true">↗</span></RouterLink
+            </RouterLink
           ><RouterLink class="text-link" to="/pakalpojumi"
-            >{{ t("common.allServices") }} <span>↗</span></RouterLink
+            >{{ t("common.allServices") }} </RouterLink
           >
         </div>
       </div>

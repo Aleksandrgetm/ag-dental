@@ -1,10 +1,10 @@
 {
-  "frontend/src/components/home/ScrollClinicHero.vue": "288e2c00f4ebf6d0a7424f3da06d6083aa96dd323a60d8c46360159d32cd1391",
-  "frontend/src/style.css": "81f3a02a55d0e2c21634615ee6be75481b864c9c06282cfe5001bf02bbccff54",
+  "frontend/src/components/home/ScrollClinicHero.vue": "c45d9855bb70142b243bca5ec67e76a79a751a28c7c5010e2aa90e60517c9178",
+  "frontend/src/style.css": "d7ea8f1c36eae8c03c53a032aa2c7319303b1fcdef215ea08949aae0048034d2",
   "frontend/src/fonts.css": "6f9273ecbfbbfbc562a6c2c742f346467f26e0ae081a849db5c4896639ab1619",
   "frontend/src/content/clinic.ts": "39306e53ccdf4e72ad31b44f7d102ed5564071ab36d1cf65bda2fd51f4840a1e",
   "frontend/src/content/useContent.ts": "1c230c671eede93c1135c6eccefefd1ae68b71f2f5ee68492d0af831fc887790",
-  "frontend/src/i18n/index.ts": "bed8530afc8d4bd8ce7bf9ca4af80c3f4e2271b9881c4a907d2e0224f77d63e2",
+  "frontend/src/i18n/index.ts": "f633c7ac90f6dde5e26d42f008063a13de55dd32fd7fcd6798a93b959c8b6c85",
   "frontend/public/media/clinic/clinic-tour.mp4": "14b98679fe39c9715d61719fbb56c3adca8ae8354ff0fc4df5a0f0070d5c719b",
   "frontend/public/media/clinic/tour-poster.jpg": "12d0dcedfdfd5b9597dbd9256f3cfc35563a71092340b5f4932f6bc45761a9d3",
   "frontend/public/fonts/Manrope-OFL.txt": "58172e0c0fac2cda8a37b348164bb55e44b0e69051e557e92b1d3f6910141f7b",

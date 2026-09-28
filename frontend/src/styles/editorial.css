@@ -69,7 +69,7 @@
   gap: 40px;
 }
 .content-design .text-link:hover > span {
-  transform: translate(3px, -3px);
+  transform: translateX(3px);
 }
 .content-design :is(a, button, input, summary):focus-visible {
   outline: 2px solid #69794e;
@@ -204,22 +204,6 @@
 .content-design .index-number {
   font: 10px/1.4 var(--sans);
   color: var(--editorial-caption);
-}
-.content-design .index-arrow {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  font-size: 22px;
-  transition:
-    background 0.3s,
-    color 0.3s,
-    transform 0.3s;
-}
-.content-design .index-entry:is(:hover, :focus-visible) .index-arrow {
-  background: var(--olive);
-  color: var(--white);
-  transform: translate(2px, -2px);
 }
 .content-design .index-entry:is(:hover, :focus-visible) h3 {
   transform: translateX(4px);
@@ -724,28 +708,22 @@
   font-size: 10px;
 }
 /* Interior-page system: same palette, more useful hierarchy and contrast. */
+/* Compact internal context; the cinematic introduction belongs to the homepage. */
 .content-design.interior-design .page-head {
-  padding-top: 170px;
-  padding-bottom: 65px;
-  position: relative;
+  padding-top: clamp(170px, 13vw, 190px);
+  padding-bottom: 40px;
 }
 .content-design.interior-design .page-head h1 {
-  font-size: clamp(58px, 6.7vw, 103px);
-  max-width: 1100px;
-  letter-spacing: -0.045em;
+  font-size: clamp(42px, 4vw, 56px);
+  line-height: 1.08;
+  max-width: 960px;
+  letter-spacing: -0.035em;
   text-wrap: balance;
 }
 .content-design.interior-design .page-head > .lead {
   font-size: 18px;
   max-width: 700px;
   color: var(--editorial-caption);
-}
-.content-design.interior-design .page-head:after {
-  content: "";
-  display: block;
-  height: 1px;
-  background: var(--editorial-rule);
-  margin-top: 48px;
 }
 .content-design .service-row {
   grid-template-columns: 50px 1fr 240px 55px;
@@ -771,10 +749,10 @@
     color 0.25s,
     transform 0.25s;
 }
-.content-design :is(.service-row, .journal-row):hover .row-arrow {
+.content-design .journal-row:is(:hover, :focus-visible) .row-arrow {
   background: var(--olive);
   color: var(--paper);
-  transform: translate(2px, -2px);
+  transform: translateX(2px);
 }
 .content-design .service-detail-grid {
   gap: 9%;
@@ -812,63 +790,6 @@
 .content-design .price-list dd.price-review {
   font-size: 12px;
 }
-.content-design .price-search-region {
-  padding-bottom: 45px;
-}
-.content-design .price-search-region label {
-  display: block;
-  margin-bottom: 12px;
-}
-.content-design .price-search-control {
-  max-width: 760px;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  background: #eeeee5;
-  border: 1px solid var(--editorial-rule);
-  padding: 0 20px;
-}
-.content-design .price-search-control > span {
-  font-size: 30px;
-}
-.content-design .price-search-control input {
-  flex: 1;
-  min-width: 0;
-  padding: 20px 0;
-  font: 15px var(--sans);
-  color: var(--ink);
-  outline: none;
-}
-.content-design .price-search-control:focus-within {
-  outline: 2px solid var(--olive);
-  outline-offset: 3px;
-}
-.content-design .price-search-control button {
-  font-size: 12px;
-  background: none;
-  padding: 12px 0;
-}
-.content-design .result-count {
-  font-size: 11px;
-  margin-top: 14px;
-  color: var(--editorial-caption);
-}
-.content-design .pricing-layout {
-  grid-template-columns: 270px 1fr;
-  gap: 8%;
-}
-.content-design .pricing-layout aside > nav {
-  top: 110px;
-}
-.content-design .pricing-layout aside > nav a {
-  font-size: 13px;
-  align-items: center;
-}
-.content-design .pricing-layout aside > nav small {
-  margin-left: auto;
-  font-size: 10px;
-  color: var(--editorial-caption);
-}
 .content-design .price-category-title {
   background: #e9ebdf;
   padding: 25px 28px;
@@ -885,9 +806,6 @@
 .content-design .price-empty {
   padding: 35px;
   background: var(--sage);
-}
-.content-design .pricing-note {
-  border-top: 2px solid var(--olive);
 }
 .content-design .about-page-section {
   align-items: start;
@@ -1175,11 +1093,6 @@
   .content-design .index-entry h3 {
     font-size: 24px;
   }
-  .content-design .index-arrow {
-    width: 24px;
-    height: 30px;
-    font-size: 19px;
-  }
   .content-design .service-index-caption {
     gap: 20px;
   }
@@ -1286,10 +1199,10 @@
     display: none;
   }
   .content-design.interior-design .page-head {
-    padding-top: 140px;
+    padding-top: 150px;
   }
   .content-design.interior-design .page-head h1 {
-    font-size: 70px;
+    font-size: 48px;
   }
   .content-design .service-row {
     grid-template-columns: 25px 1fr 150px 35px;
@@ -1306,13 +1219,6 @@
   }
   .content-design .service-detail-grid .lead {
     font-size: 23px;
-  }
-  .content-design .pricing-layout {
-    grid-template-columns: 1fr;
-  }
-  .content-design .pricing-layout aside > nav {
-    position: static;
-    grid-template-columns: repeat(2, 1fr);
   }
   .content-design .article-layout {
     grid-template-columns: 200px 1fr;
@@ -1431,9 +1337,6 @@
   }
   .content-design .index-entry.is-selected {
     color: var(--ink);
-  }
-  .content-design .index-arrow {
-    font-size: 22px;
   }
   .content-design .about-editorial-image {
     min-height: 330px;
@@ -1621,17 +1524,14 @@
     font-size: 9px;
   }
   .content-design.interior-design .page-head {
-    padding-top: 125px;
-    padding-bottom: 35px;
+    padding-top: 135px;
+    padding-bottom: 32px;
   }
   .content-design.interior-design .page-head h1 {
-    font-size: 55px;
+    font-size: 40px;
   }
   .content-design.interior-design .page-head > .lead {
     font-size: 16px;
-  }
-  .content-design.interior-design .page-head:after {
-    margin-top: 30px;
   }
   .content-design .service-row {
     grid-template-columns: 22px 1fr 27px;
@@ -1660,27 +1560,6 @@
   }
   .content-design .related-services > a {
     font-size: 30px;
-  }
-  .content-design .price-search-control {
-    gap: 10px;
-    padding-inline: 12px;
-  }
-  .content-design .price-search-control input {
-    font-size: 13px;
-    padding-block: 18px;
-  }
-  .content-design .price-search-control button {
-    font-size: 10px;
-  }
-  .content-design .price-search-region {
-    padding-bottom: 30px;
-  }
-  .content-design .pricing-layout aside > nav {
-    gap: 0 16px;
-  }
-  .content-design .pricing-layout aside > nav a {
-    font-size: 11px;
-    gap: 8px;
   }
   .content-design .price-category-title {
     padding: 20px;
@@ -1823,7 +1702,7 @@
     font-size: 45px;
   }
   .content-design.interior-design .page-head h1 {
-    font-size: 49px;
+    font-size: 38px;
   }
 }
 @media (prefers-reduced-motion: reduce) {

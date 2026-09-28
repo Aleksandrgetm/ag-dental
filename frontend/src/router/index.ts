@@ -29,11 +29,6 @@ const router = createRouter({
       meta: { title: "nav.about" },
     },
     {
-      path: "/specialisti",
-      component: () => import("../views/AboutView.vue"),
-      meta: { title: "nav.team", team: true },
-    },
-    {
       path: "/jaunumi",
       component: () => import("../views/NewsView.vue"),
       meta: { title: "nav.news" },

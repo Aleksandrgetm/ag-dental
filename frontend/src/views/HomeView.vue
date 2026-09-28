@@ -39,7 +39,7 @@ const preview = services.filter((s) =>
             <p class="lead">{{ local(philosophy) }}</p>
             <p>{{ t("home.introAside") }}</p>
             <RouterLink class="text-link" to="/par-mums"
-              >{{ t("common.about") }} <span>↗</span></RouterLink
+              >{{ t("common.about") }} </RouterLink
             >
           </div>
         </div>
@@ -65,7 +65,7 @@ const preview = services.filter((s) =>
         <h2>{{ t("home.aboutTitle") }}</h2>
         <p>{{ local(about) }}</p>
         <RouterLink class="text-link" to="/par-mums"
-          >{{ t("common.about") }} <span>↗</span></RouterLink
+          >{{ t("common.about") }} </RouterLink
         >
       </div>
     </section>
@@ -93,8 +93,8 @@ const preview = services.filter((s) =>
               <span>15+</span>
               <p>{{ local(copy.years) }}</p>
             </div>
-            <RouterLink class="text-link" to="/specialisti"
-              >{{ t("common.more") }} <span>↗</span></RouterLink
+            <RouterLink class="text-link" to="/par-mums"
+              >{{ t("common.more") }} </RouterLink
             >
           </div>
         </div>
@@ -125,7 +125,7 @@ const preview = services.filter((s) =>
           <h2>{{ t("home.pricesTitle") }}</h2>
           <p class="section-aside">{{ t("page.pricesIntro") }}</p>
           <RouterLink class="text-link" to="/cenas"
-            >{{ t("common.prices") }} <span>↗</span></RouterLink
+            >{{ t("common.prices") }} </RouterLink
           >
         </div>
         <div class="price-sheet" data-reveal data-delay="100">
@@ -169,7 +169,7 @@ const preview = services.filter((s) =>
             <h2>{{ t("home.newsTitle") }}</h2>
           </div>
           <RouterLink class="text-link" to="/jaunumi"
-            >{{ t("common.allNews") }} <span>↗</span></RouterLink
+            >{{ t("common.allNews") }} </RouterLink
           >
         </div>
         <p v-if="locale !== 'lv'" class="source-note">
@@ -187,7 +187,7 @@ const preview = services.filter((s) =>
                 loading="lazy"
                 width="526"
                 height="526"
-              /><span class="image-arrow" aria-hidden="true">↗</span>
+              />
             </div>
             <div class="news-meta">
               <time :datetime="articles[0]!.date">{{
@@ -208,7 +208,7 @@ const preview = services.filter((s) =>
               <h3 lang="lv">{{ article.title }}</h3>
               <p lang="lv">{{ article.excerpt }}</p>
               <span class="text-link"
-                >{{ t("common.read") }} <span>↗</span></span
+                >{{ t("common.read") }} <span aria-hidden="true">→</span></span
               ></RouterLink
             >
           </div>

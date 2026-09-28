@@ -39,7 +39,7 @@ watchEffect(() => {
         <p class="lead">{{ local(service.text) }}</p>
         <p class="detail-note">{{ t("ui.updated") }}</p>
         <RouterLink class="button" to="/pieraksts"
-          >{{ t("common.bookAppointment") }} <span>↗</span></RouterLink
+          >{{ t("common.bookAppointment") }} </RouterLink
         >
       </div>
     </section>
@@ -47,7 +47,7 @@ watchEffect(() => {
       <div class="section-heading">
         <h2>{{ t("nav.prices") }}</h2>
         <RouterLink class="text-link" to="/cenas"
-          >{{ t("common.prices") }} ↗</RouterLink
+          >{{ t("common.prices") }}</RouterLink
         >
       </div>
       <p v-if="locale !== 'lv'" class="source-note">
@@ -63,7 +63,7 @@ watchEffect(() => {
           .slice(0, 3)"
         :key="s.slug"
         :to="`/pakalpojumi/${s.slug}`"
-        >{{ local(s.title) }} <span>↗</span></RouterLink
+        >{{ local(s.title) }} </RouterLink
       >
     </div>
     <ContactBand /></template

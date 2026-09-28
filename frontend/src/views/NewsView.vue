@@ -5,11 +5,9 @@ import ContactBand from "../components/ContactBand.vue";
 const { t, date, locale } = useContent();
 </script>
 <template>
-  <div class="page-head container">
-    <p class="eyebrow">{{ t("nav.news") }} / AG ZOBĀRSTNIECĪBA</p>
-    <h1>{{ t("page.news") }}</h1>
-    <p class="lead">{{ t("page.newsIntro") }}</p>
-  </div>
+  <header class="page-head container">
+    <h1>{{ t("nav.news") }}</h1>
+  </header>
   <section class="container journal-list">
     <p v-if="locale !== 'lv'" class="source-note">
       {{ t("ui.sourceLanguage") }}
@@ -28,7 +26,7 @@ const { t, date, locale } = useContent();
         <h2>{{ a.title }}</h2>
         <p>{{ a.excerpt }}</p>
       </div>
-      <span class="row-arrow">↗</span></RouterLink
+      <span class="row-arrow" aria-hidden="true">→</span></RouterLink
     >
   </section>
   <ContactBand />

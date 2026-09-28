@@ -41,7 +41,7 @@ watchEffect(() => {
             :href="`https://www.zobarstnieciba-ag.lv/jaunumi/params/post/${article.source}`"
             target="_blank"
             rel="noopener noreferrer"
-            >{{ t("ui.source") }} ↗</a
+            >{{ t("ui.source") }}</a
           >
         </aside>
         <div class="article-body">
@@ -50,7 +50,7 @@ watchEffect(() => {
           </p>
           <p v-for="(p, i) in article.paragraphs" :key="i" lang="lv">{{ p }}</p>
           <RouterLink class="button" to="/pieraksts"
-            >{{ t("common.bookAppointment") }} <span>↗</span></RouterLink
+            >{{ t("common.bookAppointment") }} </RouterLink
           >
         </div>
       </div>

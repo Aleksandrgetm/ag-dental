@@ -8,7 +8,7 @@ const { t } = useContent();
     <h1>{{ t("ui.notFound") }}</h1>
     <p class="lead">{{ t("ui.notFoundText") }}</p>
     <RouterLink class="button" to="/"
-      >{{ t("common.home") }} <span>↗</span></RouterLink
+      >{{ t("common.home") }} </RouterLink
     >
   </section>
 </template>

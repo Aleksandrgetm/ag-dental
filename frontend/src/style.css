@@ -379,10 +379,6 @@ small {
   font: 10px var(--sans);
   color: var(--muted);
 }
-.mobile-menu nav a > span {
-  margin-left: auto;
-  font-size: 22px;
-}
 .mobile-menu-bottom {
   max-width: 700px;
   margin: 30px auto 0;
@@ -459,13 +455,15 @@ small {
 .tour-topline span:first-child {
   visibility: hidden;
 }
+/* Keep one fixed composition area throughout the scroll-controlled video. */
 .tour-copy {
   position: absolute;
-  left: var(--gutter);
+  left: clamp(5rem, 6vw, 8rem);
   right: var(--gutter);
   top: 50%;
-  transform: translateY(-42%);
-  max-width: 1000px;
+  transform: translateY(-50%);
+  max-width: 680px;
+  height: 440px;
 }
 .tour-copy .eyebrow {
   margin-bottom: 27px;
@@ -489,75 +487,8 @@ small {
   min-width: 185px;
 }
 .tour h2 {
-  font-size: clamp(58px, 6.5vw, 100px);
+  font-size: clamp(52px, 5.7vw, 88px);
   line-height: 1.06;
-}
-.tour-copy.chapter-1 {
-  left: 38%;
-  max-width: 800px;
-}
-.tour-copy.chapter-2 {
-  top: 52%;
-  max-width: 950px;
-}
-.tour-copy.chapter-3 {
-  left: 18%;
-  max-width: 1000px;
-}
-.tour-bottom {
-  position: absolute;
-  bottom: 34px;
-  left: var(--gutter);
-  right: var(--gutter);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 30px;
-}
-.scroll-prompt {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  background: transparent;
-  font-size: 10px;
-  letter-spacing: 0.035em;
-}
-.scroll-circle {
-  width: 39px;
-  height: 39px;
-  display: grid;
-  place-items: center;
-  border: 1px solid #ffffff60;
-  border-radius: 50%;
-  font-size: 18px;
-}
-.tour-progress {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  font-size: 9px;
-  letter-spacing: 0.08em;
-}
-.tour-progress > div {
-  width: 160px;
-  height: 1px;
-  background: #ffffff40;
-}
-.tour-progress i {
-  display: block;
-  width: 100%;
-  height: 1px;
-  background: var(--white);
-  transform-origin: left;
-}
-.tour-skip {
-  font-size: 10px;
-  background: none;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  border-bottom: 1px solid #ffffff65;
-  padding-bottom: 7px;
 }
 .tour-static {
   height: 100svh;
@@ -566,20 +497,6 @@ small {
 .tour-static .tour-viewport {
   height: 100%;
   position: relative;
-}
-.chapter-enter-active,
-.chapter-leave-active {
-  transition:
-    opacity 0.4s,
-    transform 0.5s var(--ease);
-}
-.chapter-enter-from {
-  opacity: 0;
-  transform: translateY(15px);
-}
-.chapter-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
 }
 /* Editorial home sections */
 .intro-section {
@@ -647,17 +564,6 @@ small {
 .service-feature-1 .image-wrap img {
   height: 290px;
 }
-.image-arrow {
-  position: absolute;
-  bottom: 16px;
-  right: 16px;
-  width: 40px;
-  height: 40px;
-  background: var(--paper);
-  display: grid;
-  place-items: center;
-  font-size: 23px;
-}
 .service-feature:hover img {
   transform: scale(1.025);
 }
@@ -686,10 +592,6 @@ small {
 .service-feature-2 .service-feature-text,
 .service-feature-3 .service-feature-text {
   padding-top: 32px;
-}
-.service-feature-text .arrow {
-  margin-left: auto;
-  font-size: 25px;
 }
 .other-services {
   display: grid;
@@ -1128,44 +1030,6 @@ small {
   max-width: 150px;
   text-align: right;
 }
-.pricing-layout {
-  display: grid;
-  grid-template-columns: 260px 1fr;
-  gap: 9%;
-  padding-bottom: var(--space-section);
-}
-.pricing-layout aside > nav {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  position: sticky;
-  top: 120px;
-}
-.pricing-layout aside > nav a {
-  display: flex;
-  gap: 16px;
-  font-size: 12px;
-  padding: 15px 0;
-  border-bottom: 1px solid var(--line);
-}
-.pricing-layout aside > nav a span {
-  font-size: 9px;
-  color: var(--muted);
-}
-.pricing-note {
-  padding: 26px;
-  background: var(--sage);
-  margin-top: 40px;
-}
-.pricing-note p {
-  font-size: 13px;
-}
-.pricing-note small {
-  display: block;
-  color: var(--muted);
-  margin-top: 18px;
-  line-height: 1.8;
-}
 .price-category {
   scroll-margin-top: 115px;
   margin-bottom: 70px;
@@ -1305,9 +1169,6 @@ small {
   display: flex;
   justify-content: space-between;
 }
-.large-phone span {
-  font-size: 27px;
-}
 .contact-block > p:last-child {
   font-size: 11px;
   color: var(--muted);
@@ -1433,13 +1294,6 @@ small {
   .about-home-image img {
     min-height: 580px;
   }
-  .pricing-layout {
-    grid-template-columns: 220px 1fr;
-    gap: 6%;
-  }
-  .tour-copy.chapter-1 {
-    left: 25%;
-  }
 }
 @media (max-width: 800px) {
   :root {
@@ -1479,28 +1333,22 @@ small {
     min-height: 630px;
   }
   .tour-copy {
-    top: 49%;
-    transform: translateY(-35%);
+    left: 24px;
+    right: 24px;
+    top: auto;
+    bottom: 16svh;
+    height: 360px;
+    transform: none;
   }
   .tour h1 {
     font-size: clamp(70px, 12vw, 110px);
   }
   .tour h2 {
-    font-size: 64px;
-  }
-  .tour-copy.chapter-1,
-  .tour-copy.chapter-3 {
-    left: var(--gutter);
+    font-size: clamp(44px, 8vw, 60px);
   }
   .tour-topline {
     top: 109px;
     font-size: 8px;
-  }
-  .tour-progress {
-    display: none;
-  }
-  .tour-bottom {
-    bottom: 28px;
   }
   .tour-shade {
     background:
@@ -1630,25 +1478,6 @@ small {
   .service-detail-grid .lead {
     font-size: 15px;
   }
-  .pricing-layout {
-    grid-template-columns: 1fr;
-  }
-  .pricing-layout aside {
-    margin-bottom: 45px;
-  }
-  .pricing-layout aside > nav {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    column-gap: 25px;
-    position: static;
-  }
-  .pricing-note {
-    margin-top: 25px;
-    padding: 20px;
-  }
-  .pricing-note small {
-    margin-top: 10px;
-  }
   .about-page-section {
     gap: 7%;
   }
@@ -1724,14 +1553,10 @@ small {
     top: 106px;
   }
   .tour h1 {
-    font-size: 76px;
+    font-size: clamp(60px, 18vw, 76px);
   }
   .tour h2 {
-    font-size: 53px;
-  }
-  .tour-copy {
-    top: 45%;
-    transform: translateY(-25%);
+    font-size: clamp(42px, 11.5vw, 53px);
   }
   .tour-copy .eyebrow {
     font-size: 8px;
@@ -1751,28 +1576,6 @@ small {
   .tour-poster,
   .tour-video {
     object-position: 57% center;
-  }
-  .tour-bottom {
-    align-items: flex-end;
-    gap: 15px;
-    bottom: 27px;
-  }
-  .scroll-prompt {
-    font-size: 9px;
-    gap: 10px;
-    max-width: 180px;
-    text-align: left;
-  }
-  .scroll-circle {
-    width: 33px;
-    height: 33px;
-    flex-shrink: 0;
-  }
-  .tour-skip {
-    font-size: 8px;
-    gap: 8px;
-    max-width: 135px;
-    text-align: left;
   }
   .tour-topline span:first-child {
     display: none;
@@ -2061,22 +1864,6 @@ small {
   .price-category h2 {
     font-size: 34px;
   }
-  .pricing-layout aside > nav {
-    column-gap: 20px;
-  }
-  .pricing-layout aside > nav a {
-    font-size: 10px;
-    gap: 10px;
-  }
-  .pricing-layout aside {
-    margin-bottom: 35px;
-  }
-  .pricing-note p {
-    font-size: 12px;
-  }
-  .pricing-note small {
-    font-size: 11px;
-  }
   .related-services > a {
     font-size: 26px;
     gap: 20px;
@@ -2205,9 +1992,6 @@ small {
   background: linear-gradient(transparent, var(--paper));
   pointer-events: none;
 }
-.tour-bottom {
-  z-index: 1;
-}
 /* Long translated headings must stay inside narrow viewports. */
 h1,
 h2,
@@ -2229,6 +2013,41 @@ h3 {
     font-size: 42px;
   }
   html[lang="ru"] .tour h1 {
-    font-size: 64px;
+    font-size: clamp(52px, 16vw, 64px);
+  }
+  html[lang="ru"] .tour h2 {
+    font-size: clamp(38px, 10.5vw, 48px);
+  }
+}
+/* Keep the same text origin below the header on short landscape screens. */
+@media (max-height: 600px) and (min-aspect-ratio: 1/1) {
+  .tour-copy {
+    top: clamp(90px, 29svh, 125px);
+    bottom: auto;
+    height: 200px;
+    transform: none;
+  }
+  .tour-copy .eyebrow {
+    font-size: 8px;
+    margin-bottom: 10px;
+  }
+  .tour h1,
+  html[lang="ru"] .tour h1 {
+    font-size: clamp(28px, 8svh, 48px);
+  }
+  .tour h2,
+  html[lang="ru"] .tour h2 {
+    font-size: clamp(26px, 8svh, 48px);
+  }
+  .tour-description {
+    max-width: none;
+    font-size: 11px;
+    line-height: 1.8;
+    margin-top: 8px;
+  }
+  .tour .button {
+    margin-top: 10px;
+    min-height: 44px;
+    padding: 10px 20px;
   }
 }

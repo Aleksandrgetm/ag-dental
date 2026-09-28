@@ -8,22 +8,15 @@ const route = useRoute(),
   { t, local } = useContent();
 </script>
 <template>
-  <div class="page-head container">
-    <p class="eyebrow">
-      {{ t(route.meta.booking ? "common.bookAppointment" : "nav.contact") }} /
-      AG ZOBĀRSTNIECĪBA
-    </p>
-    <h1>{{ t(route.meta.booking ? "page.booking" : "page.contact") }}</h1>
-    <p class="lead">
-      {{ t(route.meta.booking ? "page.bookingIntro" : "page.contactIntro") }}
-    </p>
-  </div>
+  <header class="page-head container">
+    <h1>{{ t(route.meta.booking ? "common.bookAppointment" : "nav.contact") }}</h1>
+  </header>
   <section class="container contact-layout">
     <div>
       <div class="contact-block">
         <p class="eyebrow">{{ t("ui.phone") }}</p>
         <a class="large-phone" :href="clinic.tel"
-          >{{ clinic.phone }} <span>↗</span></a
+          >{{ clinic.phone }}</a
         >
         <p>{{ t("ui.appointment") }}</p>
       </div>
@@ -34,7 +27,7 @@ const route = useRoute(),
         </div>
         <div>
           <p class="eyebrow">{{ local(copy.email) }}</p>
-          <a :href="`mailto:${clinic.email}`">{{ clinic.email }} ↗</a>
+          <a :href="`mailto:${clinic.email}`">{{ clinic.email }}</a>
         </div>
         <div>
           <p class="eyebrow">{{ t("ui.address") }}</p>
@@ -48,11 +41,11 @@ const route = useRoute(),
       <template v-if="route.meta.booking"
         ><div class="booking-actions">
           <a class="button" :href="clinic.tel"
-            >{{ t("page.bookingAction") }} <span>↗</span></a
+            >{{ t("page.bookingAction") }}</a
           ><a
             class="text-link"
             :href="`mailto:${clinic.email}?subject=Vizītes%20pieteikums`"
-            >{{ t("page.bookingEmail") }} ↗</a
+            >{{ t("page.bookingEmail") }}</a
           >
         </div>
         <p class="price-note">{{ t("page.bookingNote") }}</p></template
@@ -68,6 +61,7 @@ const route = useRoute(),
     <div v-if="route.meta.booking" class="booking-aside">
       <span class="booking-monogram">AG.</span>
       <h2>{{ t("page.bookingHelp") }}</h2>
+      <p>{{ t("page.bookingIntro") }}</p>
       <p>{{ t("page.bookingHelpText") }}</p>
       <span class="eyebrow">{{ t("home.doctorRole") }}</span>
       <div class="booking-doctor">
@@ -86,7 +80,7 @@ const route = useRoute(),
         width="1000"
         height="800"
       />
-      <figcaption>Ūnijas iela 25 · Rīga</figcaption>
+      <figcaption>{{ t("page.contactIntro") }}</figcaption>
       <a
         class="text-link"
         :href="clinic.map"

@@ -1,22 +1,14 @@
 <script setup lang="ts">
-import { useRoute } from "vue-router";
 import { media, about, philosophy, doctorBio } from "../content/clinic";
 import { useContent } from "../content/useContent";
 import ContactBand from "../components/ContactBand.vue";
-const route = useRoute(),
-  { t, local } = useContent();
+const { t, local } = useContent();
 </script>
 <template>
-  <div class="page-head container">
-    <p class="eyebrow">
-      {{ t(route.meta.team ? "nav.team" : "nav.about") }} / AG ZOBĀRSTNIECĪBA
-    </p>
-    <h1>{{ t(route.meta.team ? "page.team" : "page.about") }}</h1>
-    <p class="lead">
-      {{ route.meta.team ? t("page.teamIntro") : local(philosophy) }}
-    </p>
-  </div>
-  <section v-if="!route.meta.team" class="about-page-section container">
+  <header class="page-head container">
+    <h1>{{ t("nav.about") }}</h1>
+  </header>
+  <section class="about-page-section container">
     <img
       :src="media.original"
       alt="AG Zobārstniecība"
@@ -26,6 +18,7 @@ const route = useRoute(),
     <div>
       <p class="eyebrow">{{ t("home.introLabel") }}</p>
       <h2>{{ t("home.introTitle") }}</h2>
+      <p>{{ local(philosophy) }}</p>
       <p>{{ local(about) }}</p>
       <p>{{ t("home.introAside") }}</p>
     </div>
@@ -39,7 +32,7 @@ const route = useRoute(),
         <p>{{ local(doctorBio) }}</p>
         <p>{{ local(about) }}</p>
         <RouterLink class="button" to="/pieraksts"
-          >{{ t("common.bookAppointment") }} <span>↗</span></RouterLink
+          >{{ t("common.bookAppointment") }} </RouterLink
         >
       </div>
       <figure class="doctor-photo">

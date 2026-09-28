@@ -21,7 +21,6 @@ const links = [
   ["/pakalpojumi", "services"],
   ["/cenas", "prices"],
   ["/par-mums", "about"],
-  ["/specialisti", "team"],
   ["/jaunumi", "news"],
   ["/kontakti", "contact"],
 ];
@@ -125,7 +124,7 @@ onBeforeUnmount(() => {
       </div>
       <RouterLink class="button header-book" to="/pieraksts"
         >{{ t("common.bookAppointment")
-        }}<span aria-hidden="true">↗</span></RouterLink
+        }}</RouterLink
       ><button
         ref="toggle"
         class="menu-toggle"
@@ -156,7 +155,7 @@ onBeforeUnmount(() => {
           :key="path"
           :to="path!"
           ><small>0{{ index + 1 }}</small
-          >{{ t(`nav.${key}`) }}<span>↗</span></RouterLink
+          >{{ t(`nav.${key}`) }}</RouterLink
         >
       </nav>
       <div class="mobile-menu-bottom">
@@ -181,7 +180,7 @@ onBeforeUnmount(() => {
         </div>
         <RouterLink class="button" to="/pieraksts"
           >{{ t("common.bookAppointment") }}
-          <span aria-hidden="true">↗</span></RouterLink
+          </RouterLink
         >
       </div>
     </div></Transition
