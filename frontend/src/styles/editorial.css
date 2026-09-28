@@ -1,0 +1,1856 @@
+/* Approved tour boundary: every rule is scoped to post-tour content,
+   interior pages, or the open mobile menu. Never target :root, body or .tour. */
+.content-design {
+  --editorial-rule: #cfd2c3;
+  --editorial-caption: #5f6858;
+  --editorial-dark: #2d372c;
+  --editorial-ease: cubic-bezier(0.22, 0.68, 0.24, 1);
+  --editorial-fast: 240ms;
+  --editorial-section: clamp(80px, 8.5vw, 136px);
+  --editorial-body: clamp(14px, 1.08vw, 16px);
+}
+.content-design .section {
+  padding-block: var(--editorial-section);
+}
+.content-design h2 {
+  font-size: clamp(48px, 5.2vw, 80px);
+  letter-spacing: -0.045em;
+  line-height: 1.02;
+  text-wrap: balance;
+}
+.content-design h3 {
+  text-wrap: balance;
+}
+.content-design .eyebrow {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+}
+.content-design .section-heading {
+  margin-bottom: 60px;
+  align-items: end;
+}
+.content-design .section-aside {
+  max-width: 300px;
+  font-size: var(--editorial-body);
+  color: var(--editorial-caption);
+  line-height: 1.85;
+}
+.content-design .button {
+  position: relative;
+  min-height: 56px;
+  font-size: 13px;
+  padding: 17px 24px;
+  gap: 40px;
+  transition:
+    background 0.3s,
+    color 0.3s,
+    box-shadow 0.3s;
+}
+.content-design .button > span {
+  transition: transform 0.3s var(--editorial-ease);
+}
+.content-design .button:hover > span {
+  transform: translate(3px, -3px);
+}
+.content-design .button:active {
+  box-shadow: inset 0 0 0 2px currentColor;
+}
+.content-design .text-link {
+  font-size: 13px;
+  gap: 40px;
+  transition:
+    color 0.25s,
+    border-color 0.25s;
+}
+.content-design .text-link > span {
+  transition: transform 0.3s var(--editorial-ease);
+}
+.content-design .text-link:hover {
+  gap: 40px;
+}
+.content-design .text-link:hover > span {
+  transform: translate(3px, -3px);
+}
+.content-design :is(a, button, input, summary):focus-visible {
+  outline: 2px solid #69794e;
+  outline-offset: 5px;
+}
+/* A quiet arrival from the approved film, with no overlap into its viewport. */
+.content-design .intro-section {
+  padding-top: 70px;
+  padding-bottom: 0;
+}
+.content-design .intro-masthead {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  border-bottom: 1px solid var(--editorial-rule);
+  padding-bottom: 24px;
+  margin-bottom: 65px;
+}
+.content-design .intro-masthead .eyebrow {
+  margin: 0;
+}
+.content-design .intro-editorial {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr;
+  gap: 9%;
+  padding-bottom: 70px;
+}
+.content-design .intro-editorial h2 {
+  font-size: clamp(54px, 6.15vw, 94px);
+}
+.content-design .intro-manifesto {
+  font: italic 30px/1.3 var(--serif);
+  color: #6e785e;
+  margin-top: 30px;
+}
+.content-design .intro-copy {
+  padding-top: 6px;
+}
+.content-design .intro-copy .lead {
+  font-size: clamp(17px, 1.4vw, 21px);
+  line-height: 1.75;
+}
+.content-design .intro-copy > p + p {
+  font-size: 14px;
+  color: var(--editorial-caption);
+}
+.content-design .intro-copy .text-link {
+  margin-top: 30px;
+}
+.content-design .intro-footnote {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px 0;
+  border-top: 1px solid var(--editorial-rule);
+  font-size: 10px;
+  color: var(--editorial-caption);
+}
+/* Service index: an editorial image paired with a usable, complete directory. */
+.content-design .service-index {
+  background: #eeeee5;
+}
+.content-design .service-index-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.12fr;
+  gap: 8%;
+  align-items: start;
+}
+.content-design .service-index-visual {
+  position: sticky;
+  top: 115px;
+}
+.content-design .service-index-images {
+  position: relative;
+  height: 480px;
+  overflow: hidden;
+  background: var(--sand);
+}
+.content-design .service-index-images img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-position: center 45%;
+  opacity: 0;
+  transform: scale(1.04);
+  transition:
+    opacity 0.5s,
+    transform 0.9s var(--editorial-ease);
+}
+.content-design .service-index-images img.is-selected {
+  opacity: 1;
+  transform: scale(1);
+}
+.content-design .service-index-caption {
+  display: flex;
+  align-items: start;
+  gap: 28px;
+  border-top: 1px solid var(--editorial-rule);
+  padding-top: 20px;
+  margin-top: 20px;
+}
+.content-design .service-index-caption > span {
+  flex-shrink: 0;
+  font-size: 10px;
+  padding-top: 5px;
+}
+.content-design .service-index-caption > p {
+  font: italic 28px/1.2 var(--serif);
+  max-width: 280px;
+}
+.content-design .index-caption {
+  margin-bottom: 20px;
+  color: var(--editorial-caption);
+}
+.content-design .index-entry {
+  display: grid;
+  grid-template-columns: 28px 1fr 38px;
+  gap: 18px;
+  align-items: center;
+  padding: 24px 0;
+  border-top: 1px solid var(--editorial-rule);
+  transition: color 0.3s;
+}
+.content-design .index-entry:last-of-type {
+  border-bottom: 1px solid var(--editorial-rule);
+}
+.content-design .index-entry h3 {
+  font-size: clamp(27px, 2.45vw, 38px);
+  transition: transform 0.3s;
+}
+.content-design .index-number {
+  font: 10px/1.4 var(--sans);
+  color: var(--editorial-caption);
+}
+.content-design .index-arrow {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  font-size: 22px;
+  transition:
+    background 0.3s,
+    color 0.3s,
+    transform 0.3s;
+}
+.content-design .index-entry:is(:hover, :focus-visible) .index-arrow {
+  background: var(--olive);
+  color: var(--white);
+  transform: translate(2px, -2px);
+}
+.content-design .index-entry:is(:hover, :focus-visible) h3 {
+  transform: translateX(4px);
+}
+.content-design .index-entry.is-selected {
+  color: #667651;
+}
+.content-design .service-index-list > .text-link {
+  margin-top: 30px;
+}
+/* Architectural spread and a human-led profile. */
+.content-design .about-editorial {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  background: var(--editorial-dark);
+  color: var(--paper);
+}
+.content-design .about-editorial-image {
+  position: relative;
+  min-height: 650px;
+  overflow: hidden;
+}
+.content-design .about-editorial-image img {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  inset: 0;
+  object-position: 65% center;
+}
+.content-design .image-annotation {
+  position: absolute;
+  bottom: 25px;
+  left: 30px;
+  color: var(--white);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+}
+.content-design .about-editorial-copy {
+  padding: clamp(60px, 7vw, 110px) clamp(32px, 5.5vw, 88px);
+  align-self: center;
+}
+.content-design .about-editorial-copy > p:not(.eyebrow) {
+  font-size: 14px;
+  color: #d1d7c9;
+  margin-top: 30px;
+  max-width: 410px;
+}
+.content-design .about-editorial-copy .text-link {
+  margin-top: 32px;
+  border-color: #b8c0ac;
+}
+.content-design .doctor-feature {
+  background: #e6e7dc;
+}
+.content-design .doctor-feature-top {
+  display: grid;
+  grid-template-columns: 0.7fr 1.5fr;
+  align-items: center;
+  gap: 30px;
+  padding-bottom: 50px;
+}
+.content-design .doctor-feature-top h2 {
+  font-size: clamp(54px, 6.9vw, 108px);
+}
+.content-design .doctor-feature-top h2 em {
+  display: block;
+  padding-left: 15%;
+}
+.content-design .doctor-feature-top .eyebrow {
+  margin: 0;
+}
+.content-design .doctor-feature-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 13%;
+  align-items: center;
+}
+.content-design .doctor-feature-photo {
+  position: relative;
+  max-width: 550px;
+}
+.content-design .doctor-feature-photo img {
+  aspect-ratio: 4/5;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  object-position: center 45%;
+}
+.content-design .doctor-feature-photo figcaption {
+  padding-top: 17px;
+  font-size: 10px;
+  border-bottom: 1px solid var(--editorial-rule);
+  padding-bottom: 17px;
+}
+.content-design .doctor-feature-copy .doctor-principle {
+  font: italic clamp(36px, 3.2vw, 49px)/1.1 var(--serif);
+  white-space: pre-line;
+  margin: 0 0 30px;
+}
+.content-design .doctor-feature-copy > p:not(.doctor-principle) {
+  font-size: var(--editorial-body);
+  color: var(--editorial-caption);
+}
+.content-design .experience-note {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  border-top: 1px solid #c5cab7;
+  border-bottom: 1px solid #c5cab7;
+  margin: 35px 0;
+  padding: 18px 0;
+}
+.content-design .experience-note > span {
+  font: 72px/0.95 var(--serif);
+  letter-spacing: -0.06em;
+}
+.content-design .experience-note > p {
+  margin: 0;
+  font-size: 12px;
+  max-width: 110px;
+}
+.content-design .why-editorial {
+  padding-block: 55px;
+  background: #e6e7dc;
+  border-top: 1px solid #c5cab7;
+}
+.content-design .why-editorial > .container > .eyebrow {
+  margin-bottom: 38px;
+}
+.content-design .why-editorial-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 35px;
+}
+.content-design .why-editorial-grid article {
+  border-left: 1px solid #bec6b1;
+  padding-left: 24px;
+}
+.content-design .why-editorial-grid h3 {
+  font-size: 28px;
+  margin: 24px 0 15px;
+}
+.content-design .why-editorial-grid p {
+  font-size: 12px;
+  color: var(--editorial-caption);
+}
+/* The patient journey is a quiet disclosure, never a scroll trap. */
+.content-design .journey-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.15fr;
+  gap: 10%;
+}
+.content-design .journey-intro .text-link {
+  margin-top: 35px;
+}
+.content-design .journey-line-art {
+  position: relative;
+  height: 140px;
+  margin-top: 50px;
+  overflow: hidden;
+  max-width: 330px;
+  border-bottom: 1px solid var(--editorial-rule);
+}
+.content-design .journey-line-art > span {
+  position: absolute;
+  bottom: 0;
+  font: 100px/0.8 var(--serif);
+  color: #c9cfbd;
+  letter-spacing: -0.08em;
+}
+.content-design .journey-line-art > i {
+  position: absolute;
+  width: 125px;
+  height: 125px;
+  border: 1px solid #c9cfbd;
+  border-radius: 50%;
+  right: 0;
+  bottom: -45px;
+}
+.content-design .journey-line-art > i:last-child {
+  right: 70px;
+}
+.content-design .journey-accordion {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.content-design .journey-accordion li {
+  border-top: 1px solid var(--editorial-rule);
+}
+.content-design .journey-accordion li:last-child {
+  border-bottom: 1px solid var(--editorial-rule);
+}
+.content-design .journey-accordion h3 button {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 45px 1fr 30px;
+  align-items: center;
+  gap: 20px;
+  padding: 30px 0;
+  background: transparent;
+  text-align: left;
+  font: 36px/1.1 var(--serif);
+}
+.content-design .step-number {
+  font: 14px var(--sans);
+  color: #717f61;
+}
+.content-design .disclosure-symbol {
+  justify-self: end;
+  font: 26px var(--sans);
+}
+.content-design .journey-answer {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transition:
+    grid-template-rows 0.4s var(--editorial-ease),
+    opacity 0.3s;
+}
+.content-design .journey-answer > div {
+  overflow: hidden;
+}
+.content-design .journey-answer p {
+  padding: 0 45px 30px 65px;
+  font-size: 14px;
+  color: var(--editorial-caption);
+}
+.content-design .is-open .journey-answer {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+/* Price preview has the hierarchy of a printed treatment estimate. */
+.content-design .prices-home {
+  background: #eeeae1;
+}
+.content-design .prices-editorial {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 10%;
+  align-items: center;
+}
+.content-design .prices-editorial .section-aside {
+  margin-top: 30px;
+  max-width: 350px;
+}
+.content-design .prices-editorial .text-link {
+  margin-top: 28px;
+}
+.content-design .price-sheet {
+  background: var(--paper);
+  padding: 35px 40px;
+  border-top: 3px solid var(--olive);
+}
+.content-design .price-sheet-heading {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--editorial-rule);
+  padding-bottom: 25px;
+}
+.content-design .price-preview {
+  display: grid;
+  grid-template-columns: 18px 1fr auto;
+  gap: 18px;
+  align-items: center;
+  padding: 25px 0;
+}
+.content-design .price-preview > .index-number {
+  font: 10px var(--sans);
+}
+.content-design .price-preview a {
+  font-size: 14px;
+  line-height: 1.7;
+}
+.content-design .price-preview .preview-amount {
+  font: 54px var(--serif);
+  white-space: nowrap;
+}
+.content-design .price-preview small {
+  margin-left: 6px;
+  font-size: 21px;
+}
+.content-design .price-sheet .price-note {
+  font-size: 12px !important;
+}
+/* Gallery controls are explicit and have no automatic advancement. */
+.content-design .gallery-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.content-design .gallery-controls > span {
+  font-size: 11px;
+  margin-right: 20px;
+  font-variant-numeric: tabular-nums;
+}
+.content-design .gallery-controls > button {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  font-size: 22px;
+  background: none;
+  border: 1px solid var(--editorial-rule);
+  transition:
+    background 0.25s,
+    color 0.25s;
+}
+.content-design .gallery-controls > button:hover {
+  background: var(--olive);
+  color: var(--paper);
+}
+.content-design .gallery-stage {
+  display: grid;
+  grid-template-columns: 1.65fr 1fr;
+  background: var(--sage);
+}
+.content-design .gallery-main {
+  position: relative;
+  min-height: 500px;
+  overflow: hidden;
+}
+.content-design .gallery-main img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  transform: scale(1.025);
+  transition:
+    opacity 0.5s,
+    transform 0.8s var(--editorial-ease);
+}
+.content-design .gallery-main img.is-current {
+  opacity: 1;
+  transform: scale(1);
+}
+.content-design .gallery-side {
+  padding: 45px 35px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 28px;
+}
+.content-design .gallery-side .eyebrow {
+  margin: 0;
+}
+.content-design .gallery-motto {
+  font: italic 44px/1.1 var(--serif);
+  margin: 0;
+}
+.content-design .gallery-thumbnails {
+  display: flex;
+  gap: 12px;
+}
+.content-design .gallery-thumbnails button {
+  width: 30%;
+  padding: 0;
+  background: none;
+  opacity: 0.55;
+  outline-offset: 4px;
+  border-bottom: 2px solid transparent;
+}
+.content-design .gallery-thumbnails button[aria-pressed="true"] {
+  opacity: 1;
+  border-color: var(--olive);
+}
+.content-design .gallery-thumbnails img {
+  height: 70px;
+}
+/* Editorial journal: lead story and three short reading paths. */
+.content-design .journal-home {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 8%;
+}
+.content-design .journal-feature-image {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 22px;
+}
+.content-design .journal-feature-image img {
+  height: 350px;
+  transition: transform 0.6s var(--editorial-ease);
+}
+.content-design .journal-feature:hover img {
+  transform: scale(1.025);
+}
+.content-design .journal-feature h3 {
+  margin-top: 20px;
+  font-size: 42px;
+  max-width: 480px;
+}
+.content-design .news-meta {
+  font-size: 11px;
+}
+.content-design .journal-compact {
+  display: block;
+  padding: 28px 0;
+  border-top: 1px solid var(--editorial-rule);
+}
+.content-design .journal-compact:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+.content-design .journal-compact > time {
+  font-size: 11px;
+  color: var(--editorial-caption);
+}
+.content-design .journal-compact h3 {
+  font-size: 33px;
+  margin-top: 14px;
+}
+.content-design .journal-compact > p {
+  font-size: 13px;
+  color: var(--editorial-caption);
+  margin-top: 12px;
+}
+.content-design .journal-compact .text-link {
+  margin-top: 20px;
+  font-size: 11px;
+}
+.content-design .news-section {
+  padding-top: 25px;
+}
+/* Arrival information and a signature, spacious footer. */
+.content-design .contact-band {
+  background: var(--editorial-dark);
+  padding: 75px 0 0;
+  color: var(--paper);
+}
+.content-design .contact-band-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 25px;
+  align-items: start;
+}
+.content-design .contact-band-grid {
+  padding: 25px 0 65px;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 10%;
+}
+.content-design .contact-band-grid h2 {
+  font-size: clamp(50px, 5.5vw, 84px);
+}
+.content-design .contact-band-grid p {
+  font-size: 15px;
+}
+.content-design .contact-phone {
+  font: 34px var(--serif);
+  margin-top: 24px;
+}
+.content-design .contact-band-bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 25px;
+  border-top: 1px solid #58624e;
+  padding: 25px 0;
+  font-size: 11px;
+  color: #d3dac9;
+}
+.content-design.site-footer {
+  padding-top: 65px;
+  background: var(--paper);
+}
+.content-design .footer-grid {
+  grid-template-columns: 1.3fr 1fr 1fr 0.9fr;
+  gap: 45px;
+}
+.content-design .footer-grid > div > a:not(.brand) {
+  font-size: 13px;
+}
+.content-design .footer-grid p:not(.eyebrow) {
+  font-size: 13px;
+}
+.content-design .footer-grid small {
+  font-size: 11px;
+}
+.content-design .footer-wordmark {
+  margin-top: 65px;
+  font: clamp(65px, 10.5vw, 160px)/1 var(--serif);
+  letter-spacing: -0.05em;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 25px;
+  border-top: 1px solid var(--editorial-rule);
+  padding-top: 35px;
+  padding-bottom: 12px;
+}
+.content-design .footer-wordmark > span {
+  font: 10px var(--sans);
+  letter-spacing: 0.13em;
+  white-space: nowrap;
+  padding-bottom: 12px;
+}
+.content-design .footer-bottom {
+  margin-top: 22px;
+  font-size: 10px;
+}
+/* Interior-page system: same palette, more useful hierarchy and contrast. */
+.content-design.interior-design .page-head {
+  padding-top: 170px;
+  padding-bottom: 65px;
+  position: relative;
+}
+.content-design.interior-design .page-head h1 {
+  font-size: clamp(58px, 6.7vw, 103px);
+  max-width: 1100px;
+  letter-spacing: -0.045em;
+  text-wrap: balance;
+}
+.content-design.interior-design .page-head > .lead {
+  font-size: 18px;
+  max-width: 700px;
+  color: var(--editorial-caption);
+}
+.content-design.interior-design .page-head:after {
+  content: "";
+  display: block;
+  height: 1px;
+  background: var(--editorial-rule);
+  margin-top: 48px;
+}
+.content-design .service-row {
+  grid-template-columns: 50px 1fr 240px 55px;
+  padding: 25px 0;
+  gap: 35px;
+}
+.content-design .service-row h2 {
+  font-size: clamp(33px, 3.1vw, 48px);
+}
+.content-design .service-row p {
+  font-size: 14px;
+}
+.content-design .service-row img {
+  height: 145px;
+}
+.content-design .row-arrow {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  transition:
+    background 0.25s,
+    color 0.25s,
+    transform 0.25s;
+}
+.content-design :is(.service-row, .journal-row):hover .row-arrow {
+  background: var(--olive);
+  color: var(--paper);
+  transform: translate(2px, -2px);
+}
+.content-design .service-detail-grid {
+  gap: 9%;
+}
+.content-design .service-detail-image {
+  height: 520px;
+}
+.content-design .service-detail-grid .lead {
+  font: 27px/1.5 var(--serif);
+}
+.content-design .detail-note {
+  font-size: 13px;
+}
+.content-design .service-prices {
+  max-width: 1160px;
+}
+.content-design .service-prices h2 {
+  font-size: 52px;
+}
+.content-design .related-services > a {
+  font-size: 34px;
+  padding: 25px 0;
+}
+.content-design .price-list > div {
+  padding: 20px 0;
+  gap: 28px;
+}
+.content-design .price-list dt {
+  font-size: 14px;
+}
+.content-design .price-list dd {
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+.content-design .price-list dd.price-review {
+  font-size: 12px;
+}
+.content-design .price-search-region {
+  padding-bottom: 45px;
+}
+.content-design .price-search-region label {
+  display: block;
+  margin-bottom: 12px;
+}
+.content-design .price-search-control {
+  max-width: 760px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: #eeeee5;
+  border: 1px solid var(--editorial-rule);
+  padding: 0 20px;
+}
+.content-design .price-search-control > span {
+  font-size: 30px;
+}
+.content-design .price-search-control input {
+  flex: 1;
+  min-width: 0;
+  padding: 20px 0;
+  font: 15px var(--sans);
+  color: var(--ink);
+  outline: none;
+}
+.content-design .price-search-control:focus-within {
+  outline: 2px solid var(--olive);
+  outline-offset: 3px;
+}
+.content-design .price-search-control button {
+  font-size: 12px;
+  background: none;
+  padding: 12px 0;
+}
+.content-design .result-count {
+  font-size: 11px;
+  margin-top: 14px;
+  color: var(--editorial-caption);
+}
+.content-design .pricing-layout {
+  grid-template-columns: 270px 1fr;
+  gap: 8%;
+}
+.content-design .pricing-layout aside > nav {
+  top: 110px;
+}
+.content-design .pricing-layout aside > nav a {
+  font-size: 13px;
+  align-items: center;
+}
+.content-design .pricing-layout aside > nav small {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--editorial-caption);
+}
+.content-design .price-category-title {
+  background: #e9ebdf;
+  padding: 25px 28px;
+  margin-bottom: 6px;
+}
+.content-design .price-category-title h2 {
+  font-size: 36px;
+  margin-bottom: 0;
+}
+.content-design .price-category-title > .eyebrow {
+  display: block;
+  margin-bottom: 12px;
+}
+.content-design .price-empty {
+  padding: 35px;
+  background: var(--sage);
+}
+.content-design .pricing-note {
+  border-top: 2px solid var(--olive);
+}
+.content-design .about-page-section {
+  align-items: start;
+}
+.content-design .about-page-section > img {
+  aspect-ratio: 4/5;
+}
+.content-design .about-page-section p:not(.eyebrow) {
+  font-size: 16px;
+}
+.content-design .doctor-section {
+  background: #e7e9dd;
+  margin-top: var(--editorial-section);
+}
+.content-design .doctor-copy > p:not(.eyebrow) {
+  font-size: 15px;
+  max-width: 470px;
+}
+.content-design .doctor-photo figcaption {
+  font-size: 11px;
+}
+.content-design .journal-row {
+  grid-template-columns: 180px 1fr 55px;
+  padding: 40px 0;
+}
+.content-design .journal-row h2 {
+  font-size: 45px;
+}
+.content-design .journal-row p:not(.eyebrow) {
+  font-size: 15px;
+}
+.content-design .journal-row time {
+  font-size: 12px;
+}
+.content-design .article-layout {
+  grid-template-columns: 260px 1fr;
+  gap: 12%;
+}
+.content-design .article-layout aside {
+  position: sticky;
+  top: 120px;
+  align-self: start;
+}
+.content-design .article-body > p {
+  font-size: 17px;
+  line-height: 1.9;
+}
+.content-design .article-body > p:first-of-type {
+  font: 30px/1.45 var(--serif);
+}
+.content-design .article-body > p + p {
+  margin-top: 28px;
+}
+.content-design .article-meta {
+  font-size: 12px;
+}
+.content-design .contact-layout {
+  gap: 8%;
+  padding-bottom: 0;
+}
+.content-design .contact-block {
+  border-top: 0;
+  padding-top: 0;
+}
+.content-design .large-phone {
+  font-size: clamp(38px, 4vw, 60px);
+}
+.content-design .contact-details {
+  border-top: 1px solid var(--editorial-rule);
+  margin-top: 30px;
+}
+.content-design .contact-details p:not(.eyebrow),
+.content-design .contact-details a {
+  font-size: 15px;
+}
+.content-design .booking-aside {
+  padding: 45px;
+  background: #e7e9dc;
+  border-top: 3px solid var(--olive);
+}
+.content-design .booking-aside h2 {
+  font-size: 42px;
+}
+.content-design .booking-aside > p {
+  font-size: 15px;
+}
+.content-design .booking-monogram {
+  margin-bottom: 35px;
+}
+.content-design .booking-doctor img {
+  width: 75px;
+  height: 95px;
+}
+.content-design .location-image img {
+  height: 350px;
+  background: #e6e7dc;
+  padding: 28px;
+}
+.content-design .visit-questions {
+  max-width: 1080px;
+}
+.content-design .visit-questions details {
+  border-top: 1px solid var(--editorial-rule);
+}
+.content-design .visit-questions details:last-child {
+  border-bottom: 1px solid var(--editorial-rule);
+}
+.content-design .visit-questions summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  align-items: center;
+  padding: 25px 0;
+  font: 32px/1.2 var(--serif);
+}
+.content-design .visit-questions summary::-webkit-details-marker {
+  display: none;
+}
+.content-design .visit-questions summary > span {
+  font: 22px var(--sans);
+  transition: transform 0.25s;
+}
+.content-design .visit-questions details[open] summary > span {
+  transform: rotate(45deg);
+}
+.content-design .visit-questions details > p {
+  font-size: 15px;
+  max-width: 680px;
+  padding: 0 35px 28px 0;
+}
+/* Only the open menu is refined; closed header remains visually identical. */
+.mobile-menu.refined-menu {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 8%;
+  align-content: center;
+  padding: 125px max(var(--gutter), 8vw) 45px;
+}
+.mobile-menu.refined-menu > nav {
+  width: 100%;
+  margin: 0;
+}
+.mobile-menu.refined-menu nav a {
+  font-size: clamp(36px, 4vw, 60px);
+  padding: 14px 0;
+  transition:
+    color 0.2s,
+    padding 0.25s;
+}
+.mobile-menu.refined-menu nav a:hover {
+  padding-left: 8px;
+  color: #758164;
+}
+.mobile-menu.refined-menu .mobile-menu-bottom {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 30px;
+  margin: 0;
+  border-left: 1px solid var(--line);
+  padding-left: 50px;
+}
+.mobile-menu.refined-menu .mobile-menu-bottom > a:not(.button) {
+  font: 38px var(--serif);
+}
+.mobile-menu.refined-menu .language-switch {
+  gap: 22px;
+}
+.mobile-menu.refined-menu .language-switch button {
+  font-size: 12px;
+  min-width: 34px;
+  min-height: 44px;
+}
+.mobile-menu.refined-menu .menu-visit-info {
+  font-size: 14px;
+  line-height: 1.8;
+}
+.mobile-menu.refined-menu .menu-visit-info p {
+  margin-top: 18px;
+  font-size: 12px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .mobile-menu.refined-menu nav a {
+    animation: menu-item-enter 0.45s var(--ease) both;
+    animation-delay: calc(var(--menu-index, 0) * 30ms);
+  }
+  @keyframes menu-item-enter {
+    from {
+      opacity: 0;
+      transform: translateY(14px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+@media (max-width: 1100px) {
+  .content-design .service-index-layout {
+    gap: 5%;
+  }
+  .content-design .service-index-images {
+    height: 430px;
+  }
+  .content-design .index-entry {
+    gap: 10px;
+    padding: 23px 0;
+  }
+  .content-design .index-entry h3 {
+    font-size: 29px;
+  }
+  .content-design .about-editorial-copy {
+    padding: 65px 35px;
+  }
+  .content-design .doctor-feature-grid {
+    gap: 8%;
+  }
+  .content-design .why-editorial-grid {
+    gap: 20px;
+  }
+  .content-design .why-editorial-grid article {
+    padding-left: 16px;
+  }
+  .content-design .why-editorial-grid h3 {
+    font-size: 26px;
+  }
+  .content-design .prices-editorial {
+    gap: 6%;
+  }
+  .content-design .price-sheet {
+    padding: 28px;
+  }
+  .content-design .gallery-side {
+    padding: 30px;
+  }
+  .content-design .gallery-motto {
+    font-size: 36px;
+  }
+  .content-design .footer-grid {
+    gap: 30px;
+  }
+}
+@media (max-width: 800px) {
+  .content-design {
+    --editorial-section: 80px;
+  }
+  .content-design h2 {
+    font-size: 54px;
+  }
+  .content-design .intro-editorial {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
+  .content-design .intro-editorial h2 {
+    font-size: 72px;
+  }
+  .content-design .intro-copy {
+    max-width: 550px;
+    margin-left: auto;
+  }
+  .content-design .intro-footnote {
+    flex-wrap: wrap;
+  }
+  .content-design .section-heading {
+    gap: 30px;
+  }
+  .content-design .section-aside {
+    font-size: 13px;
+    max-width: 250px;
+  }
+  .content-design .service-index-layout {
+    grid-template-columns: 0.85fr 1fr;
+  }
+  .content-design .service-index-images {
+    height: 370px;
+  }
+  .content-design .index-entry {
+    grid-template-columns: 18px 1fr 22px;
+    padding: 22px 0;
+    gap: 10px;
+  }
+  .content-design .index-entry h3 {
+    font-size: 24px;
+  }
+  .content-design .index-arrow {
+    width: 24px;
+    height: 30px;
+    font-size: 19px;
+  }
+  .content-design .service-index-caption {
+    gap: 20px;
+  }
+  .content-design .service-index-caption > p {
+    font-size: 24px;
+  }
+  .content-design .about-editorial {
+    grid-template-columns: 1fr;
+  }
+  .content-design .about-editorial-image {
+    min-height: 440px;
+  }
+  .content-design .about-editorial-copy {
+    padding: 60px var(--gutter);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 40px;
+  }
+  .content-design .about-editorial-copy > .eyebrow {
+    grid-column: 1/-1;
+  }
+  .content-design .about-editorial-copy > p:not(.eyebrow) {
+    margin: 0;
+  }
+  .content-design .doctor-feature-top {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+  .content-design .doctor-feature-top h2 {
+    font-size: 80px;
+  }
+  .content-design .doctor-feature-top h2 em {
+    display: inline;
+    padding: 0;
+  }
+  .content-design .doctor-feature-copy .doctor-principle {
+    font-size: 35px;
+  }
+  .content-design .doctor-feature-copy > p:not(.doctor-principle) {
+    font-size: 13px;
+  }
+  .content-design .why-editorial-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 35px;
+  }
+  .content-design .why-editorial-grid h3 {
+    font-size: 30px;
+  }
+  .content-design .journey-layout {
+    gap: 7%;
+  }
+  .content-design .journey-accordion h3 button {
+    grid-template-columns: 25px 1fr 20px;
+    gap: 15px;
+    font-size: 28px;
+    padding: 25px 0;
+  }
+  .content-design .journey-answer p {
+    padding-left: 40px;
+    padding-right: 15px;
+    font-size: 13px;
+  }
+  .content-design .prices-editorial {
+    grid-template-columns: 1fr;
+    gap: 35px;
+  }
+  .content-design .prices-editorial .section-aside {
+    max-width: 500px;
+  }
+  .content-design .gallery-main {
+    min-height: 410px;
+  }
+  .content-design .gallery-stage {
+    grid-template-columns: 1.2fr 1fr;
+  }
+  .content-design .journal-feature-image img {
+    height: 300px;
+  }
+  .content-design .journal-feature h3 {
+    font-size: 36px;
+  }
+  .content-design .journal-compact h3 {
+    font-size: 29px;
+  }
+  .content-design .contact-band-grid {
+    gap: 7%;
+    grid-template-columns: 1.3fr 1fr;
+  }
+  .content-design .contact-band-grid h2 {
+    font-size: 55px;
+  }
+  .content-design .contact-band-bottom {
+    flex-wrap: wrap;
+    font-size: 10px;
+  }
+  .content-design .footer-grid {
+    grid-template-columns: 1.2fr 1fr;
+    gap: 35px;
+  }
+  .content-design .footer-wordmark {
+    font-size: 80px;
+  }
+  .content-design .footer-wordmark > span {
+    display: none;
+  }
+  .content-design.interior-design .page-head {
+    padding-top: 140px;
+  }
+  .content-design.interior-design .page-head h1 {
+    font-size: 70px;
+  }
+  .content-design .service-row {
+    grid-template-columns: 25px 1fr 150px 35px;
+    gap: 20px;
+  }
+  .content-design .service-row h2 {
+    font-size: 34px;
+  }
+  .content-design .service-row img {
+    height: 120px;
+  }
+  .content-design .service-detail-image {
+    height: 430px;
+  }
+  .content-design .service-detail-grid .lead {
+    font-size: 23px;
+  }
+  .content-design .pricing-layout {
+    grid-template-columns: 1fr;
+  }
+  .content-design .pricing-layout aside > nav {
+    position: static;
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .content-design .article-layout {
+    grid-template-columns: 200px 1fr;
+    gap: 7%;
+  }
+  .content-design .article-body > p {
+    font-size: 16px;
+  }
+  .content-design .article-body > p:first-of-type {
+    font-size: 27px;
+  }
+  .content-design .booking-aside {
+    padding: 30px;
+  }
+  .content-design .booking-aside h2 {
+    font-size: 35px;
+  }
+  .content-design .contact-details p:not(.eyebrow),
+  .content-design .contact-details a {
+    font-size: 13px;
+  }
+  .mobile-menu.refined-menu {
+    padding-inline: var(--gutter);
+    gap: 5%;
+  }
+  .mobile-menu.refined-menu .mobile-menu-bottom {
+    padding-left: 25px;
+  }
+  .mobile-menu.refined-menu .mobile-menu-bottom > a:not(.button) {
+    font-size: 26px;
+  }
+}
+@media (max-width: 580px) {
+  .content-design {
+    --editorial-section: 65px;
+  }
+  .content-design h2 {
+    font-size: 48px;
+  }
+  .content-design .eyebrow {
+    font-size: 9px;
+  }
+  .content-design .section-heading {
+    display: block;
+    margin-bottom: 35px;
+  }
+  .content-design .section-heading .section-aside {
+    margin-top: 22px;
+    max-width: 310px;
+  }
+  .content-design .button {
+    min-height: 54px;
+    font-size: 13px;
+  }
+  .content-design .intro-section {
+    padding-top: 40px;
+  }
+  .content-design .intro-masthead {
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+  }
+  .content-design .intro-masthead .tiny-label {
+    font-size: 8px;
+  }
+  .content-design .intro-editorial {
+    padding-bottom: 40px;
+    gap: 30px;
+  }
+  .content-design .intro-editorial h2 {
+    font-size: 59px;
+  }
+  .content-design .intro-manifesto {
+    font-size: 25px;
+    margin-top: 22px;
+  }
+  .content-design .intro-copy .lead {
+    font-size: 17px;
+  }
+  .content-design .intro-copy > p + p {
+    font-size: 13px;
+  }
+  .content-design .intro-footnote {
+    font-size: 9px;
+    gap: 13px;
+  }
+  .content-design .intro-footnote > span:first-child {
+    display: none;
+  }
+  .content-design .service-index-layout {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .content-design .service-index-visual {
+    position: static;
+  }
+  .content-design .service-index-images {
+    height: 280px;
+  }
+  .content-design .service-index-caption {
+    margin-top: 16px;
+    padding-top: 16px;
+  }
+  .content-design .service-index-caption > p {
+    font-size: 26px;
+  }
+  .content-design .index-caption {
+    margin-bottom: 15px;
+  }
+  .content-design .index-entry {
+    padding: 21px 0;
+    grid-template-columns: 25px 1fr 30px;
+    gap: 12px;
+  }
+  .content-design .index-entry h3 {
+    font-size: 29px;
+  }
+  .content-design .index-entry.is-selected {
+    color: var(--ink);
+  }
+  .content-design .index-arrow {
+    font-size: 22px;
+  }
+  .content-design .about-editorial-image {
+    min-height: 330px;
+  }
+  .content-design .about-editorial-copy {
+    display: block;
+    padding: 45px var(--gutter) 55px;
+  }
+  .content-design .about-editorial-copy > p:not(.eyebrow) {
+    margin-top: 25px;
+    font-size: 14px;
+  }
+  .content-design .doctor-feature-top {
+    padding-bottom: 35px;
+  }
+  .content-design .doctor-feature-top h2 {
+    font-size: 68px;
+  }
+  .content-design .doctor-feature-top h2 em {
+    display: block;
+    padding-left: 10%;
+  }
+  .content-design .doctor-feature-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .content-design .doctor-feature-photo img {
+    max-height: 470px;
+  }
+  .content-design .doctor-feature-copy .doctor-principle {
+    font-size: 38px;
+  }
+  .content-design .doctor-feature-copy > p:not(.doctor-principle) {
+    font-size: 14px;
+  }
+  .content-design .experience-note {
+    margin: 25px 0;
+  }
+  .content-design .experience-note > span {
+    font-size: 60px;
+  }
+  .content-design .why-editorial {
+    padding-block: 38px;
+  }
+  .content-design .why-editorial-grid {
+    gap: 30px 22px;
+  }
+  .content-design .why-editorial-grid article {
+    padding-left: 0;
+    border: 0;
+    border-top: 1px solid #bcc5ae;
+    padding-top: 15px;
+  }
+  .content-design .why-editorial-grid h3 {
+    font-size: 26px;
+    margin-top: 16px;
+  }
+  .content-design .why-editorial-grid p {
+    font-size: 12px;
+  }
+  .content-design .journey-layout {
+    grid-template-columns: 1fr;
+    gap: 38px;
+  }
+  .content-design .journey-line-art {
+    display: none;
+  }
+  .content-design .journey-accordion h3 button {
+    font-size: 31px;
+    padding: 25px 0;
+  }
+  .content-design .journey-answer p {
+    font-size: 14px;
+  }
+  .content-design .price-sheet {
+    padding: 24px 20px;
+  }
+  .content-design .price-preview {
+    gap: 12px;
+    grid-template-columns: 16px 1fr auto;
+    padding: 24px 0;
+  }
+  .content-design .price-preview a {
+    font-size: 13px;
+  }
+  .content-design .price-preview .preview-amount {
+    font-size: 43px;
+  }
+  .content-design .price-preview small {
+    font-size: 18px;
+    margin-left: 3px;
+  }
+  .content-design .gallery-controls {
+    margin-top: 25px;
+  }
+  .content-design .gallery-controls > span {
+    margin-right: auto;
+  }
+  .content-design .gallery-stage {
+    grid-template-columns: 1fr;
+  }
+  .content-design .gallery-main {
+    min-height: 310px;
+  }
+  .content-design .gallery-side {
+    padding: 25px;
+    gap: 20px;
+  }
+  .content-design .gallery-side > .eyebrow,
+  .content-design .gallery-side > .tiny-label {
+    display: none;
+  }
+  .content-design .gallery-motto {
+    font-size: 34px;
+  }
+  .content-design .gallery-thumbnails button {
+    width: 80px;
+    min-height: 65px;
+  }
+  .content-design .gallery-thumbnails img {
+    height: 65px;
+  }
+  .content-design .journal-home {
+    grid-template-columns: 1fr;
+    gap: 35px;
+  }
+  .content-design .journal-feature-image img {
+    height: 280px;
+  }
+  .content-design .journal-feature h3 {
+    font-size: 37px;
+  }
+  .content-design .news-meta {
+    font-size: 10px;
+  }
+  .content-design .journal-compact:first-child {
+    padding-top: 25px;
+    border-top: 1px solid var(--editorial-rule);
+  }
+  .content-design .journal-compact h3 {
+    font-size: 31px;
+  }
+  .content-design .contact-band {
+    padding-top: 50px;
+  }
+  .content-design .contact-band-top {
+    display: block;
+  }
+  .content-design .contact-band-top .tiny-label {
+    display: none;
+  }
+  .content-design .contact-band-grid {
+    grid-template-columns: 1fr;
+    padding: 10px 0 40px;
+    gap: 30px;
+  }
+  .content-design .contact-band-grid h2 {
+    font-size: 51px;
+  }
+  .content-design .contact-band-grid p {
+    font-size: 14px;
+  }
+  .content-design .contact-band-bottom {
+    flex-direction: column;
+    gap: 15px;
+    padding-block: 22px;
+  }
+  .content-design .footer-grid {
+    gap: 30px 22px;
+  }
+  .content-design .footer-grid > div > a:not(.brand),
+  .content-design .footer-grid p:not(.eyebrow) {
+    font-size: 12px;
+  }
+  .content-design .footer-grid small {
+    font-size: 10px;
+  }
+  .content-design .footer-wordmark {
+    margin-top: 40px;
+    font-size: 60px;
+    line-height: 0.95;
+  }
+  .content-design .footer-bottom {
+    margin-top: 18px;
+    font-size: 9px;
+  }
+  .content-design.interior-design .page-head {
+    padding-top: 125px;
+    padding-bottom: 35px;
+  }
+  .content-design.interior-design .page-head h1 {
+    font-size: 55px;
+  }
+  .content-design.interior-design .page-head > .lead {
+    font-size: 16px;
+  }
+  .content-design.interior-design .page-head:after {
+    margin-top: 30px;
+  }
+  .content-design .service-row {
+    grid-template-columns: 22px 1fr 27px;
+    gap: 12px;
+    padding: 26px 0;
+  }
+  .content-design .service-row h2 {
+    font-size: 32px;
+  }
+  .content-design .service-row p {
+    font-size: 13px;
+  }
+  .content-design .row-arrow {
+    width: 27px;
+    height: 35px;
+    font-size: 24px;
+  }
+  .content-design .service-detail-image {
+    height: 330px;
+  }
+  .content-design .service-detail-grid .lead {
+    font-size: 26px;
+  }
+  .content-design .service-prices h2 {
+    font-size: 45px;
+  }
+  .content-design .related-services > a {
+    font-size: 30px;
+  }
+  .content-design .price-search-control {
+    gap: 10px;
+    padding-inline: 12px;
+  }
+  .content-design .price-search-control input {
+    font-size: 13px;
+    padding-block: 18px;
+  }
+  .content-design .price-search-control button {
+    font-size: 10px;
+  }
+  .content-design .price-search-region {
+    padding-bottom: 30px;
+  }
+  .content-design .pricing-layout aside > nav {
+    gap: 0 16px;
+  }
+  .content-design .pricing-layout aside > nav a {
+    font-size: 11px;
+    gap: 8px;
+  }
+  .content-design .price-category-title {
+    padding: 20px;
+  }
+  .content-design .price-category-title h2 {
+    font-size: 33px;
+  }
+  .content-design .price-list dt {
+    font-size: 13px;
+  }
+  .content-design .price-list dd {
+    font-size: 13px;
+  }
+  .content-design .price-list > div {
+    gap: 15px;
+    padding: 17px 0;
+  }
+  .content-design .price-list dd.price-review {
+    font-size: 11px;
+  }
+  .content-design .about-page-section p:not(.eyebrow) {
+    font-size: 15px;
+  }
+  .content-design .doctor-copy > p:not(.eyebrow) {
+    font-size: 14px;
+  }
+  .content-design .doctor-photo figcaption {
+    font-size: 9px;
+  }
+  .content-design .journal-row {
+    grid-template-columns: 1fr 27px;
+    gap: 20px;
+    padding: 30px 0;
+  }
+  .content-design .journal-row h2 {
+    font-size: 37px;
+  }
+  .content-design .journal-row p:not(.eyebrow) {
+    font-size: 14px;
+  }
+  .content-design .article-layout {
+    grid-template-columns: 1fr;
+  }
+  .content-design .article-layout aside {
+    position: static;
+  }
+  .content-design .article-body > p {
+    font-size: 16px;
+  }
+  .content-design .article-body > p:first-of-type {
+    font-size: 27px;
+  }
+  .content-design .article-meta {
+    font-size: 11px;
+  }
+  .content-design .large-phone {
+    font-size: 43px;
+  }
+  .content-design .booking-aside > p {
+    font-size: 14px;
+  }
+  .content-design .booking-aside h2 {
+    font-size: 39px;
+  }
+  .content-design .location-image img {
+    height: 260px;
+    padding: 15px;
+  }
+  .content-design .visit-questions summary {
+    font-size: 29px;
+    gap: 20px;
+  }
+  .content-design .visit-questions details > p {
+    font-size: 14px;
+  }
+  .mobile-menu.refined-menu {
+    display: block;
+    padding: 100px var(--gutter) 30px;
+  }
+  .mobile-menu.refined-menu nav a {
+    font-size: 34px;
+    padding: 11px 0;
+  }
+  .mobile-menu.refined-menu .mobile-menu-bottom {
+    border: 0;
+    border-top: 1px solid var(--line);
+    padding: 25px 0 0;
+    margin-top: 25px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+  }
+  .mobile-menu.refined-menu .mobile-menu-bottom > a:not(.button) {
+    font: 19px var(--serif);
+    text-align: right;
+  }
+  .mobile-menu.refined-menu .language-switch {
+    gap: 12px;
+  }
+  .mobile-menu.refined-menu .language-switch button {
+    font-size: 11px;
+    min-width: 25px;
+  }
+  .mobile-menu.refined-menu .menu-visit-info,
+  .mobile-menu.refined-menu .mobile-menu-bottom > .button {
+    grid-column: 1/-1;
+  }
+  .mobile-menu.refined-menu .menu-visit-info {
+    font-size: 12px;
+  }
+  .mobile-menu.refined-menu .menu-visit-info p {
+    margin-top: 7px;
+    font-size: 11px;
+  }
+  .mobile-menu.refined-menu .mobile-menu-bottom > .button {
+    display: flex;
+    justify-content: space-between;
+  }
+}
+@media (max-width: 360px) {
+  .content-design .intro-editorial h2 {
+    font-size: 51px;
+  }
+  .content-design .doctor-feature-top h2 {
+    font-size: 59px;
+  }
+  .content-design .index-entry h3 {
+    font-size: 26px;
+  }
+  .content-design .price-sheet {
+    padding: 20px 15px;
+  }
+  .content-design .price-preview .preview-amount {
+    font-size: 36px;
+  }
+  .content-design .large-phone {
+    font-size: 37px;
+  }
+  .content-design .contact-band-grid h2 {
+    font-size: 45px;
+  }
+  .content-design.interior-design .page-head h1 {
+    font-size: 49px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .content-design *,
+  .mobile-menu.refined-menu * {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* Keep intrinsic image/wordmark widths from widening small screens. */
+.content-design .gallery-side {
+  min-width: 0;
+}
+@media (max-width: 580px) {
+  .content-design .gallery-stage {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .content-design .gallery-thumbnails button {
+    flex: 1;
+    min-width: 0;
+    max-width: 80px;
+    width: calc((100% - 24px) / 3);
+  }
+  .content-design .footer-wordmark {
+    display: block;
+    font-size: clamp(38px, 13vw, 60px);
+    overflow-wrap: anywhere;
+  }
+}
