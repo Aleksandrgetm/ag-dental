@@ -6,6 +6,7 @@ import { useClinicStore } from "./stores/clinic";
 import SiteHeader from "./components/layout/SiteHeader.vue";
 import CookieConsent from "./components/privacy/CookieConsent.vue";
 import SiteFooter from "./components/layout/SiteFooter.vue";
+import WelcomeIntro from "./components/common/WelcomeIntro.vue";
 import { vEditorialMotion } from "./directives/editorialMotion";
 import "./styles/editorial.css";
 const route = useRoute(),
@@ -27,6 +28,7 @@ watch(
 </script>
 <template>
   <v-app>
+    <WelcomeIntro />
     <SiteHeader />
     <v-main id="main" tabindex="-1">
       <RouterView v-slot="{ Component }">

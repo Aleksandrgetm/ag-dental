@@ -10,6 +10,55 @@
       content="AG Zobārstniecība — individuāla un saudzīga zobārstniecība visai ģimenei Rīgā, Teikā. Ūnijas iela 25. +371 28229925."
     />
     <title>AG Zobārstniecība · Rūpes par jūsu smaidu</title>
+    <!-- A pre-paint surface bridges the document to Vue without flashing the Hero. -->
+    <style>
+      html[data-ag-welcome] {
+        overflow: hidden;
+        scrollbar-gutter: stable;
+      }
+      html[data-ag-welcome="pending"]::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: 10000;
+        background: #30392f;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        html[data-ag-welcome] {
+          overflow: revert;
+          scrollbar-gutter: auto;
+        }
+        html[data-ag-welcome="pending"]::before {
+          display: none;
+        }
+      }
+    </style>
+    <script>
+      (() => {
+        if (location.pathname !== "/") return;
+        try {
+          if (sessionStorage.getItem("ag-welcome-seen")) return;
+          sessionStorage.setItem("ag-welcome-seen", "1");
+        } catch {
+          // Skip the decoration if the once-per-session guarantee is unavailable.
+          return;
+        }
+        if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        const root = document.documentElement;
+        root.setAttribute("data-ag-welcome", "pending");
+        const dismiss = () => {
+          clearTimeout(deadline);
+          root.removeAttribute("data-ag-welcome");
+          window.removeEventListener("ag:welcome-dismiss", dismiss);
+          window.removeEventListener("pagehide", dismiss);
+          window.dispatchEvent(new Event("ag:welcome-ended"));
+        };
+        // Also releases the surface and scroll lock if Vue cannot initialize.
+        const deadline = setTimeout(dismiss, 2600);
+        window.addEventListener("ag:welcome-dismiss", dismiss);
+        window.addEventListener("pagehide", dismiss);
+      })();
+    </script>
   </head>
   <body>
     <div id="app"></div>
