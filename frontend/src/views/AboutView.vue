@@ -10,6 +10,7 @@ const { t, local } = useContent();
   </header>
   <section class="about-page-section container">
     <img
+      data-reveal="image"
       :src="media.original"
       alt="AG Zobārstniecība"
       width="526"
@@ -37,6 +38,7 @@ const { t, local } = useContent();
       </div>
       <figure class="doctor-photo">
         <img
+          data-reveal="image"
           :src="media.doctor"
           alt="Dr. Anda Gutovska"
           width="840"

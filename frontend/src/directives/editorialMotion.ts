@@ -7,27 +7,41 @@ const scopes = new WeakMap<HTMLElement, MotionState>();
 export const vEditorialMotion: ObjectDirective<HTMLElement> = {
   mounted(root) {
     const preference = matchMedia("(prefers-reduced-motion: reduce)");
+    const compact = matchMedia("(max-width: 760px), (pointer: coarse)");
     const seen = new WeakSet<Element>();
     const active = new Set<Animation>();
     const pending = new Set<HTMLElement>();
     const reveal = (element: HTMLElement) => {
       pending.delete(element);
       observer?.unobserve(element);
-      if (preference.matches || !element.animate) return;
+      if (
+        preference.matches ||
+        !element.animate ||
+        element.contains(document.activeElement)
+      )
+        return;
       const masked = element.dataset.reveal === "image";
       const animation = element.animate(
         masked
           ? [
-              { clipPath: "inset(8% 0 0 0)", opacity: 0.5 },
+              {
+                clipPath: `inset(${compact.matches ? 3 : 8}% 0 0 0)`,
+                opacity: 0.5,
+              },
               { clipPath: "inset(0% 0 0 0)", opacity: 1 },
             ]
           : [
-              { transform: "translateY(22px)", opacity: 0 },
+              {
+                transform: `translateY(${compact.matches ? 10 : 22}px)`,
+                opacity: 0,
+              },
               { transform: "translateY(0)", opacity: 1 },
             ],
         {
-          duration: masked ? 850 : 650,
-          delay: Math.min(Number(element.dataset.delay) || 0, 180),
+          duration: compact.matches ? 450 : masked ? 850 : 650,
+          delay: compact.matches
+            ? 0
+            : Math.min(Number(element.dataset.delay) || 0, 180),
           easing: "cubic-bezier(.22,.68,.24,1)",
           fill: "backwards",
         },
@@ -51,7 +65,7 @@ export const vEditorialMotion: ObjectDirective<HTMLElement> = {
     const scan = () => {
       root
         .querySelectorAll<HTMLElement>(
-          "[data-reveal], .page-head h1, .page-head > .lead, .service-row, .journal-row, .price-category",
+          "[data-reveal], .page-head h1, .page-head > .lead, .service-row, .journal-row",
         )
         .forEach((element) => {
           if (seen.has(element) || element.closest(".tour")) return;

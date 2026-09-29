@@ -29,6 +29,7 @@ watchEffect(() => {
     <section class="container service-detail-grid">
       <img
         class="service-detail-image"
+        data-reveal="image"
         :src="media[service.image as keyof typeof media]"
         :alt="local(service.title)"
         width="840"

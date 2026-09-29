@@ -299,6 +299,10 @@ fieldset {
   text-transform: uppercase;
   font-weight: 500;
   color: #5f6858;
+  transition: color 240ms ease;
+}
+.request-field:focus-within label {
+  color: var(--ink);
 }
 .request-field small {
   font-size: 10px;
@@ -320,7 +324,14 @@ fieldset {
   font-size: 16px;
   color: var(--ink);
   border-radius: 0;
-  transition: border-color 0.2s;
+  --field-focus: var(--olive);
+  background-image: linear-gradient(var(--field-focus), var(--field-focus));
+  background-repeat: no-repeat;
+  background-position: left bottom;
+  background-size: 0% 1px;
+  transition:
+    border-color 240ms ease,
+    background-size 240ms ease;
 }
 .request-field select {
   padding-right: 24px;
@@ -342,15 +353,15 @@ fieldset {
 }
 .request-field :is(input, select, textarea):focus-visible {
   outline: none;
-  border-bottom: 2px solid var(--olive);
-  padding-bottom: 13px;
-  background: rgb(66 77 60 / 0.025);
+  border-bottom-color: var(--field-focus);
+  background-size: 100% 1px;
 }
 .appointment-form :is(button, a, input[type="checkbox"]):focus-visible {
   outline: 2px solid var(--olive);
   outline-offset: 4px;
 }
 .request-field [aria-invalid="true"] {
+  --field-focus: #933f32;
   border-bottom-color: #933f32;
 }
 .appointment-form .field-error {

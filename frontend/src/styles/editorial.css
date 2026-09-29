@@ -187,7 +187,7 @@
 }
 .content-design .index-entry {
   display: grid;
-  grid-template-columns: 28px 1fr 38px;
+  grid-template-columns: 28px minmax(0, 1fr);
   gap: 18px;
   align-items: center;
   padding: 24px 0;
@@ -592,7 +592,7 @@
   height: 350px;
   transition: transform 0.6s var(--editorial-ease);
 }
-.content-design .journal-feature:hover img {
+.content-design .journal-feature:focus-visible img {
   transform: scale(1.025);
 }
 .content-design .journal-feature h3 {
@@ -726,7 +726,7 @@
   color: var(--editorial-caption);
 }
 .content-design .service-row {
-  grid-template-columns: 50px 1fr 240px 55px;
+  grid-template-columns: 50px minmax(0, 1fr) 240px;
   padding: 25px 0;
   gap: 35px;
 }
@@ -738,6 +738,39 @@
 }
 .content-design .service-row img {
   height: 145px;
+  width: 100%;
+  object-fit: cover;
+  transition:
+    transform 500ms var(--editorial-ease),
+    filter 240ms ease;
+}
+.content-design .service-row-image {
+  display: block;
+  overflow: hidden;
+}
+.content-design .service-row:focus-visible img {
+  filter: saturate(1);
+  transform: scale(1.025);
+}
+/* Inline spans keep the fine underline attached to each wrapped headline line. */
+.content-design .editorial-link-title {
+  background: linear-gradient(currentColor, currentColor) no-repeat left 96% /
+    0% 1px;
+  transition: background-size 240ms var(--editorial-ease);
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.content-design a:focus-visible .editorial-link-title {
+  background-size: 100% 1px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .content-design a:hover .editorial-link-title {
+    background-size: 100% 1px;
+  }
+  .content-design .service-row:hover img,
+  .content-design .journal-feature:hover img {
+    transform: scale(1.025);
+  }
 }
 .content-design .row-arrow {
   width: 46px;
@@ -926,12 +959,36 @@
 .content-design .visit-questions summary::-webkit-details-marker {
   display: none;
 }
-.content-design .visit-questions summary > span {
-  font: 22px var(--sans);
-  transition: transform 0.25s;
+.content-design .visit-questions summary:focus-visible {
+  outline-offset: -3px;
 }
-.content-design .visit-questions details[open] summary > span {
-  transform: rotate(45deg);
+.content-design .visit-questions summary > span {
+  position: relative;
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+}
+.content-design .visit-questions summary > span::before,
+.content-design .visit-questions summary > span::after {
+  content: "";
+  position: absolute;
+  background: currentColor;
+}
+.content-design .visit-questions summary > span::before {
+  inset: 8px 2px auto;
+  height: 1px;
+}
+.content-design .visit-questions summary > span::after {
+  inset: 2px auto 2px 8px;
+  width: 1px;
+  transition: transform 240ms var(--editorial-ease);
+}
+.content-design
+  .visit-questions
+  details[open]:not([data-collapsing])
+  summary
+  > span::after {
+  transform: scaleY(0);
 }
 .content-design .visit-questions details > p {
   font-size: 15px;
@@ -1086,7 +1143,7 @@
     height: 370px;
   }
   .content-design .index-entry {
-    grid-template-columns: 18px 1fr 22px;
+    grid-template-columns: 18px minmax(0, 1fr);
     padding: 22px 0;
     gap: 10px;
   }
@@ -1205,7 +1262,7 @@
     font-size: 48px;
   }
   .content-design .service-row {
-    grid-template-columns: 25px 1fr 150px 35px;
+    grid-template-columns: 25px minmax(0, 1fr) 150px;
     gap: 20px;
   }
   .content-design .service-row h2 {
@@ -1329,7 +1386,7 @@
   }
   .content-design .index-entry {
     padding: 21px 0;
-    grid-template-columns: 25px 1fr 30px;
+    grid-template-columns: 25px minmax(0, 1fr);
     gap: 12px;
   }
   .content-design .index-entry h3 {
@@ -1534,7 +1591,7 @@
     font-size: 16px;
   }
   .content-design .service-row {
-    grid-template-columns: 22px 1fr 27px;
+    grid-template-columns: 22px minmax(0, 1fr);
     gap: 12px;
     padding: 26px 0;
   }
@@ -1543,6 +1600,9 @@
   }
   .content-design .service-row p {
     font-size: 13px;
+  }
+  .content-design .service-row-image {
+    display: none;
   }
   .content-design .row-arrow {
     width: 27px;
@@ -1707,10 +1767,16 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .content-design *,
+  .content-design *::before,
+  .content-design *::after,
   .mobile-menu.refined-menu * {
     animation: none !important;
     transition: none !important;
     scroll-behavior: auto !important;
+  }
+  .content-design .service-row img,
+  .content-design .journal-feature img {
+    transform: none !important;
   }
 }
 /* Keep intrinsic image/wordmark widths from widening small screens. */

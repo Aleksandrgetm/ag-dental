@@ -32,6 +32,7 @@ watchEffect(() => {
       <div class="container article-layout">
         <aside>
           <img
+            data-reveal="image"
             :src="media[article.image as keyof typeof media]"
             alt="AG Zobārstniecība"
             width="526"

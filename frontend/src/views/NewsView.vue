@@ -23,7 +23,9 @@ const { t, date, locale } = useContent();
       </div>
       <div lang="lv">
         <p class="eyebrow">{{ a.category }}</p>
-        <h2>{{ a.title }}</h2>
+        <h2>
+          <span class="editorial-link-title">{{ a.title }}</span>
+        </h2>
         <p>{{ a.excerpt }}</p>
       </div>
       <span class="row-arrow" aria-hidden="true">→</span></RouterLink

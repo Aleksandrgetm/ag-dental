@@ -16,17 +16,19 @@ const { t, local } = useContent();
       class="service-row"
       ><span class="service-number">0{{ i + 1 }}</span>
       <div>
-        <h2>{{ local(s.title) }}</h2>
+        <h2>
+          <span class="editorial-link-title">{{ local(s.title) }}</span>
+        </h2>
         <p>{{ local(s.short) }}</p>
       </div>
-      <img
-        :src="media[s.image as keyof typeof media]"
-        alt=""
-        loading="lazy"
-        width="240"
-        height="160"
-      /></RouterLink
-    >
+      <span class="service-row-image"
+        ><img
+          :src="media[s.image as keyof typeof media]"
+          alt=""
+          loading="lazy"
+          width="240"
+          height="160" /></span
+    ></RouterLink>
   </section>
   <ContactBand />
 </template>

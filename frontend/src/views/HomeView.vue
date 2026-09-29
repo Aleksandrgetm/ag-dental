@@ -39,8 +39,8 @@ const preview = services.filter((s) =>
             <p class="lead">{{ local(philosophy) }}</p>
             <p>{{ t("home.introAside") }}</p>
             <RouterLink class="text-link" to="/par-mums"
-              >{{ t("common.about") }} </RouterLink
-            >
+              >{{ t("common.about") }}
+            </RouterLink>
           </div>
         </div>
         <div class="intro-footnote">
@@ -65,8 +65,8 @@ const preview = services.filter((s) =>
         <h2>{{ t("home.aboutTitle") }}</h2>
         <p>{{ local(about) }}</p>
         <RouterLink class="text-link" to="/par-mums"
-          >{{ t("common.about") }} </RouterLink
-        >
+          >{{ t("common.about") }}
+        </RouterLink>
       </div>
     </section>
     <section class="section doctor-feature">
@@ -94,8 +94,8 @@ const preview = services.filter((s) =>
               <p>{{ local(copy.years) }}</p>
             </div>
             <RouterLink class="text-link" to="/par-mums"
-              >{{ t("common.more") }} </RouterLink
-            >
+              >{{ t("common.more") }}
+            </RouterLink>
           </div>
         </div>
       </div>
@@ -125,8 +125,8 @@ const preview = services.filter((s) =>
           <h2>{{ t("home.pricesTitle") }}</h2>
           <p class="section-aside">{{ t("page.pricesIntro") }}</p>
           <RouterLink class="text-link" to="/cenas"
-            >{{ t("common.prices") }} </RouterLink
-          >
+            >{{ t("common.prices") }}
+          </RouterLink>
         </div>
         <div class="price-sheet" data-reveal data-delay="100">
           <div class="price-sheet-heading">
@@ -169,8 +169,8 @@ const preview = services.filter((s) =>
             <h2>{{ t("home.newsTitle") }}</h2>
           </div>
           <RouterLink class="text-link" to="/jaunumi"
-            >{{ t("common.allNews") }} </RouterLink
-          >
+            >{{ t("common.allNews") }}
+          </RouterLink>
         </div>
         <p v-if="locale !== 'lv'" class="source-note">
           {{ t("ui.sourceLanguage") }}
@@ -195,7 +195,9 @@ const preview = services.filter((s) =>
               }}</time
               ><span lang="lv">{{ articles[0]!.category }}</span>
             </div>
-            <h3 lang="lv">{{ articles[0]!.title }}</h3></RouterLink
+            <h3 lang="lv">
+              <span class="editorial-link-title">{{ articles[0]!.title }}</span>
+            </h3></RouterLink
           >
           <div class="journal-home-list">
             <RouterLink
@@ -205,7 +207,9 @@ const preview = services.filter((s) =>
               class="journal-compact"
               data-reveal
               ><time :datetime="article.date">{{ date(article.date) }}</time>
-              <h3 lang="lv">{{ article.title }}</h3>
+              <h3 lang="lv">
+                <span class="editorial-link-title">{{ article.title }}</span>
+              </h3>
               <p lang="lv">{{ article.excerpt }}</p>
               <span class="text-link"
                 >{{ t("common.read") }} <span aria-hidden="true">→</span></span

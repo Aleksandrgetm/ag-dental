@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, watch, onMounted, onBeforeUnmount } from "vue";
 import prices from "../content/prices.json";
 import { useContent } from "../content/useContent";
 import { refinement as copy } from "../content/refinement";
@@ -9,6 +9,7 @@ const { t, local, locale } = useContent();
 const query = ref("");
 const searchInput = ref<HTMLInputElement>();
 const selectedCategory = ref(0);
+const pricingContent = ref<HTMLElement>();
 function clearSearch() {
   query.value = "";
   searchInput.value?.focus();
@@ -39,6 +40,47 @@ const activeCategory = computed(() =>
     ? selectedCategory.value
     : filtered.value[0]?.index,
 );
+
+// A narrow reading band tracks native scrolling without a scroll event loop.
+let categoryObserver: IntersectionObserver | undefined;
+function observeCategories() {
+  categoryObserver?.disconnect();
+  if (!pricingContent.value || typeof IntersectionObserver === "undefined")
+    return;
+  const sections = Array.from(
+    pricingContent.value.querySelectorAll<HTMLElement>(".price-category"),
+  );
+  if (!sections.length) return;
+  // Native anchors combine document scroll padding and section scroll margin.
+  const readingLine = Math.min(
+    innerHeight - 1,
+    (parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop) ||
+      0) +
+      (parseFloat(getComputedStyle(sections[0]!).scrollMarginTop) || 0) +
+      2,
+  );
+  categoryObserver = new IntersectionObserver(
+    () => {
+      let current = sections[0];
+      for (const section of sections) {
+        if (section.getBoundingClientRect().top > readingLine) break;
+        current = section;
+      }
+      if (current) selectedCategory.value = Number(current.dataset.category);
+    },
+    {
+      rootMargin: `-${readingLine - 1}px 0px -${Math.max(0, innerHeight - readingLine)}px 0px`,
+      threshold: 0,
+    },
+  );
+  sections.forEach((section) => categoryObserver!.observe(section));
+}
+watch([pricingContent, filtered], observeCategories, { flush: "post" });
+onMounted(() => window.addEventListener("resize", observeCategories));
+onBeforeUnmount(() => {
+  categoryObserver?.disconnect();
+  window.removeEventListener("resize", observeCategories);
+});
 </script>
 <template>
   <header class="page-head container">
@@ -68,11 +110,19 @@ const activeCategory = computed(() =>
         <span aria-hidden="true">×</span>
       </button>
     </div>
-    <p id="price-search-count" class="result-count" role="status" aria-atomic="true">
+    <p
+      id="price-search-count"
+      class="result-count"
+      role="status"
+      aria-atomic="true"
+    >
       {{ local(copy.results) }}: {{ total }}
     </p>
   </div>
-  <section class="container pricing-layout" :class="{ 'pricing-no-results': !filtered.length }">
+  <section
+    class="container pricing-layout"
+    :class="{ 'pricing-no-results': !filtered.length }"
+  >
     <aside v-if="filtered.length">
       <nav :aria-label="t('page.priceCategories')">
         <a
@@ -81,7 +131,9 @@ const activeCategory = computed(() =>
           :href="`#prices-${category.index}`"
           lang="lv"
           :class="{ 'is-active': activeCategory === category.index }"
-          :aria-current="activeCategory === category.index ? 'location' : undefined"
+          :aria-current="
+            activeCategory === category.index ? 'location' : undefined
+          "
           @click="selectedCategory = category.index"
         >
           <span class="category-number">0{{ category.index + 1 }}</span>
@@ -90,8 +142,10 @@ const activeCategory = computed(() =>
         >
       </nav>
     </aside>
-    <div class="pricing-content">
-      <p v-if="filtered.length" class="pricing-context">{{ t("ui.updated") }}</p>
+    <div ref="pricingContent" class="pricing-content">
+      <p v-if="filtered.length" class="pricing-context">
+        {{ t("ui.updated") }}
+      </p>
       <p v-if="locale !== 'lv'" class="source-note">
         {{ t("ui.sourceLanguage") }}
       </p>
@@ -103,13 +157,17 @@ const activeCategory = computed(() =>
         :id="`prices-${category.index}`"
         :key="category.title"
         class="price-category"
+        :data-category="category.index"
       >
         <div class="price-category-title">
           <span class="eyebrow">0{{ category.index + 1 }} / EUR</span>
           <h2 lang="lv">{{ category.title }}</h2>
         </div>
         <PriceList :items="category.items" />
-        <p v-if="category.title === 'Zobu protezēšana'" class="pricing-context pricing-concession">
+        <p
+          v-if="category.title === 'Zobu protezēšana'"
+          class="pricing-context pricing-concession"
+        >
           {{ t("page.concession") }}
         </p>
       </section>
@@ -136,7 +194,9 @@ const activeCategory = computed(() =>
   border: 1px solid var(--editorial-rule);
   background: var(--paper);
   color: var(--editorial-caption);
-  transition: border-color 200ms ease, color 200ms ease;
+  transition:
+    border-color 200ms ease,
+    color 200ms ease;
 }
 .price-search-control:focus-within {
   border-color: var(--olive);
@@ -200,6 +260,7 @@ const activeCategory = computed(() =>
   border-top: 1px solid var(--editorial-rule);
 }
 .pricing-layout nav a {
+  position: relative;
   display: grid;
   grid-template-columns: 22px minmax(0, 1fr) 24px;
   gap: 14px;
@@ -207,7 +268,9 @@ const activeCategory = computed(() =>
   padding-block: 20px;
   border-bottom: 1px solid var(--editorial-rule);
   color: var(--editorial-caption);
-  transition: color 200ms ease, border-color 200ms ease;
+  transition:
+    color 200ms ease,
+    border-color 200ms ease;
 }
 .category-number,
 .category-count {
@@ -231,7 +294,19 @@ const activeCategory = computed(() =>
 }
 .pricing-layout nav a.is-active {
   color: var(--olive);
-  border-bottom-color: var(--olive);
+}
+.pricing-layout nav a::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -1px;
+  height: 1px;
+  background: var(--olive);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 240ms ease;
+}
+.pricing-layout nav a.is-active::after {
+  transform: scaleX(1);
 }
 .pricing-layout nav a.is-active .category-name {
   font-weight: 600;
