@@ -1,6 +1,12 @@
 <script setup lang="ts">
 import { useContent } from "../content/useContent";
-defineProps<{ items: { name: string; price: string; review?: boolean }[] }>();
+withDefaults(
+  defineProps<{
+    items: { name: string; price: string; review?: boolean }[];
+    language?: string;
+  }>(),
+  { language: "lv" },
+);
 const { t } = useContent();
 const price = (value: string) =>
   value
@@ -15,7 +21,7 @@ const price = (value: string) =>
     .join(" / ");
 </script>
 <template>
-  <dl class="price-list" lang="lv">
+  <dl class="price-list" :lang="language">
     <div v-for="item in items" :key="item.name">
       <dt>{{ item.name }}</dt>
       <dd :class="{ 'price-review': item.review }">

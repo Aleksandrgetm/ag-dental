@@ -63,8 +63,8 @@ export const refinement = {
   ),
   pricePlaceholder: l(
     "Piemēram, higiēna vai kronis",
-    "Например, higiēna или kronis",
-    "For example, higiēna or kronis",
+    "Например, гигиена или коронка",
+    "For example, hygiene or crown",
   ),
   clear: l("Notīrīt", "Очистить", "Clear"),
   results: l("Atrasti pakalpojumi", "Найдено услуг", "Treatments found"),

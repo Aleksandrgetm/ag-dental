@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch, onMounted, onBeforeUnmount } from "vue";
-import prices from "../content/prices.json";
+import { localizedPrices } from "../content/pricing";
 import { useContent } from "../content/useContent";
 import { refinement as copy } from "../content/refinement";
 import PriceList from "../components/PriceList.vue";
@@ -19,8 +19,15 @@ const normalize = (s: string) =>
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "")
     .toLocaleLowerCase();
+const prices = computed(() =>
+  localizedPrices.map((category) => ({
+    ...category,
+    title: local(category.title),
+    items: category.items.map((item) => ({ ...item, name: local(item.name) })),
+  })),
+);
 const filtered = computed(() =>
-  prices
+  prices.value
     .map((category, index) => ({
       ...category,
       index,
@@ -127,9 +134,9 @@ onBeforeUnmount(() => {
       <nav :aria-label="t('page.priceCategories')">
         <a
           v-for="category in filtered"
-          :key="category.title"
+          :key="category.index"
           :href="`#prices-${category.index}`"
-          lang="lv"
+          :lang="locale"
           :class="{ 'is-active': activeCategory === category.index }"
           :aria-current="
             activeCategory === category.index ? 'location' : undefined
@@ -146,26 +153,23 @@ onBeforeUnmount(() => {
       <p v-if="filtered.length" class="pricing-context">
         {{ t("ui.updated") }}
       </p>
-      <p v-if="locale !== 'lv'" class="source-note">
-        {{ t("ui.sourceLanguage") }}
-      </p>
       <p v-if="!filtered.length" class="price-empty">
         {{ local(copy.noResults) }}
       </p>
       <section
         v-for="category in filtered"
         :id="`prices-${category.index}`"
-        :key="category.title"
+        :key="category.index"
         class="price-category"
         :data-category="category.index"
       >
         <div class="price-category-title">
           <span class="eyebrow">0{{ category.index + 1 }} / EUR</span>
-          <h2 lang="lv">{{ category.title }}</h2>
+          <h2 :lang="locale">{{ category.title }}</h2>
         </div>
-        <PriceList :items="category.items" />
+        <PriceList :items="category.items" :language="locale" />
         <p
-          v-if="category.title === 'Zobu protezēšana'"
+          v-if="category.concession"
           class="pricing-context pricing-concession"
         >
           {{ t("page.concession") }}
