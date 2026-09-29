@@ -16,7 +16,8 @@ const { t, locale } = useContent();
 const consent = useCookieConsentStore();
 const route = useRoute();
 const open = ref(false),
-  scrolled = ref(false),
+  heroPassed = ref(false),
+  header = ref<HTMLElement>(),
   panel = ref<HTMLElement>(),
   toggle = ref<HTMLButtonElement>();
 const links = [
@@ -27,12 +28,36 @@ const links = [
   ["/jaunumi", "news"],
   ["/kontakti", "contact"],
 ];
-const light = computed(
-  () => route.path !== "/" || scrolled.value || open.value,
+const state = computed(() =>
+  route.path !== "/" || heroPassed.value || open.value ? "normal" : "hero",
 );
-const scroll = () => {
-  scrolled.value = window.scrollY > 40;
-};
+let boundary: IntersectionObserver | undefined;
+let headerSize: ResizeObserver | undefined;
+let boundaryVersion = 0;
+let boundaryEdge = 0;
+async function observeBoundary() {
+  const version = ++boundaryVersion;
+  boundary?.disconnect();
+  // The initial route is also "/" before its lazy component has mounted.
+  // Wait for the resolved route's DOM, not just a pathname change.
+  await nextTick();
+  if (version !== boundaryVersion) return;
+  const hero = route.path === "/" ? document.querySelector(".tour") : null;
+  if (!hero || !header.value) return;
+  const edge = header.value.offsetHeight;
+  boundaryEdge = edge;
+  heroPassed.value = hero.getBoundingClientRect().bottom < edge;
+  boundary = new IntersectionObserver(
+    ([entry]) => {
+      if (version !== boundaryVersion || !entry) return;
+      // isIntersecting handles edge contact correctly when scrolling back up.
+      heroPassed.value =
+        !entry.isIntersecting && entry.boundingClientRect.bottom < edge;
+    },
+    { rootMargin: `-${edge}px 0px 0px 0px`, threshold: 0 },
+  );
+  boundary.observe(hero);
+}
 function language(lang: string) {
   locale.value = lang;
 }
@@ -50,10 +75,12 @@ watch(
   { immediate: true },
 );
 watch(
-  () => route.fullPath,
+  [() => route.fullPath, () => route.matched],
   () => {
     open.value = false;
+    observeBoundary();
   },
+  { flush: "post" },
 );
 watch(open, async (value) => {
   document.body.style.overflow = value ? "hidden" : "";
@@ -83,19 +110,33 @@ function keydown(event: KeyboardEvent) {
   }
 }
 onMounted(() => {
-  scroll();
-  window.addEventListener("scroll", scroll, { passive: true });
+  observeBoundary();
+  headerSize = new ResizeObserver(() => {
+    if (route.path === "/" && header.value?.offsetHeight !== boundaryEdge)
+      observeBoundary();
+  });
+  if (header.value) headerSize.observe(header.value);
   document.addEventListener("keydown", keydown);
 });
 onBeforeUnmount(() => {
-  window.removeEventListener("scroll", scroll);
+  ++boundaryVersion;
+  boundary?.disconnect();
+  headerSize?.disconnect();
   document.removeEventListener("keydown", keydown);
   document.body.style.overflow = "";
 });
 </script>
 <template>
   <a class="skip-link" href="#main">{{ t("ui.skip") }}</a>
-  <header class="site-header" :class="{ solid: light, 'menu-is-open': open }">
+  <header
+    ref="header"
+    class="site-header"
+    :class="{
+      solid: state === 'normal',
+      'homepage-header': route.path === '/',
+      'menu-is-open': open,
+    }"
+  >
     <RouterLink to="/" class="brand" aria-label="AG Zobārstniecība — Sākums"
       ><span class="brand-monogram">AG<span class="brand-dot">.</span></span
       ><span class="brand-name"
@@ -126,9 +167,9 @@ onBeforeUnmount(() => {
           {{ lang.toUpperCase() }}
         </button>
       </div>
-      <RouterLink class="button header-book" to="/kontakti"
-        >{{ t("common.bookAppointment")
-        }}</RouterLink
+      <RouterLink class="button header-book" to="/kontakti">{{
+        t("common.bookAppointment")
+      }}</RouterLink
       ><button
         ref="toggle"
         class="menu-toggle"
@@ -184,9 +225,65 @@ onBeforeUnmount(() => {
         </div>
         <RouterLink class="button" to="/kontakti"
           >{{ t("common.bookAppointment") }}
-          </RouterLink
-        >
+        </RouterLink>
       </div>
     </div></Transition
   >
 </template>
+
+<style scoped>
+.site-header {
+  transition:
+    background-color 360ms var(--ease),
+    color 360ms var(--ease),
+    border-color 360ms var(--ease),
+    height 360ms var(--ease);
+}
+.site-header
+  :is(
+    .brand,
+    .desktop-nav a,
+    .language-switch button,
+    .header-book,
+    .menu-toggle
+  ) {
+  transition:
+    background-color 360ms var(--ease),
+    color 360ms var(--ease),
+    border-color 360ms var(--ease),
+    opacity 240ms ease;
+}
+/* Match the existing internal-page heights in both homepage states.
+   Geometry stays fixed; only the existing color treatments change. */
+.site-header.homepage-header {
+  height: 86px;
+  transition-property: background-color, color, border-color;
+}
+/* These elements inherit the header's animated color. A second color
+   transition would trail behind it and leave pale text on the light surface. */
+.site-header.homepage-header
+  :is(.brand, .desktop-nav a, .language-switch button, .menu-toggle) {
+  transition-property: background-color, border-color, opacity;
+  transition-duration: 360ms, 360ms, 240ms;
+}
+@media (max-width: 1200px) {
+  .site-header.homepage-header {
+    height: 78px;
+  }
+}
+@media (max-width: 800px) {
+  .site-header.homepage-header {
+    height: 74px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .site-header.homepage-header,
+  .site-header.homepage-header * {
+    transition: none !important;
+  }
+  .site-header,
+  .site-header * {
+    transition: none;
+  }
+}
+</style>

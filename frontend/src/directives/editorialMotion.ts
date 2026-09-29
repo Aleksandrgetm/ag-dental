@@ -16,6 +16,8 @@ export const vEditorialMotion: ObjectDirective<HTMLElement> = {
       observer?.unobserve(element);
       if (
         preference.matches ||
+        !!element.closest(".page-enter-active") ||
+        document.documentElement.hasAttribute("data-ag-welcome") ||
         !element.animate ||
         element.contains(document.activeElement)
       )

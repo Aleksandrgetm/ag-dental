@@ -32,14 +32,16 @@ const inputFields = [
   { key: "phone", type: "tel", autocomplete: "tel" },
   { key: "email", type: "email", autocomplete: "email" },
 ] as const;
-const errors = computed(() =>
-  attempted.value
-    ? validateRequest(
-        fields,
-        services.map((service) => service.slug),
-      )
-    : {},
+const validation = computed(() =>
+  validateRequest(
+    fields,
+    services.map((service) => service.slug),
+  ),
 );
+const errors = computed(() => (attempted.value ? validation.value : {}));
+function completed(key: keyof RequestFields) {
+  return !!String(fields[key]).trim() && !validation.value[key];
+}
 watch(
   fields,
   () => {
@@ -71,12 +73,16 @@ async function submit() {
     busy.value = false;
   }
   await nextTick();
-  result.value?.focus({ preventScroll: true });
+  // Bring the confirmation into view after the fields collapse, especially on mobile.
+  result.value?.focus();
 }
 </script>
 <template>
   <section class="appointment-form" :aria-label="t('request.title')">
-    <p v-if="!REQUEST_SUBMISSION_ENABLED" class="request-notice">
+    <p
+      v-if="!REQUEST_SUBMISSION_ENABLED && status !== 'received'"
+      class="request-notice"
+    >
       {{ t("contact.formUnavailable") }}
     </p>
     <div
@@ -96,9 +102,18 @@ async function submit() {
       :aria-busy="busy"
       @submit.prevent="submit"
     >
-      <p class="field-note">{{ t("request.requiredHint") }}</p>
-      <p v-if="Object.keys(errors).length" role="alert" class="field-error">
-        {{ t("request.errors.summary") }}
+      <p
+        class="field-note form-summary"
+        :class="{ 'field-error': Object.keys(errors).length }"
+        aria-live="polite"
+      >
+        {{
+          t(
+            Object.keys(errors).length
+              ? "request.errors.summary"
+              : "request.requiredHint",
+          )
+        }}
       </p>
       <fieldset :disabled="busy">
         <div class="request-fields">
@@ -106,6 +121,7 @@ async function submit() {
             v-for="input in inputFields"
             :key="input.key"
             class="request-field"
+            :class="{ 'is-complete': completed(input.key) }"
           >
             <label :for="`request-${input.key}`"
               >{{ t(`request.${input.key}`) }}
@@ -125,13 +141,20 @@ async function submit() {
               "
             />
             <span
-              v-if="errors[input.key]"
               :id="`error-${input.key}`"
-              class="field-error"
-              >{{ t(`request.errors.${errors[input.key]}`) }}</span
+              class="field-error error-space"
+              :class="{ 'has-error': !!errors[input.key] }"
+              >{{
+                errors[input.key]
+                  ? t(`request.errors.${errors[input.key]}`)
+                  : ""
+              }}</span
             >
           </div>
-          <div class="request-field full-width">
+          <div
+            class="request-field full-width"
+            :class="{ 'is-complete': completed('service') }"
+          >
             <label for="request-service"
               >{{ t("request.service") }}
               <small>({{ t("request.optional") }})</small></label
@@ -160,7 +183,10 @@ async function submit() {
               >{{ t(`request.errors.${errors.service}`) }}</span
             >
           </div>
-          <div class="request-field full-width">
+          <div
+            class="request-field full-width"
+            :class="{ 'is-complete': completed('message') }"
+          >
             <label for="request-message"
               >{{ t("request.message") }}
               <small>({{ t("request.optional") }})</small></label
@@ -205,20 +231,31 @@ async function submit() {
           <RouterLink to="/privatuma-politika">{{
             t("legal.privacyTitle")
           }}</RouterLink>
-          <p v-if="errors.consent" id="error-consent" class="field-error">
-            {{ t(`request.errors.${errors.consent}`) }}
+          <p
+            id="error-consent"
+            class="field-error error-space"
+            :class="{ 'has-error': !!errors.consent }"
+          >
+            {{ errors.consent ? t(`request.errors.${errors.consent}`) : "" }}
           </p>
         </div>
         <button class="button" type="submit" :disabled="busy">
-          {{
-            t(
-              busy
-                ? "request.loading"
-                : REQUEST_SUBMISSION_ENABLED
-                  ? "request.send"
-                  : "request.check",
-            )
-          }}
+          <span
+            class="submit-label"
+            :class="{ concealed: busy }"
+            :aria-hidden="busy"
+          >
+            {{
+              t(REQUEST_SUBMISSION_ENABLED ? "request.send" : "request.check")
+            }}
+          </span>
+          <span
+            class="submit-label"
+            :class="{ concealed: !busy }"
+            :aria-hidden="!busy"
+          >
+            {{ t("request.loading") }}
+          </span>
         </button>
       </fieldset>
       <div
@@ -301,6 +338,7 @@ fieldset {
   color: #5f6858;
   transition: color 240ms ease;
 }
+.request-field.is-complete label,
 .request-field:focus-within label {
   color: var(--ink);
 }
@@ -356,6 +394,24 @@ fieldset {
   border-bottom-color: var(--field-focus);
   background-size: 100% 1px;
 }
+.request-field.is-complete :is(input, select, textarea):not(:focus-visible) {
+  border-bottom-color: #707b65;
+}
+.appointment-form .error-space {
+  min-height: 3.2em;
+  opacity: 0;
+  transform: translateY(-2px);
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+.appointment-form .error-space.has-error {
+  opacity: 1;
+  transform: none;
+}
+.appointment-form .form-summary {
+  min-height: 1.7em;
+}
 .appointment-form :is(button, a, input[type="checkbox"]):focus-visible {
   outline: 2px solid var(--olive);
   outline-offset: 4px;
@@ -409,6 +465,35 @@ fieldset {
 .appointment-form .button {
   min-height: 52px;
   padding-inline: 28px;
+  display: inline-grid;
+  grid-template-areas: "label";
+  justify-content: center;
+  gap: 0;
+}
+.appointment-form .button .submit-label {
+  grid-area: label;
+  font: inherit;
+  transform: none;
+}
+.submit-label.concealed {
+  visibility: hidden;
+}
+.request-result[role="status"] {
+  animation: result-enter 240ms ease both;
+}
+.request-result:has(h3) {
+  min-height: 250px;
+  padding-block: 48px;
+}
+@keyframes result-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 .appointment-form :disabled {
   cursor: wait;
@@ -433,8 +518,14 @@ fieldset {
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .request-field :is(input, select, textarea) {
+  .request-field :is(input, select, textarea),
+  .appointment-form .error-space,
+  .request-field label {
     transition: none;
+    transform: none;
+  }
+  .request-result[role="status"] {
+    animation: none;
   }
 }
 </style>

@@ -5,6 +5,10 @@ import { useContent } from "../../content/useContent";
 import { refinement as copy } from "../../content/refinement";
 const { t, local } = useContent();
 const selected = ref(1);
+function selectPreview(index: number) {
+  if (matchMedia("(hover: hover) and (pointer: fine)").matches)
+    selected.value = index;
+}
 const current = computed(() => services[selected.value]!);
 </script>
 <template>
@@ -48,14 +52,13 @@ const current = computed(() => services[selected.value]!);
             :to="`/pakalpojumi/${s.slug}`"
             class="index-entry"
             :class="{ 'is-selected': selected === i }"
-            @mouseenter="selected = i"
-            @focus="selected = i"
+            @mouseenter="selectPreview(i)"
+            @focus="selectPreview(i)"
             ><span class="index-number">0{{ i + 1 }}</span>
-            <h3>{{ local(s.title) }}</h3>
-            </RouterLink
+            <h3>{{ local(s.title) }}</h3> </RouterLink
           ><RouterLink class="text-link" to="/pakalpojumi"
-            >{{ t("common.allServices") }} </RouterLink
-          >
+            >{{ t("common.allServices") }}
+          </RouterLink>
         </div>
       </div>
     </div>

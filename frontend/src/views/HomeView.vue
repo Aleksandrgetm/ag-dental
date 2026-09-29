@@ -4,6 +4,7 @@ import ServiceIndex from "../components/home/ServiceIndex.vue";
 import PatientJourney from "../components/home/PatientJourney.vue";
 import ClinicGallery from "../components/home/ClinicGallery.vue";
 import ContactBand from "../components/ContactBand.vue";
+import { vPhotoParallax } from "../directives/photoParallax";
 import { vEditorialMotion } from "../directives/editorialMotion";
 import {
   media,
@@ -53,6 +54,7 @@ const preview = services.filter((s) =>
     <section class="about-editorial">
       <div class="about-editorial-image" data-reveal="image">
         <img
+          v-photo-parallax
           :src="media.room"
           alt=""
           loading="lazy"
@@ -77,13 +79,16 @@ const preview = services.filter((s) =>
         </div>
         <div class="doctor-feature-grid">
           <figure class="doctor-feature-photo" data-reveal="image">
-            <img
-              :src="media.doctor"
-              alt="Dr. Anda Gutovska"
-              loading="lazy"
-              width="840"
-              height="1120"
-            />
+            <div class="portrait-crop">
+              <img
+                v-photo-parallax
+                :src="media.doctor"
+                alt="Dr. Anda Gutovska"
+                loading="lazy"
+                width="840"
+                height="1120"
+              />
+            </div>
             <figcaption>{{ t("home.doctorRole") }}</figcaption>
           </figure>
           <div class="doctor-feature-copy" data-reveal>
@@ -222,3 +227,9 @@ const preview = services.filter((s) =>
     <ContactBand />
   </div>
 </template>
+
+<style scoped>
+.portrait-crop {
+  overflow: hidden;
+}
+</style>
