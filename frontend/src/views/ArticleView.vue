@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watchEffect } from "vue";
 import { useRoute } from "vue-router";
+import { localizeArticle } from "../content/articleTranslations";
 import { articles } from "../content/articles";
 import { media } from "../content/clinic";
 import { useContent } from "../content/useContent";
@@ -10,9 +11,10 @@ import NotFoundView from "./NotFoundView.vue";
 const route = useRoute(),
   { t, date, locale } = useContent();
 const reading = ref<HTMLElement>();
-const article = computed(() =>
-  articles.find((a) => a.slug === route.params.slug),
-);
+const article = computed(() => {
+  const source = articles.find((a) => a.slug === route.params.slug);
+  return source ? localizeArticle(source, locale.value) : undefined;
+});
 watchEffect(() => {
   if (article.value)
     document.title = article.value.title + " · AG Zobārstniecība";
@@ -27,15 +29,12 @@ watchEffect(() => {
         >
         <div class="article-meta">
           <time :datetime="article.date">{{ date(article.date) }}</time
-          ><span lang="lv">{{ article.category }}</span>
+          ><span :lang="locale">{{ article.category }}</span>
         </div>
-        <h1 lang="lv">{{ article.title }}</h1>
+        <h1 :lang="locale">{{ article.title }}</h1>
       </header>
       <div ref="reading" class="container article-reading">
-        <p v-if="locale !== 'lv'" class="source-note">
-          {{ t("ui.sourceLanguage") }}
-        </p>
-        <p class="article-lead" lang="lv">{{ article.paragraphs[0] }}</p>
+        <p class="article-lead" :lang="locale">{{ article.paragraphs[0] }}</p>
         <figure class="article-photograph">
           <img
             :src="media[article.image as keyof typeof media]"
@@ -50,7 +49,11 @@ watchEffect(() => {
           />
         </figure>
         <div class="article-prose">
-          <p v-for="(p, i) in article.paragraphs.slice(1)" :key="i" lang="lv">
+          <p
+            v-for="(p, i) in article.paragraphs.slice(1)"
+            :key="i"
+            :lang="locale"
+          >
             {{ p }}
           </p>
         </div>
@@ -77,14 +80,10 @@ watchEffect(() => {
 .article-reading {
   max-width: 1120px;
 }
-.article-reading .source-note,
 .article-lead,
 .article-prose {
   max-width: 680px;
   margin-inline: auto;
-}
-.article-reading .source-note {
-  margin-bottom: 24px;
 }
 .article-reading .article-lead {
   font: 400 clamp(20px, 2vw, 25px)/1.65 var(--serif);
