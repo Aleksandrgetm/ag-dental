@@ -11,6 +11,7 @@ import { useRoute } from "vue-router";
 import { useContent } from "../../content/useContent";
 import { useCookieConsentStore } from "../../stores/cookieConsent";
 import { LANGUAGE_KEY } from "../../services/cookieConsent";
+import AuthControl from "./AuthControl.vue";
 import { clinic } from "../../content/clinic";
 const { t, locale } = useContent();
 const consent = useCookieConsentStore();
@@ -167,10 +168,8 @@ onBeforeUnmount(() => {
           {{ lang.toUpperCase() }}
         </button>
       </div>
-      <RouterLink class="button header-book" to="/kontakti">{{
-        t("common.bookAppointment")
-      }}</RouterLink
-      ><button
+      <AuthControl />
+      <button
         ref="toggle"
         class="menu-toggle"
         :aria-expanded="open"
@@ -223,12 +222,9 @@ onBeforeUnmount(() => {
           Ūnijas iela 25 · Rīga
           <p>{{ t("ui.hours") }} · 09:00–18:00</p>
         </div>
-        <RouterLink class="button" to="/kontakti"
-          >{{ t("common.bookAppointment") }}
-        </RouterLink>
-      </div>
-    </div></Transition
-  >
+        <AuthControl mobile @signed-out="open = false" />
+      </div></div
+  ></Transition>
 </template>
 
 <style scoped>

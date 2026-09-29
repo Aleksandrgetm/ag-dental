@@ -4,7 +4,9 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
+	"github.com/Aleksandrgetm/Dental/internal/auth"
 	"github.com/Aleksandrgetm/Dental/internal/database"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -36,11 +38,21 @@ func main() {
 	log.Println("Database connected successfully")
 
 	router := gin.Default()
+	// No trusted reverse proxy is configured for local development.
+	_ = router.SetTrustedProxies(nil)
 
+	origins := []string{"http://localhost:5173"}
+	if configured := os.Getenv("CORS_ALLOWED_ORIGINS"); configured != "" {
+		origins = strings.Split(configured, ",")
+		for i := range origins {
+			origins[i] = strings.TrimSpace(origins[i])
+			if origins[i] == "*" || origins[i] == "" {
+				log.Fatal("CORS origins must be explicit")
+			}
+		}
+	}
 	router.Use(cors.New(cors.Config{
-		AllowOrigins: []string{
-			"http://localhost:5173",
-		},
+		AllowOrigins: origins,
 		AllowMethods: []string{
 			"GET",
 			"POST",
@@ -64,6 +76,18 @@ func main() {
 			"database": "connected",
 		})
 	})
+
+	var verifier auth.Verifier
+	if os.Getenv("SUPABASE_URL") != "" || os.Getenv("SUPABASE_PUBLISHABLE_KEY") != "" {
+		configured, err := auth.NewVerifier(os.Getenv("SUPABASE_URL"), os.Getenv("SUPABASE_PUBLISHABLE_KEY"))
+		if err != nil {
+			log.Fatal(err)
+		}
+		verifier = configured
+	} else {
+		log.Println("Supabase Auth is not configured; authenticated endpoints are unavailable")
+	}
+	router.GET("/api/auth/me", auth.RequireAuth(verifier, auth.DatabaseRoles{DB: db}), auth.Me)
 
 	port := os.Getenv("PORT")
 	if port == "" {

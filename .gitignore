@@ -20,3 +20,7 @@ frontend/dist/
 # IDE
 .vscode/
 .idea/
+
+# Tracked configuration templates
+!frontend/.env.example
+!backend/.env.example

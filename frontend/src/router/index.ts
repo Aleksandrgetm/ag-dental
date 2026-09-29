@@ -1,7 +1,32 @@
 import { createRouter, createWebHistory } from "vue-router";
+import { useAuthStore } from "../stores/auth";
+declare module "vue-router" {
+  interface RouteMeta {
+    requiresAuth?: boolean;
+    requiresAdmin?: boolean;
+    guestOnly?: boolean;
+    authMode?: "login" | "register" | "forgot" | "reset";
+  }
+}
 const router = createRouter({
   history: createWebHistory(),
   routes: [
+    ...(
+      [
+        ["/login", "login"],
+        ["/register", "register"],
+        ["/forgot-password", "forgot"],
+        ["/reset-password", "reset"],
+      ] as const
+    ).map(([path, authMode]) => ({
+      path,
+      component: () => import("../views/AuthView.vue"),
+      meta: {
+        title: `auth.${authMode}`,
+        authMode,
+        guestOnly: authMode === "login" || authMode === "register",
+      },
+    })),
     {
       path: "/",
       name: "home",
@@ -68,6 +93,21 @@ const router = createRouter({
     if (to.hash) return { el: to.hash, top: 120 };
     return { top: 0 };
   },
+});
+router.beforeEach(async (to) => {
+  const auth = useAuthStore();
+  if (to.meta.requiresAuth || to.meta.requiresAdmin || to.meta.authMode) {
+    await auth.initialize();
+    if (to.meta.authMode && (to.hash || to.query.error || to.query.code))
+      return { path: to.path, replace: true };
+    if ((to.meta.requiresAuth || to.meta.requiresAdmin) && !auth.user)
+      return "/login";
+    if (to.meta.requiresAdmin) {
+      await auth.refreshRole();
+      if (auth.role !== "admin") return "/";
+    }
+    if (to.meta.guestOnly && auth.user) return "/";
+  }
 });
 router.afterEach(() => {
   setTimeout(() => {
