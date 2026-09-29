@@ -44,13 +44,18 @@ const router = createRouter({
       meta: { title: "nav.contact" },
     },
     {
-      path: "/pieraksts",
-      component: () => import("../views/ContactView.vue"),
-      meta: { title: "common.bookAppointment", booking: true },
-    },
-    {
       path: "/jaunumi/params/post/:id/:slug",
       redirect: (to) => "/jaunumi/" + to.params.slug,
+    },
+    {
+      path: "/privatuma-politika",
+      component: () => import("../views/LegalView.vue"),
+      meta: { title: "legal.privacyTitle", legal: "privacy" },
+    },
+    {
+      path: "/sikdatnu-politika",
+      component: () => import("../views/LegalView.vue"),
+      meta: { title: "legal.cookieTitle", legal: "cookies" },
     },
     {
       path: "/:pathMatch(.*)*",

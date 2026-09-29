@@ -49,7 +49,7 @@ watchEffect(() => {
             {{ t("ui.sourceLanguage") }}
           </p>
           <p v-for="(p, i) in article.paragraphs" :key="i" lang="lv">{{ p }}</p>
-          <RouterLink class="button" to="/pieraksts"
+          <RouterLink class="button" to="/kontakti"
             >{{ t("common.bookAppointment") }} </RouterLink
           >
         </div>

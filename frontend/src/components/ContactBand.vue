@@ -14,7 +14,7 @@ const { t } = useContent();
         <h2 data-reveal>{{ t("home.contactTitle") }}</h2>
         <div data-reveal data-delay="100">
           <p>{{ t("home.contactText") }}</p>
-          <RouterLink class="button button-light" to="/pieraksts"
+          <RouterLink class="button button-light" to="/kontakti"
             >{{ t("common.bookAppointment") }} </RouterLink
           ><a class="contact-phone" :href="clinic.tel">{{ clinic.phone }}</a>
         </div>

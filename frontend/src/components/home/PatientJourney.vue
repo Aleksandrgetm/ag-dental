@@ -10,7 +10,7 @@ const open = ref<number | null>(1);
       <div class="journey-intro" data-reveal>
         <p class="eyebrow">05 / {{ t("home.journeyLabel") }}</p>
         <h2>{{ t("home.journeyTitle") }}</h2>
-        <RouterLink class="text-link" to="/pieraksts"
+        <RouterLink class="text-link" to="/kontakti"
           >{{ t("common.bookAppointment") }} </RouterLink
         >
         <div class="journey-line-art" aria-hidden="true">

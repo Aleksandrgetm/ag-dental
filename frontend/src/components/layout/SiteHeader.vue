@@ -9,8 +9,11 @@ import {
 } from "vue";
 import { useRoute } from "vue-router";
 import { useContent } from "../../content/useContent";
+import { useCookieConsentStore } from "../../stores/cookieConsent";
+import { LANGUAGE_KEY } from "../../services/cookieConsent";
 import { clinic } from "../../content/clinic";
 const { t, locale } = useContent();
+const consent = useCookieConsentStore();
 const route = useRoute();
 const open = ref(false),
   scrolled = ref(false),
@@ -34,11 +37,12 @@ function language(lang: string) {
   locale.value = lang;
 }
 watch(
-  locale,
-  (value) => {
+  [locale, () => consent.preferencesAllowed],
+  ([value, allowed]) => {
     document.documentElement.lang = value;
     try {
-      localStorage.setItem("ag-language", value);
+      if (allowed) localStorage.setItem(LANGUAGE_KEY, value);
+      else localStorage.removeItem(LANGUAGE_KEY);
     } catch {
       /* Optional persistence. */
     }
@@ -122,7 +126,7 @@ onBeforeUnmount(() => {
           {{ lang.toUpperCase() }}
         </button>
       </div>
-      <RouterLink class="button header-book" to="/pieraksts"
+      <RouterLink class="button header-book" to="/kontakti"
         >{{ t("common.bookAppointment")
         }}</RouterLink
       ><button
@@ -178,7 +182,7 @@ onBeforeUnmount(() => {
           Ūnijas iela 25 · Rīga
           <p>{{ t("ui.hours") }} · 09:00–18:00</p>
         </div>
-        <RouterLink class="button" to="/pieraksts"
+        <RouterLink class="button" to="/kontakti"
           >{{ t("common.bookAppointment") }}
           </RouterLink
         >

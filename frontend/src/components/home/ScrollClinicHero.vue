@@ -127,11 +127,23 @@ onBeforeUnmount(() => {
             {{ t("hero.first") }}<em>{{ t("hero.italic") }}</em>
           </h1>
           <p class="tour-description">{{ t("hero.sub") }}</p>
-          <RouterLink class="button button-light" to="/pieraksts"
-            >{{ t("common.bookAppointment") }} </RouterLink
+          <RouterLink class="button button-light" to="/kontakti"
+            >{{ t("common.bookAppointment") }} <span aria-hidden="true">↗</span></RouterLink
           >
         </div>
       </div>
     </div>
   </section>
 </template>
+
+<style scoped>
+/* Keep the existing button size while reusing the original arrow typography. */
+.tour-copy .button {
+  position: relative;
+}
+.tour-copy .button > span {
+  position: absolute;
+  inset-inline-end: 0;
+  padding-inline-end: inherit;
+}
+</style>

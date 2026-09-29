@@ -4,6 +4,7 @@ import { useRoute } from "vue-router";
 import { useContent } from "./content/useContent";
 import { useClinicStore } from "./stores/clinic";
 import SiteHeader from "./components/layout/SiteHeader.vue";
+import CookieConsent from "./components/privacy/CookieConsent.vue";
 import SiteFooter from "./components/layout/SiteFooter.vue";
 import { vEditorialMotion } from "./directives/editorialMotion";
 import "./styles/editorial.css";
@@ -41,5 +42,6 @@ watch(
       </RouterView>
     </v-main>
     <SiteFooter />
+    <CookieConsent />
   </v-app>
 </template>

@@ -1,4 +1,6 @@
 import { createI18n } from "vue-i18n";
+import { privacyAndContact } from "./privacyAndContact";
+import { initialLanguage } from "../services/cookieConsent";
 const lv = {
   common: {
     bookAppointment: "Pieteikt vizīti",
@@ -353,16 +355,14 @@ const ru = {
     footer: "Забота о вашей улыбке.",
   },
 };
-let initial = "lv";
-try {
-  const saved = localStorage.getItem("ag-language");
-  if (saved && ["lv", "ru", "en"].includes(saved)) initial = saved;
-} catch {
-  /* Storage can be disabled. */
-}
+const initial = initialLanguage();
 export default createI18n({
   legacy: false,
   locale: initial,
   fallbackLocale: "lv",
-  messages: { lv, ru, en },
+  messages: {
+    lv: { ...lv, ...privacyAndContact.lv },
+    ru: { ...ru, ...privacyAndContact.ru },
+    en: { ...en, ...privacyAndContact.en },
+  },
 });

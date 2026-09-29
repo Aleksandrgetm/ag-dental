@@ -31,7 +31,7 @@ const { t, local } = useContent();
         <p class="doctor-role">{{ t("home.doctorRole") }}</p>
         <p>{{ local(doctorBio) }}</p>
         <p>{{ local(about) }}</p>
-        <RouterLink class="button" to="/pieraksts"
+        <RouterLink class="button" to="/kontakti"
           >{{ t("common.bookAppointment") }} </RouterLink
         >
       </div>
