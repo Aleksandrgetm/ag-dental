@@ -1,76 +1,56 @@
 package main
 
 import (
+	"github.com/Aleksandrgetm/Dental/internal/auth"
+	"github.com/Aleksandrgetm/Dental/internal/database"
+	"github.com/Aleksandrgetm/Dental/internal/server"
+	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"os"
-
-	"github.com/Aleksandrgetm/Dental/internal/database"
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
+	"strings"
+	"time"
 )
 
 func main() {
-	// Load local environment variables.
-	// In production they will come from the hosting environment.
-	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found, using system environment variables")
-	}
-
-	// Connect to PostgreSQL.
+	_ = godotenv.Load()
 	db, err := database.Connect()
 	if err != nil {
-		log.Fatal("Database connection failed: ", err)
+		log.Fatal("Database connection failed")
 	}
-
 	sqlDB, err := db.DB()
 	if err != nil {
-		log.Fatal("Failed to get database instance: ", err)
+		log.Fatal("Database connection failed")
 	}
-
-	if err := sqlDB.Ping(); err != nil {
-		log.Fatal("Database ping failed: ", err)
+	defer sqlDB.Close()
+	if err = sqlDB.Ping(); err != nil {
+		log.Fatal("Database ping failed")
 	}
-
-	log.Println("Database connected successfully")
-
-	router := gin.Default()
-
-	router.Use(cors.New(cors.Config{
-		AllowOrigins: []string{
-			"http://localhost:5173",
-		},
-		AllowMethods: []string{
-			"GET",
-			"POST",
-			"PUT",
-			"PATCH",
-			"DELETE",
-			"OPTIONS",
-		},
-		AllowHeaders: []string{
-			"Origin",
-			"Content-Type",
-			"Authorization",
-		},
-		AllowCredentials: true,
-	}))
-
-	router.GET("/api/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"status":   "ok",
-			"service":  "ag-dental-api",
-			"database": "connected",
-		})
-	})
-
+	var verifier auth.Verifier
+	configuredVerifier, authErr := auth.NewVerifier(os.Getenv("SUPABASE_URL"), os.Getenv("SUPABASE_PUBLISHABLE_KEY"))
+	if authErr != nil {
+		log.Println("Authentication unavailable; guest booking remains available")
+	} else {
+		verifier = configuredVerifier
+	}
+	origins := []string{"http://localhost:5173"}
+	if val := os.Getenv("CORS_ALLOWED_ORIGINS"); val != "" {
+		origins = nil
+		for _, v := range strings.Split(val, ",") {
+			v = strings.TrimSpace(v)
+			if v == "*" || v == "" {
+				log.Fatal("CORS requires explicit origins")
+			}
+			origins = append(origins, v)
+		}
+	}
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
-
-	if err := router.Run(":" + port); err != nil {
-		log.Fatal(err)
+	api := &http.Server{Addr: ":" + port, Handler: server.New(db, verifier, origins), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 30 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 32 * 1024}
+	log.Println("API listening on configured port")
+	if err = api.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Fatal("API server stopped")
 	}
 }
