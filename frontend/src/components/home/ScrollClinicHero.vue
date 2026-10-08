@@ -1,0 +1,149 @@
+<script setup lang="ts">
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { media } from "../../content/clinic";
+import { useContent } from "../../content/useContent";
+const { t } = useContent();
+const section = ref<HTMLElement>(),
+  video = ref<HTMLVideoElement>();
+const progress = ref(0),
+  reduced = ref(false),
+  failed = ref(false),
+  ready = ref(false);
+const staticMode = computed(() => reduced.value || failed.value);
+let frame = 0,
+  watchdog = 0,
+  loadTimer = 0,
+  target = 0,
+  query: MediaQueryList | undefined,
+  alive = true;
+function measure() {
+  if (!section.value || staticMode.value) return;
+  const rect = section.value.getBoundingClientRect();
+  target = Math.min(
+    1,
+    Math.max(
+      0,
+      -rect.top / Math.max(1, section.value.offsetHeight - window.innerHeight),
+    ),
+  );
+  if (!frame) frame = requestAnimationFrame(update);
+}
+function update() {
+  frame = 0;
+  if (!alive || staticMode.value) return;
+  progress.value += (target - progress.value) * 0.18;
+  if (Math.abs(target - progress.value) < 0.0005) progress.value = target;
+  const v = video.value;
+  if (v && ready.value && Number.isFinite(v.duration) && !v.seeking) {
+    const time = progress.value * Math.max(0, v.duration - 0.04);
+    if (Math.abs(v.currentTime - time) > 0.025) {
+      v.currentTime = time;
+      clearTimeout(watchdog);
+      watchdog = window.setTimeout(() => {
+        if (v.seeking) failed.value = true;
+      }, 4500);
+    }
+  }
+  if (Math.abs(target - progress.value) > 0.0005)
+    frame = requestAnimationFrame(update);
+}
+function loaded() {
+  ready.value = true;
+  clearTimeout(loadTimer);
+  measure();
+}
+function seeked() {
+  clearTimeout(watchdog);
+  if (!frame && !staticMode.value) frame = requestAnimationFrame(update);
+}
+function motion() {
+  reduced.value = !!query?.matches;
+  measure();
+}
+onMounted(() => {
+  query = window.matchMedia("(prefers-reduced-motion: reduce)");
+  motion();
+  query.addEventListener("change", motion);
+  window.addEventListener("scroll", measure, { passive: true });
+  window.addEventListener("resize", measure);
+  loadTimer = window.setTimeout(() => {
+    if (!ready.value) failed.value = true;
+  }, 12000);
+  measure();
+});
+onBeforeUnmount(() => {
+  alive = false;
+  cancelAnimationFrame(frame);
+  clearTimeout(watchdog);
+  clearTimeout(loadTimer);
+  window.removeEventListener("scroll", measure);
+  window.removeEventListener("resize", measure);
+  query?.removeEventListener("change", motion);
+});
+</script>
+<template>
+  <section
+    ref="section"
+    class="tour"
+    :class="{ 'tour-static': staticMode }"
+    :aria-label="t('ui.tour')"
+  >
+    <div class="tour-viewport">
+      <img
+        class="tour-poster"
+        :src="media.poster"
+        alt=""
+        width="1280"
+        height="720"
+        fetchpriority="high"
+      />
+      <video
+        v-if="!staticMode"
+        ref="video"
+        class="tour-video"
+        :class="{ 'is-ready': ready }"
+        :src="media.video"
+        :poster="media.poster"
+        muted
+        playsinline
+        preload="auto"
+        aria-hidden="true"
+        @loadeddata="loaded"
+        @seeked="seeked"
+        @error="failed = true"
+      ></video>
+      <div class="tour-shade"></div>
+      <div
+        class="tour-exit"
+        :style="{ opacity: Math.max(0, (progress - 0.88) / 0.12) }"
+      ></div>
+      <div class="tour-topline">
+        <span>AG ZOBĀRSTNIECĪBA</span><span>{{ t("hero.location") }}</span>
+      </div>
+      <div class="tour-copy">
+        <div>
+          <p class="eyebrow">{{ t("hero.eyebrow") }}</p>
+          <h1>
+            {{ t("hero.first") }}<em>{{ t("hero.italic") }}</em>
+          </h1>
+          <p class="tour-description">{{ t("hero.sub") }}</p>
+          <RouterLink class="button button-light" to="/kontakti"
+            >{{ t("common.bookAppointment") }} <span aria-hidden="true">↗</span></RouterLink
+          >
+        </div>
+      </div>
+    </div>
+  </section>
+</template>
+
+<style scoped>
+/* Keep the existing button size while reusing the original arrow typography. */
+.tour-copy .button {
+  position: relative;
+}
+.tour-copy .button > span {
+  position: absolute;
+  inset-inline-end: 0;
+  padding-inline-end: inherit;
+}
+</style>

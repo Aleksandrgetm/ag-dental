@@ -1,0 +1,309 @@
+[
+  {
+    "title": "Konsultācija un diagnostika",
+    "items": [
+      {
+        "name": "Konsultācija pie vispārējā zobārsta ar diagnozes izskaidrojumu",
+        "price": "50.00"
+      },
+      {
+        "name": "Zobu rentgens (viens rentgens)",
+        "price": "10.00"
+      }
+    ]
+  },
+  {
+    "title": "Zobu higiēna",
+    "items": [
+      {
+        "name": "Pilna mutes dobuma higiēna ar sodas strūklu",
+        "price": "80.00"
+      },
+      {
+        "name": "Mutes dobuma higiēna, vairākos seansos (katrs nākamais seanss)",
+        "price": "60.00"
+      },
+      {
+        "name": "Pilna mutes dobuma higiēna bērniem – piena zobiem",
+        "price": "40.00"
+      },
+      {
+        "name": "Pilna mutes dobuma higiēna bērniem pastāvīgiem zobiem",
+        "price": "50.00"
+      },
+      {
+        "name": "Pilna mutes dobuma higiēna ar sodas strūklu (ar ortodontisko aparatūru)",
+        "price": "95.00"
+      },
+      {
+        "name": "Medikamentoza smaganu kabatu apstrāde",
+        "price": "28.00"
+      },
+      {
+        "name": "Tiefenfluorīda uzklāšana 1 zobam",
+        "price": "10.00"
+      },
+      {
+        "name": "Tiefenfluorīda uzklāšana visiem zobiem",
+        "price": "35.00"
+      },
+      {
+        "name": "Zobu balināšana kabinetā ar Philips ZOOM",
+        "price": "400.00"
+      },
+      {
+        "name": "Instruktāža pareizai mutes dobuma higiēnai",
+        "price": "15.00"
+      }
+    ]
+  },
+  {
+    "title": "Zobu ārstēšana",
+    "items": [
+      {
+        "name": "Vienas virsmas plombēšana ar kompozītmateriālu (anestēzija iekļauta cenā)",
+        "price": "108.00"
+      },
+      {
+        "name": "Divu virsmu plombēšana ar kompozītmateriālu (anestēzija iekļauta cenā)",
+        "price": "11800",
+        "review": true
+      },
+      {
+        "name": "Trīs virsmu plombēšana ar kompozītmateriālu (anestēzija iekļauta cenā)",
+        "price": "128.00"
+      },
+      {
+        "name": "Četru virsmu plombēšana ar kompozītmateriālu (anestēzija iekļauta cenā)",
+        "price": "138.00"
+      },
+      {
+        "name": "Zoba kroņa atjaunošana (anestēzija iekļauta cenā; tapas ievietošana iekļauta cenā)",
+        "price": "150.00"
+      },
+      {
+        "name": "Estētiska zoba pārklāšana ar kompozītmateriālu",
+        "price": "160.00"
+      },
+      {
+        "name": "Vienkanāla zoba saknes ārstēšana 1. un 2. seanss (anestēzija, tīrīšana/ pildīšana iekļauta cenā)",
+        "price": "143.00"
+      },
+      {
+        "name": "Divkanāla zoba saknes ārstēšana 1. un 2.seanss (anestēzija, tīrīšana/ pildīšana iekļauta cenā)",
+        "price": "183.00"
+      },
+      {
+        "name": "Trīskanāla zoba saknes ārstēšana 1. un 2. seanss (anestēzija, tīrīšana/ pildīšana iekļauta cenā)",
+        "price": "243.00"
+      },
+      {
+        "name": "Pulpas devitalizācija (anestēzija iekļauta cenā)",
+        "price": "75.00"
+      }
+    ]
+  },
+  {
+    "title": "Zobu ķirurģija",
+    "items": [
+      {
+        "name": "Viensakņu zoba ekstrakcija (anestēzija, medikamentoza apstrāde iekļauta cenā)",
+        "price": "73.00"
+      },
+      {
+        "name": "Divsakņu zoba ekstrakcija (anestēzija, medikamentoza apstrāde iekļauta cenā)",
+        "price": "83.00"
+      },
+      {
+        "name": "Trīssakņu zoba ekstrakcija (anestēzija, medikamentoza apstrāde iekļauta cenā)",
+        "price": "93.00"
+      },
+      {
+        "name": "Viensakņu ekstrakcija ar osteotomiju (anestēzija, medikamentoza apstrāde iekļauta cenā)",
+        "price": "108.00"
+      },
+      {
+        "name": "Divsakņu zoba ekstrakcija ar osteotomiju (anestēzija, medikamentoza apstrāde iekļauta cenā)",
+        "price": "118.00"
+      },
+      {
+        "name": "Trīssakņu zoba ekstrakcija ar osteotomiju (anestēzija, medikamentoza apstrāde iekļauta cenā)",
+        "price": "123.00"
+      },
+      {
+        "name": "Kustīga zoba ekstrakcija (anestēzija, medikamentoza apstrāde iekļauta cenā)",
+        "price": "50.00"
+      },
+      {
+        "name": "Astotā zoba ekstrakcija (anestēzija, medikamentoza apstrāde iekļauta cenā)",
+        "price": "140.00"
+      },
+      {
+        "name": "Intra-orālā incīzija (anestēzija, medikamentoza apstrāde iekļauta cenā)",
+        "price": "50.00"
+      },
+      {
+        "name": "Šuves uzlikšana pēc ekstrakcijas",
+        "price": "15.00"
+      },
+      {
+        "name": "Alveolīta ārstēšana",
+        "price": "58.00"
+      }
+    ]
+  },
+  {
+    "title": "Bērnu zobārstniecība",
+    "items": [
+      {
+        "name": "Konsultācija",
+        "price": "35.00"
+      },
+      {
+        "name": "Piena zobu plombēšana 1 virsma (anestēzija iekļauta cenā)",
+        "price": "50.00"
+      },
+      {
+        "name": "Piena zobu plombēšana 2 virsmām (anestēzija iekļauta cenā)",
+        "price": "60.00"
+      },
+      {
+        "name": "Piena zobu plombēšana 3 virsmām (anestēzija iekļauta cenā)",
+        "price": "70.00"
+      },
+      {
+        "name": "Viensakņu piena zoba ekstrakcija (anestēzija iekļauta cenā)",
+        "price": "40.00"
+      },
+      {
+        "name": "Daudzsakņu piena zoba ekstrakcija (anestēzija iekļauta cenā)",
+        "price": "65.00"
+      },
+      {
+        "name": "Kustīga piena zoba ekstrakcija (anestēzija iekļauta cenā)",
+        "price": "30.00"
+      }
+    ]
+  },
+  {
+    "title": "Zobu protezēšana",
+    "items": [
+      {
+        "name": "Metālkeramikas kronis",
+        "price": "320.00"
+      },
+      {
+        "name": "Cirkonija keramikas kronis",
+        "price": "590.00"
+      },
+      {
+        "name": "Plastmasas kronis",
+        "price": "140.00"
+      },
+      {
+        "name": "Lieta metāla sakņu inleja",
+        "price": "60.00"
+      },
+      {
+        "name": "Kroņa vai inlejas cementēšana",
+        "price": "25.00"
+      },
+      {
+        "name": "Kroņa noņemšana",
+        "price": "25.00"
+      },
+      {
+        "name": "Nospiedums 1 žoklim",
+        "price": "20.00"
+      },
+      {
+        "name": "Mīkstā nakts kape",
+        "price": "150.00"
+      },
+      {
+        "name": "Cietā nakts kape",
+        "price": "150.00"
+      },
+      {
+        "name": "Boksera šina (bezkrāsaina/ krāsaina)",
+        "price": "170.00/200.00"
+      },
+      {
+        "name": "Balināšanas kape",
+        "price": "100.00"
+      },
+      {
+        "name": "Metāla lokveida protēze augšžoklim",
+        "price": "630.00"
+      },
+      {
+        "name": "Metāla lokveida protēze apakšžoklim",
+        "price": "570.00"
+      },
+      {
+        "name": "Metāla lokveida protēze ar elastīgo bāzi augšžoklim",
+        "price": "1005.00"
+      },
+      {
+        "name": "Metāla lokveida protēze ar elastīgo bāzi apakšžoklim",
+        "price": "930.00"
+      },
+      {
+        "name": "Elastīgā bez-metāla lokveida protēze",
+        "price": "1020.00"
+      },
+      {
+        "name": "Izņemamā protēze daļēja (līdz 8 zobiem)",
+        "price": "300.00"
+      },
+      {
+        "name": "Izņemamā protēze - daļēja (līdz 13 zobiem)",
+        "price": "350.00"
+      },
+      {
+        "name": "Totālā izņemamā protēze",
+        "price": "400.00"
+      },
+      {
+        "name": "Totālā izņemamā protēze ar mīksto bāzi",
+        "price": "435.00"
+      },
+      {
+        "name": "Platītes reparatūra (1-2 zobi)",
+        "price": "90.00"
+      },
+      {
+        "name": "Platītes reparatūra (3 un vairāki zobi)",
+        "price": "120.00"
+      },
+      {
+        "name": "Elastīgā izņemamā viena zoba platīte",
+        "price": "345.00"
+      },
+      {
+        "name": "Elastīgā izņemamā vienpusēja zobu platīte",
+        "price": "465.00"
+      },
+      {
+        "name": "Elastīgā izņemamā parciālā zobu platīte",
+        "price": "555.00"
+      },
+      {
+        "name": "Elastīgā izņemamā totālā zobu platīte",
+        "price": "600.00"
+      },
+      {
+        "name": "Elastīgās platītes reparatūra",
+        "price": "165.00"
+      },
+      {
+        "name": "Zobu garnitūras cena platītēs",
+        "price": "30.00"
+      },
+      {
+        "name": "Zobu protēzes korekcija",
+        "price": "20.00"
+      }
+    ]
+  }
+]

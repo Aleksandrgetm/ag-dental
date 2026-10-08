@@ -1,0 +1,11 @@
+# CONTENT_REVIEW_REQUIRED
+
+1. **Malformed price:** The source lists `11800` for “Divu virsmu plombēšana ar kompozītmateriālu (anestēzija iekļauta cenā)”. The raw value is preserved in `prices.json` with `review: true`. Public UI says the price must be confirmed with the clinic. It is not advertised in the homepage preview. Do not infer `118.00` without confirmation.
+2. **Root-canal billing:** The original entries combine “1. un 2. seanss” with €143 / €183 / €243. Confirm whether these are combined or per-session prices. Preserve the original wording meanwhile.
+3. **Current prices and concession:** Confirm all 69 prices and the 10% pensioner prosthodontic discount before launch. The latest hygiene article states €80 including air polishing. Avoid the legacy homepage SEO title's older gift/promotion wording.
+4. **Experience claim:** More than 15 years is quoted from the source About page. Confirm whether the clinic wants to update this; no additional years were calculated.
+5. **Article clinical claims:** Retained original articles mention oral/systemic health, prevention, denture benefits and intervals between hygiene visits. Ask the clinic to clinically review these inherited statements before republication; no additional claims were added.
+6. **Temporary AI media:** The supplied video and extracted frames are development assets. Replace or approve them for publication. In particular, the generated exterior must not be used for directions; the contact page uses the old site's real location image and a map link to the verified address.
+7. **Photography:** Confirm the clinic has publication rights and consents for migrated images. Only the verified portrait is used to identify Dr. Anda Gutovska.
+8. **Legal information:** No linked legal/privacy page or business registration details were found. Obtain approved legal copy before collecting appointment or patient data. This version collects no patient data and adds no analytics, embedded map tracking, authentication or booking form submission.
+9. **Translation review:** RU/EN general copy is translated from the source. Detailed prices and articles explicitly remain Latvian. Obtain clinically approved translations before claiming full multilingual coverage.
