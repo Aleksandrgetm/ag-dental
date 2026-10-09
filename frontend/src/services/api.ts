@@ -1,21 +1,24 @@
-const API_URL = import.meta.env.VITE_API_URL
+import { resolveAPIBase } from "./apiConfig.ts";
 
-if (!API_URL) {
-  throw new Error('VITE_API_URL is not configured')
-}
+export const API_URL = resolveAPIBase(
+  import.meta.env?.VITE_API_URL,
+  typeof window === "undefined" ? undefined : window.location.href,
+);
 
 export interface HealthResponse {
-  status: string
-  service: string
-  database: string
+  status: string;
+  service: string;
+  database: string;
 }
 
 export async function getHealth(): Promise<HealthResponse> {
-  const response = await fetch(`${API_URL}/health`)
+  // Reject only the requested operation, so the public application can still mount.
+  if (!API_URL) throw new Error("api_unavailable");
+  const response = await fetch(`${API_URL}/health`);
 
   if (!response.ok) {
-    throw new Error(`API request failed: ${response.status}`)
+    throw new Error(`API request failed: ${response.status}`);
   }
 
-  return response.json()
+  return response.json();
 }
