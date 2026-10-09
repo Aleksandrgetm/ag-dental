@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AppointmentRequestForm from "../components/AppointmentRequestForm.vue";
+import ContactQuestionForm from "../components/ContactQuestionForm.vue";
 import VisitQuestions from "../components/VisitQuestions.vue";
 import { clinic } from "../content/clinic";
 import { useContent } from "../content/useContent";
@@ -43,7 +43,7 @@ const mapSource = `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}
           </div>
         </dl>
       </div>
-      <AppointmentRequestForm />
+      <ContactQuestionForm />
     </section>
     <section class="container contacts-map" aria-labelledby="map-heading">
       <div class="map-heading">

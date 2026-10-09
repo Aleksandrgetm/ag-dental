@@ -7,11 +7,9 @@ import {
   LANGUAGE_KEY,
 } from "../src/services/cookieConsent.ts";
 import {
-  validateRequest,
-  prepareRequest,
-  submitAppointmentRequest,
+  validateContactQuestion,
   fieldLimits,
-} from "../src/services/appointmentRequests.ts";
+} from "../src/services/contactQuestions.ts";
 const choice = {
   version: 2,
   necessary: true,
@@ -22,13 +20,11 @@ const choice = {
   timestamp: "2026-01-01T00:00:00.000Z",
 };
 const valid = {
-  firstName: "Testa",
-  lastName: "Persona",
+  name: "Testa Persona",
   phone: "+371 2822 9925",
   email: "test@example.com",
-  service: "consultation",
-  message: "",
-  consent: true,
+  question: "Vai klīnikā ir pieejama autostāvvieta?",
+  privacy: true,
 };
 test("consent fails closed for missing, malformed, obsolete, future-dated or inactive-category consent", () => {
   for (const raw of [
@@ -76,84 +72,110 @@ test("language persistence requires valid preference consent; legacy unconsented
   });
   assert.equal(initialLanguage(), "lv");
 });
-test("all required fields including operational consent are validated", () => {
+test("questions require a single name, email, question and privacy acknowledgement, but no phone", () => {
   assert.deepEqual(
-    validateRequest(
-      {
-        firstName: " ",
-        lastName: "",
-        phone: "",
-        email: "",
-        service: "",
-        message: "",
-        consent: false,
-      },
-      [],
-    ),
+    validateContactQuestion({
+      name: " ",
+      email: "",
+      phone: "",
+      question: " \n ",
+      privacy: false,
+    }),
     {
-      firstName: "required",
-      lastName: "required",
-      phone: "required",
+      name: "required",
       email: "required",
-      consent: "consentRequired",
+      question: "required",
+      privacy: "privacyRequired",
     },
   );
+  for (const phone of ["", "   "])
+    assert.deepEqual(validateContactQuestion({ ...valid, phone }), {});
+  for (const privacy of [false, undefined, "true", 1])
+    assert.equal(
+      validateContactQuestion({ ...valid, privacy }).privacy,
+      "privacyRequired",
+    );
 });
-test("international phones, Unicode names, service selection and email are checked without overrestricting names", () => {
+test("international phone formats and Unicode names are accepted without a country-specific prefix", () => {
   for (const phone of [
     "+371 2822 9925",
     "28229925",
     "+44 (20) 1234-5678",
     "00371 28229925",
+    "+1 (415) 555-0123",
+    "+49 30 123456",
+    "1234567",
+    "+123456789012345",
   ])
-    assert.deepEqual(
-      validateRequest({ ...valid, firstName: "Āņna-Marie", phone }, [
-        "consultation",
-      ]),
-      {},
-    );
-  for (const phone of ["123", "call me", "1234567890123456", "12+34567890"])
+    for (const name of [
+      "Āņna-Marie",
+      "Александр",
+      "李",
+      "O’Connor",
+      " Mary Jane ",
+    ])
+      assert.deepEqual(validateContactQuestion({ ...valid, name, phone }), {});
+  for (const phone of [
+    "123",
+    "call me",
+    "1234567890123456",
+    "12+34567890",
+    "+371\n28229925",
+    "++123456789",
+    "( ) - .",
+  ])
     assert.equal(
-      validateRequest({ ...valid, phone }, ["consultation"]).phone,
+      validateContactQuestion({ ...valid, phone }).phone,
       "phoneInvalid",
     );
-  for (const email of ["x", "x@", "x@domain", "x @domain.lv"])
+  assert.equal(
+    validateContactQuestion({ ...valid, name: "Test\nName" }).name,
+    "nameInvalid",
+  );
+});
+test("email is validated and surrounding whitespace is accepted", () => {
+  for (const email of [
+    "x",
+    "x@",
+    "x@domain",
+    "x @domain.lv",
+    "x@domain. lv",
+    "<x>@example.com",
+  ])
     assert.equal(
-      validateRequest({ ...valid, email }, ["consultation"]).email,
+      validateContactQuestion({ ...valid, email }).email,
       "emailInvalid",
     );
-  assert.equal(
-    validateRequest({ ...valid, service: "<script>" }, ["consultation"])
-      .service,
-    "serviceInvalid",
-  );
-  for (const service of ["", "unsure"])
-    assert.deepEqual(validateRequest({ ...valid, service }, []), {});
+  for (const email of [" person@example.com ", "person+question@example.co.uk"])
+    assert.deepEqual(validateContactQuestion({ ...valid, email }), {});
 });
-test("all free-text fields are length-limited even if HTML constraints are bypassed", () => {
+test("all free-text lengths are enforced even when HTML limits are bypassed", () => {
   for (const [key, limit] of Object.entries(fieldLimits))
     assert.equal(
-      validateRequest({ ...valid, [key]: "a".repeat(limit + 1) }, [
-        "consultation",
-      ])[key],
+      validateContactQuestion({ ...valid, [key]: "a".repeat(limit + 1) })[key],
       "tooLong",
     );
+  assert.deepEqual(
+    validateContactQuestion({ ...valid, question: "a".repeat(1000) }),
+    {},
+  );
+  assert.deepEqual(
+    validateContactQuestion({
+      ...valid,
+      question: "Labdien!\nVai ir autostāvvieta?",
+    }),
+    {},
+  );
 });
-test("payload includes explicit consent evidence, and the inert adapter never sends data or fakes receipt", async () => {
-  assert.throws(() => prepareRequest({ ...valid, consent: false }));
-  const request = prepareRequest({ ...valid, firstName: " Testa " });
-  assert.equal(request.firstName, "Testa");
-  assert.equal(request.consent.granted, true);
-  assert.ok(Number.isFinite(Date.parse(request.consent.timestamp)));
-  assert.ok(request.consent.policyVersion);
+test("local validation does not mutate, persist, transmit or claim acceptance of a question", () => {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = () => {
     throw Error("Network must not be called");
   };
   try {
-    assert.deepEqual(await submitAppointmentRequest(request), {
-      status: "unavailable",
-    });
+    const fields = Object.freeze({ ...valid });
+    assert.deepEqual(validateContactQuestion(fields), {});
+    assert.deepEqual(fields, valid);
   } finally {
     globalThis.fetch = originalFetch;
   }

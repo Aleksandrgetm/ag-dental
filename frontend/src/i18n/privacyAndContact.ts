@@ -9,8 +9,6 @@ export const privacyAndContact = {
       mapTitle: "AG Zobārstniecība — Ūnijas iela 25, Rīga",
       mapConsent: "Kartei nepieciešama piekrišana papildu sīkdatnēm.",
       googlePrivacy: "Google privātuma politika",
-      formUnavailable:
-        "Nosūtīšana tiešsaistē vēl nav pieejama. Laukus var pārbaudīt pārlūkā; ziņa netiek nosūtīta. Jautājumiem zvaniet vai rakstiet klīnikai.",
     },
     legal: {
       privacyTitle: "Privātuma politika",
@@ -23,42 +21,33 @@ export const privacyAndContact = {
       title: "Uzdot jautājumu",
       headline: "Sāksim ar sarunu.",
       intro:
-        "Sazinieties ar mums ar vispārīgiem jautājumiem par klīniku un pakalpojumiem. Šī veidlapa nav paredzēta vizītes rezervēšanai.",
-      unavailable:
-        "Ziņu nosūtīšana tiešsaistē vēl nav pieejama. Šobrīd varat pārbaudīt aizpildītos laukus tikai savā pārlūkā; dati klīnikai netiek nosūtīti. Jautājumiem, lūdzu, zvaniet vai rakstiet e-pastu.",
-      firstName: "Vārds",
-      lastName: "Uzvārds",
-      phone: "Tālrunis",
+        "Jautājumi par klīniku vai mūsu pakalpojumiem? Sazinieties ar mums.",
+      name: "Vārds",
       email: "E-pasts",
-      service: "Pakalpojums",
-      message: "Ziņa / papildu informācija",
+      phone: "Tālrunis",
+      question: "Jūsu jautājums",
       optional: "nav obligāti",
       requiredHint: "Ar * atzīmētie lauki ir obligāti.",
-      select: "Izvēlieties pakalpojumu",
-      unsure: "Neesmu pārliecināts / nepieciešama konsultācija",
-      messageHint:
-        "Lūdzu, neievadiet diagnozi, personas kodu vai citu detalizētu veselības informāciju. Līdz 1000 rakstzīmēm.",
-      consent:
-        "Piekrītu manu personas datu apstrādei, lai AG Zobārstniecība varētu sazināties ar mani saistībā ar manu jautājumu.",
-      check: "Pārbaudīt ziņu",
-      send: "Nosūtīt ziņu",
-      loading: "Lūdzu, uzgaidiet…",
+      questionPlaceholder: "Kā varam jums palīdzēt?",
+      questionHint:
+        "Lūdzu, neievadiet diagnozi, personas kodu vai detalizētu veselības informāciju. Līdz 1000 rakstzīmēm.",
+      characterCount: "{count} / {max}",
+      privacy:
+        "Esmu iepazinies ar privātuma politiku par manu datu izmantošanu, lai atbildētu uz jautājumu.",
+      check: "Pārbaudīt jautājumu",
+      unavailable:
+        "Nosūtīšana tiešsaistē pašlaik nav pieejama. Šeit varat pārbaudīt laukus; jautājumu nosūtiet e-pastā vai zvaniet.",
       notSent:
-        "Lauki ir aizpildīti pareizi. Ziņa nav nosūtīta. Jautājumiem, lūdzu, sazinieties ar klīniku pa tālruni vai e-pastu.",
-      failed:
-        "Ziņu neizdevās nosūtīt. Lūdzu, mēģiniet vēlreiz vai sazinieties ar klīniku.",
-      thanks: "Paldies!",
-      success:
-        "Jūsu ziņa ir saņemta. Mēs ar jums sazināsimies par jūsu jautājumu.",
+        "Lauki ir aizpildīti pareizi. Jautājums nav nosūtīts. Lūdzu, rakstiet e-pastu vai zvaniet klīnikai.",
       errors: {
         summary: "Lūdzu, pārbaudiet atzīmētos laukus.",
         required: "Lūdzu, aizpildiet šo lauku.",
         tooLong: "Teksts pārsniedz atļauto garumu.",
+        nameInvalid: "Lūdzu, ievadiet derīgu vārdu.",
         emailInvalid: "Lūdzu, ievadiet derīgu e-pasta adresi.",
-        phoneInvalid: "Lūdzu, ievadiet derīgu tālruņa numuru (7–15 cipari).",
-        consentRequired:
-          "Lai turpinātu, nepieciešama piekrišana datu apstrādei.",
-        serviceInvalid: "Lūdzu, izvēlieties pakalpojumu no saraksta.",
+        phoneInvalid: "Ievadiet derīgu numuru (7–15 cipari).",
+        privacyRequired:
+          "Lūdzu, aplieciniet iepazīšanos ar privātuma politiku.",
       },
     },
     cookie: {
@@ -101,8 +90,6 @@ export const privacyAndContact = {
       mapTitle: "AG Zobārstniecība — Ūnijas iela 25, Riga",
       mapConsent: "The map requires consent to optional cookies.",
       googlePrivacy: "Google privacy policy",
-      formUnavailable:
-        "Online sending is not yet available. You can check the fields in your browser; no message is sent. Please call or email the clinic with your questions.",
     },
     legal: {
       privacyTitle: "Privacy Policy",
@@ -113,43 +100,33 @@ export const privacyAndContact = {
     },
     request: {
       title: "Ask a question",
-      headline: "Let’s start with a conversation.",
-      intro:
-        "Contact us with general questions about the clinic and our services. This form does not reserve an appointment.",
-      unavailable:
-        "Online messages are not yet available. You can check these fields in your browser; no data is sent to the clinic. Please call or email with your questions.",
-      firstName: "First name",
-      lastName: "Last name",
-      phone: "Phone",
+      headline: "Let’s talk.",
+      intro: "Have a question about the clinic or our services? Get in touch.",
+      name: "Your name",
       email: "Email",
-      service: "Service",
-      message: "Message / additional information",
+      phone: "Phone",
+      question: "Your question",
       optional: "optional",
       requiredHint: "Fields marked * are required.",
-      select: "Select a service",
-      unsure: "I am unsure / need a consultation",
-      messageHint:
+      questionPlaceholder: "How can we help?",
+      questionHint:
         "Please do not enter a diagnosis, personal identity number or detailed health information. Maximum 1000 characters.",
-      consent:
-        "I agree to the processing of my personal data so that AG Zobārstniecība can contact me about my question.",
-      check: "Check message",
-      send: "Send message",
-      loading: "Please wait…",
+      characterCount: "{count} / {max}",
+      privacy:
+        "I have read the Privacy Policy about the use of my data to respond to my question.",
+      check: "Check question",
+      unavailable:
+        "Online sending is currently unavailable. You can check the fields here; please email or call with your question.",
       notSent:
-        "The fields are valid. Your message has not been sent. Please call or email the clinic with your questions.",
-      failed:
-        "The message could not be sent. Please try again or contact the clinic.",
-      thanks: "Thank you!",
-      success:
-        "Your message has been received. We will contact you about your question.",
+        "The fields are valid. Your question has not been sent. Please email or call the clinic.",
       errors: {
         summary: "Please check the highlighted fields.",
         required: "Please complete this field.",
         tooLong: "This text exceeds the length limit.",
+        nameInvalid: "Please enter a valid name.",
         emailInvalid: "Please enter a valid email address.",
-        phoneInvalid: "Please enter a valid phone number (7–15 digits).",
-        consentRequired: "Consent to data processing is required to continue.",
-        serviceInvalid: "Please select a service from the list.",
+        phoneInvalid: "Enter a valid number (7–15 digits).",
+        privacyRequired: "Please acknowledge the Privacy Policy.",
       },
     },
     cookie: {
@@ -192,8 +169,6 @@ export const privacyAndContact = {
       mapTitle: "AG Zobārstniecība — Ūnijas iela 25, Рига",
       mapConsent: "Для карты нужно согласие на дополнительные cookie.",
       googlePrivacy: "Политика конфиденциальности Google",
-      formUnavailable:
-        "Отправка онлайн пока недоступна. Поля можно проверить в браузере; сообщение не отправляется. По вопросам позвоните или напишите в клинику.",
     },
     legal: {
       privacyTitle: "Политика конфиденциальности",
@@ -205,43 +180,33 @@ export const privacyAndContact = {
     request: {
       title: "Задать вопрос",
       headline: "Начнём с разговора.",
-      intro:
-        "Обратитесь к нам с общими вопросами о клинике и услугах. Эта форма не предназначена для записи на приём.",
-      unavailable:
-        "Отправка сообщений онлайн пока недоступна. Можно проверить заполненные поля в браузере; данные не отправляются в клинику. По вопросам позвоните или напишите нам.",
-      firstName: "Имя",
-      lastName: "Фамилия",
+      intro: "Есть вопросы о клинике или наших услугах? Свяжитесь с нами.",
+      name: "Ваше имя",
+      email: "Электронная почта",
       phone: "Телефон",
-      email: "Эл. почта",
-      service: "Услуга",
-      message: "Сообщение / дополнительная информация",
+      question: "Ваш вопрос",
       optional: "необязательно",
       requiredHint: "Поля со знаком * обязательны.",
-      select: "Выберите услугу",
-      unsure: "Не уверен / нужна консультация",
-      messageHint:
+      questionPlaceholder: "Чем мы можем вам помочь?",
+      questionHint:
         "Не указывайте диагноз, персональный код или подробные сведения о здоровье. До 1000 символов.",
-      consent:
-        "Я согласен на обработку моих персональных данных, чтобы AG Zobārstniecība могла связаться со мной по поводу моего вопроса.",
-      check: "Проверить сообщение",
-      send: "Отправить сообщение",
-      loading: "Подождите…",
+      characterCount: "{count} / {max}",
+      privacy:
+        "Я ознакомился с политикой конфиденциальности об использовании моих данных для ответа на вопрос.",
+      check: "Проверить вопрос",
+      unavailable:
+        "Отправка онлайн пока недоступна. Здесь можно проверить поля; задайте вопрос по телефону или электронной почте.",
       notSent:
-        "Поля заполнены верно. Сообщение не отправлено. По вопросам позвоните или напишите в клинику.",
-      failed:
-        "Не удалось отправить сообщение. Повторите попытку или свяжитесь с клиникой.",
-      thanks: "Спасибо!",
-      success:
-        "Ваше сообщение получено. Мы свяжемся с вами по вашему вопросу.",
+        "Поля заполнены верно. Вопрос не отправлен. Пожалуйста, напишите в клинику или позвоните.",
       errors: {
         summary: "Проверьте отмеченные поля.",
         required: "Заполните это поле.",
         tooLong: "Превышена допустимая длина текста.",
-        emailInvalid: "Укажите действительный адрес эл. почты.",
-        phoneInvalid: "Укажите действительный номер телефона (7–15 цифр).",
-        consentRequired:
-          "Для продолжения необходимо согласие на обработку данных.",
-        serviceInvalid: "Выберите услугу из списка.",
+        nameInvalid: "Укажите корректное имя.",
+        emailInvalid: "Укажите корректный адрес электронной почты.",
+        phoneInvalid: "Укажите верный номер (7–15 цифр).",
+        privacyRequired:
+          "Подтвердите ознакомление с политикой конфиденциальности.",
       },
     },
     cookie: {

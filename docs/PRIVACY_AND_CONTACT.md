@@ -1,32 +1,42 @@
-# Contact requests and privacy infrastructure
+# Contact questions and privacy infrastructure
 
-Implemented 28 September 2026. This is frontend infrastructure and a policy draft based on the current code, not a legal compliance certification.
+Contact form refined 9 October 2026. This documents the current implementation; it is not a legal compliance certification.
 
-## Routes and behavior
+## Routes and scope
 
-- `/kontakti`: existing contact information and location photograph alongside an appointment request form; stacked on mobile.
-- `/privatuma-politika`: Latvian privacy policy with 13 sections.
-- `/sikdatnu-politika`: Latvian cookie/storage policy with settings access.
-- Both policy routes are lazy-loaded. Footer links and a settings button appear throughout the public site. The request checkbox links to the privacy policy in a separate tab so entered fields are not lost.
-- Form, consent and legal interface text has LV/RU/EN keys. Full policy documents remain Latvian, with an explicit language notice for RU/EN.
-- `/pieraksts` retains its existing telephone/email booking presentation.
+- `/kontakti` is for general questions. The existing two-column editorial layout, clinic details, Maps consent gate and FAQ are preserved.
+- `/pieraksts` is the independent booking wizard. The contact form imports no booking service and never calls the Booking API.
+- `/privatuma-politika` and `/sikdatnu-politika` use the existing complete LV/RU/EN legal documents. No legal document, cookie behavior or booking implementation changes in this refinement.
+- The required, initially unchecked privacy acknowledgement links to the existing policy in a separate tab, preserving the question in the original tab. No marketing consent is requested.
 
-## Form boundary
+## Contact form boundary
 
-`AppointmentRequestForm.vue` uses existing service data and the typed `appointmentRequests.ts` service. Required fields are first name, last name, phone, email and an initially unchecked operational consent. Service and message are optional. No marketing consent or medical questionnaire is added.
+`frontend/src/components/ContactQuestionForm.vue` replaces the appointment-named component. Its independent validator is `frontend/src/services/contactQuestions.ts`.
 
-Validation accepts normal Latvian/international phone punctuation, Unicode names and a reasonable email format. Free-text limits are enforced in HTML and the validation function. Errors are associated with fields; invalid submission focuses the first invalid field. Inputs are disabled while pending. No input is logged, written to browser storage, put into URLs, or sent over the network.
+| Field | Required | Limit / validation |
+| --- | --- | --- |
+| Name | Yes | One Unicode name field, maximum 100 characters; no control characters |
+| Email | Yes | Email format, maximum 254 characters |
+| Phone | No | Optional leading `+`, spaces, parentheses, periods and hyphens; 7–15 digits when supplied, maximum 40 characters; no country-specific prefix |
+| Question | Yes | Multiline text, maximum 1000 characters, not whitespace-only |
+| Privacy acknowledgement | Yes | Must be explicitly checked |
 
-`REQUEST_SUBMISSION_ENABLED` is deliberately false. The button is “Pārbaudīt pieteikumu”; a visible notice explains that this checks fields locally and that users must call or email. The adapter returns `unavailable`, never simulated receipt. The typed payload prepares trimmed fields and explicit consent evidence (timestamp and policy version). A real `received` result can display the prepared thank-you state, which says the clinic will contact the person to confirm a time. It never confirms an appointment automatically.
+Name and email share a row on desktop, followed by phone, question, privacy and the action. Fields stack on smaller screens. Reserved error space, visible keyboard focus and associated inline errors avoid disruptive movement; invalid checks focus the first invalid field. The question hint asks visitors not to provide diagnoses, identity numbers or detailed health information.
 
-Before connecting `POST /api/appointment-requests`:
+All labels, the question placeholder, hints, validation and status messages are provided through the existing `privacyAndContact.ts` vue-i18n content for Latvian, Russian and English. Changing language preserves entered values.
 
-1. Resolve the client/legal confirmations below and update policy content and `REQUEST_POLICY_VERSION` together.
-2. Implement Go validation/normalization, field limits, service allowlisting, rate limiting and spam controls. Client-side validation is only UX.
-3. Review handling of unsolicited health information, access controls, retention/deletion, safe logging and safe email rendering. Do not log patient request bodies.
-4. Define a verified response contract, timeout/error behavior and duplicate-request handling. Return `received` only after actual server acceptance.
-5. Add server-side database/email delivery as separately authorized work. Keep Resend keys and privileged credentials server-side. There is no new Resend, Supabase Auth, scheduling, or database integration in this change.
-6. Replace the inert adapter and enable submission only after the endpoint and operational workflow are tested. Remove the unavailable notice through the existing feature constant.
+## Delivery is unavailable
+
+The Go router currently exposes health, Auth and Booking routes; there is no contact-message endpoint or delivery provider. The form therefore has **no network transport**, prepared delivery payload, success receipt, loading simulation or browser persistence. No message is silently discarded. Entered values remain in component memory until the visitor leaves or reloads the page.
+
+The action is explicitly **“Check question”**, localized in each language. It validates fields locally. A concise notice beside the action explains that online sending is unavailable and offers the clinic's existing phone/email links. A valid check says that fields are valid and the question **has not been sent**. Editing fields clears that validation status. There is no enabled control claiming to deliver a message, and no fabricated success, appointment or Supabase user.
+
+### Before real message delivery can be enabled
+
+1. Confirm the clinic's delivery workflow, recipients and outstanding legal/contact-processing details below.
+2. Separately implement a Go contact-message endpoint and actual delivery mechanism, with server-side validation, safe normalization, field limits, spam/rate limiting and appropriate access, logging and retention controls. No provider or database is added in this task.
+3. Define a reliable response contract distinguishing server acceptance from actual delivery and covering retries/duplicate prevention. Do not log question bodies or contact details unnecessarily.
+4. Add and test the real client transport, pending state and recoverable errors. Show success only after the real backend confirms the corresponding outcome. Until then retain the current unavailable notice and phone/email alternatives.
 
 ## Cookie architecture and inventory
 
@@ -35,7 +45,7 @@ Before connecting `POST /api/appointment-requests`:
 - `components/privacy/CookieConsent.vue`: equal-weight accept/reject controls, settings, native modal dialog, explicit keyboard focus loop, Escape without consent, focus restoration and footer reopening.
 - `ag-cookie-consent` in localStorage: version, necessary=true, preference permission, analytics=false, marketing=false, ISO timestamp. No personal details. Created only after a choice.
 - `ag-language` in localStorage: LV/RU/EN only after preference consent. Rejection/revocation removes it. Language changes work in memory without consent. Legacy language entries without valid consent are removed.
-- Analytics and marketing are absent and their settings disabled. Accept all enables only the available preference category. No optional third-party script or embed was found or introduced.
+- Analytics and marketing are absent and their settings disabled. Accept all enables preferences and Google Maps. The map iframe on Contacts loads only with explicit Maps consent.
 - No automatic expiry is implemented: records last until changed/cleared or browser cleanup. Invalid/obsolete consent fails closed; changing the version asks again. Future vendors/categories require an inventory/policy review, version bump and actual loading gates before activation.
 - On blocked storage, the choice works in memory and the UI explains that it lasts until reload. No storage of request data is used as a workaround.
 
@@ -50,47 +60,43 @@ Explicit `CLIENT_CONFIRMATION_REQUIRED` metadata is in `frontend/src/content/leg
 - Retention periods or criteria for requests, consent evidence, email/phone correspondence and logs; rights request procedures.
 - Production deployment storage/cookie inventory, including anything introduced by hosting or a proxy.
 
-The pages plainly say that online submission is unavailable and that those details will be completed before activation. No invented company registration, legal email, retention period, vendor or legal guarantee appears.
+The contact form plainly says that online message delivery is unavailable. Unconfirmed legal details remain in the existing confirmation architecture. No invented company registration, legal email, retention period, vendor or legal guarantee appears.
 
-## Verification
+## Verification commands
 
-- `npm run build --prefix frontend`: TypeScript and production build pass.
-- `node --test frontend/tests/privacy-contact.test.mjs`: six tests cover fail-closed consent, language consent, required fields, email/phone/service validation, length limits, consent payload and an inert adapter that cannot fetch.
-- Browser checks: required fields, malformed phone/email, unchecked/default and required consent, focus and error associations, valid local-only result, no POSTs or form data in storage.
-- Cookie accept, reject, settings save, footer reopening, Escape, keyboard focus loop, persistence across reload, preference revocation and cross-tab synchronization verified.
-- Layout checked at 320, 390, 768, 1024 and 1440 pixels; desktop/mobile screenshots inspected. Both legal routes and the existing `/pieraksts` route verified.
-- RU/EN interface and Latvian policy notice verified. No unexpected external requests or optional scripts observed in the standard browser checks.
-- Production storage-failure handling passed. Prepared loading, received and failure UI states passed with a browser-only test adapter (no production feature flag change and no POSTs). The development build’s Vue devtools can fail when the localStorage property itself throws; production has no such failure.
-- `git diff --check` and the Hero lock check pass. All existing locale dictionaries were compared byte-for-byte with HEAD before refreshing **only** the i18n hash. New translation groups and consent-aware initial-language storage required that shared file change; existing Hero copy did not change. Hero component, video, poster, fonts, global CSS and all other locked files retain their prior hashes.
+From the repository root:
 
-## Files created
+```sh
+npm run build --prefix frontend
+node --test frontend/tests/*.test.mjs
+node frontend/scripts/check-hero-lock.mjs
+```
 
-- `frontend/src/components/AppointmentRequestForm.vue`
-- `frontend/src/components/privacy/CookieConsent.vue`
-- `frontend/src/content/legal.ts`
-- `frontend/src/i18n/privacyAndContact.ts`
-- `frontend/src/services/appointmentRequests.ts`
-- `frontend/src/services/cookieConsent.ts`
-- `frontend/src/stores/cookieConsent.ts`
-- `frontend/src/views/LegalView.vue`
-- `frontend/tests/privacy-contact.test.mjs`
-- `docs/PRIVACY_AND_CONTACT.md`
+The browser suite requires Playwright with Chrome installed, a local frontend started with **synthetic** Auth configuration, and the real Booking API mode (requests are intercepted). It refuses non-local target hosts and blocks all external and non-health API requests:
 
-## Files changed
+```sh
+# In frontend/, terminal 1; these are deliberately synthetic test values.
+VITE_SUPABASE_URL=https://integration-test.supabase.co \
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_integration_test \
+VITE_API_URL=http://127.0.0.1:5184/api VITE_BOOKING_DEMO=false \
+npm run dev -- --host 127.0.0.1 --port 5184 --strictPort
 
-- `frontend/src/App.vue`: mount global cookie UI.
-- `frontend/src/components/layout/SiteFooter.vue`: legal links and settings action.
-- `frontend/src/components/layout/SiteHeader.vue`: gate language persistence only; no navigation/layout changes.
-- `frontend/src/i18n/index.ts`: register new UI strings and consent-aware initial language.
-- `frontend/src/router/index.ts`: two lazy policy routes.
-- `frontend/src/views/ContactView.vue`: form and responsive contact layout; preserve booking branch.
-- `docs/HERO_LOCK.json`: refresh only the shared i18n fingerprint after verifying unchanged existing messages.
+# In frontend/, terminal 2; set PLAYWRIGHT_MODULE to an installed package if needed.
+TEST_BASE_URL=http://127.0.0.1:5184 node tests/contact-browser.cjs
+```
 
-## Primary references used
+`privacy-contact.test.mjs` covers required/optional fields, privacy, international phone and Unicode name handling, email, whitespace, multiline questions, exact length boundaries and local-only validation. Existing cookie tests remain in place.
 
-The implementation follows the practical principles of a clear choice and easy withdrawal; these references do not certify the site or replace client/legal review:
+`contact-browser.cjs` covers LV/RU/EN at 320, 375, 390, 430, 768, 1024, 1440 and 1920 pixels; field composition, focus/error associations, stable layout, optional phone, privacy policy navigation, live locale switching, question limits, retained input and truthful unavailable status. It verifies no question enters URLs, storage or API requests. Screenshots are written to a temporary directory, not the repository.
 
-- [Datu valsts inspekcija: cookie banners and freedom of consent](https://www.dvi.gov.lv/lv/jaunums/dviskaidro-sikdatnu-baneri-un-piekrisanas-briviba-biezakas-problemas-timekla-vietnes)
-- [Datu valsts inspekcija: withdrawing cookie consent](https://www.dvi.gov.lv/lv/jaunums/dviskaidro-ka-nodrosinat-lietotajiem-iespeju-viegli-atsaukt-piekrisanu-sikdatnem)
-- [Datu valsts inspekcija: cookie guidance](https://www.dvi.gov.lv/lv/media/1517/download)
-- [GDPR, including transparency information and data-subject rights](https://eur-lex.europa.eu/eli/reg/2016/679/oj)
+The existing `booking-browser.cjs` and `auth-browser.cjs` regression suites can use the same local synthetic server and their mocked responses. No live clinic data or authentication users are needed.
+
+### Results for this refinement
+
+- Production build and TypeScript checks: passed.
+- All frontend unit tests: 50 passed, none failed or skipped.
+- Contact browser checks: 24 locale/responsive layouts and 24 validation/no-delivery flows passed in both development and compiled production builds. No API writes or external requests occurred.
+- Existing Auth browser suite: 96 layout checks and registration/login/persistence/logout/recovery/confirmation flows passed with mocked Auth responses.
+- Existing Booking browser suite: the final compiled-build run passed 172 layout checks and 31 flows with mocked API responses and no browser errors. Earlier development-server runs hit a calendar timeout and a locale mismatch; no Booking code or tests were changed to obtain the passing compiled-build result.
+- Hero lock: all 15 protected files passed. Task-start SHA256 comparison also confirmed all backend, Booking, Auth, navigation, Welcome and other unrelated files are unchanged.
+- Desktop/mobile screenshots inspected; formatting and whitespace checks passed. No database or live Auth/Booking operation was performed.
