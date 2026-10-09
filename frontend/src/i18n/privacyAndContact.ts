@@ -10,7 +10,7 @@ export const privacyAndContact = {
       mapConsent: "Kartei nepieciešama piekrišana papildu sīkdatnēm.",
       googlePrivacy: "Google privātuma politika",
       formUnavailable:
-        "Nosūtīšana tiešsaistē vēl nav pieejama. Laukus var pārbaudīt pārlūkā; pieteikums netiek nosūtīts. Lai pieteiktos, zvaniet vai rakstiet klīnikai.",
+        "Nosūtīšana tiešsaistē vēl nav pieejama. Laukus var pārbaudīt pārlūkā; ziņa netiek nosūtīta. Jautājumiem zvaniet vai rakstiet klīnikai.",
     },
     legal: {
       privacyTitle: "Privātuma politika",
@@ -20,12 +20,12 @@ export const privacyAndContact = {
       contents: "Šajā lapā",
     },
     request: {
-      title: "Pieteikt vizīti",
+      title: "Uzdot jautājumu",
       headline: "Sāksim ar sarunu.",
       intro:
-        "Atstājiet kontaktinformāciju saziņai par vizīti. Vizītes laiku apstiprina klīnika.",
+        "Sazinieties ar mums ar vispārīgiem jautājumiem par klīniku un pakalpojumiem. Šī veidlapa nav paredzēta vizītes rezervēšanai.",
       unavailable:
-        "Pieteikumu nosūtīšana tiešsaistē vēl nav pieejama. Šobrīd varat pārbaudīt aizpildītos laukus tikai savā pārlūkā; dati klīnikai netiek nosūtīti. Lai pieteiktu vizīti, lūdzu, zvaniet vai rakstiet e-pastu.",
+        "Ziņu nosūtīšana tiešsaistē vēl nav pieejama. Šobrīd varat pārbaudīt aizpildītos laukus tikai savā pārlūkā; dati klīnikai netiek nosūtīti. Jautājumiem, lūdzu, zvaniet vai rakstiet e-pastu.",
       firstName: "Vārds",
       lastName: "Uzvārds",
       phone: "Tālrunis",
@@ -39,17 +39,17 @@ export const privacyAndContact = {
       messageHint:
         "Lūdzu, neievadiet diagnozi, personas kodu vai citu detalizētu veselības informāciju. Līdz 1000 rakstzīmēm.",
       consent:
-        "Piekrītu manu personas datu apstrādei, lai AG Zobārstniecība varētu sazināties ar mani saistībā ar vizītes pieteikumu.",
-      check: "Pārbaudīt pieteikumu",
-      send: "Nosūtīt pieteikumu",
+        "Piekrītu manu personas datu apstrādei, lai AG Zobārstniecība varētu sazināties ar mani saistībā ar manu jautājumu.",
+      check: "Pārbaudīt ziņu",
+      send: "Nosūtīt ziņu",
       loading: "Lūdzu, uzgaidiet…",
       notSent:
-        "Lauki ir aizpildīti pareizi. Pieteikums nav nosūtīts. Lai vienotos par vizīti, lūdzu, sazinieties ar klīniku pa tālruni vai e-pastu.",
+        "Lauki ir aizpildīti pareizi. Ziņa nav nosūtīta. Jautājumiem, lūdzu, sazinieties ar klīniku pa tālruni vai e-pastu.",
       failed:
-        "Pieteikumu neizdevās nosūtīt. Lūdzu, mēģiniet vēlreiz vai sazinieties ar klīniku.",
+        "Ziņu neizdevās nosūtīt. Lūdzu, mēģiniet vēlreiz vai sazinieties ar klīniku.",
       thanks: "Paldies!",
       success:
-        "Jūsu pieteikums ir saņemts. Mēs ar jums sazināsimies, lai vienotos par vizītes laiku.",
+        "Jūsu ziņa ir saņemta. Mēs ar jums sazināsimies par jūsu jautājumu.",
       errors: {
         summary: "Lūdzu, pārbaudiet atzīmētos laukus.",
         required: "Lūdzu, aizpildiet šo lauku.",
@@ -102,7 +102,7 @@ export const privacyAndContact = {
       mapConsent: "The map requires consent to optional cookies.",
       googlePrivacy: "Google privacy policy",
       formUnavailable:
-        "Online sending is not yet available. You can check the fields in your browser; no request is sent. Please call or email the clinic to book.",
+        "Online sending is not yet available. You can check the fields in your browser; no message is sent. Please call or email the clinic with your questions.",
     },
     legal: {
       privacyTitle: "Privacy Policy",
@@ -112,12 +112,12 @@ export const privacyAndContact = {
       contents: "On this page",
     },
     request: {
-      title: "Request an appointment",
+      title: "Ask a question",
       headline: "Let’s start with a conversation.",
       intro:
-        "Leave your contact details to discuss a visit. The clinic will confirm the appointment time.",
+        "Contact us with general questions about the clinic and our services. This form does not reserve an appointment.",
       unavailable:
-        "Online requests are not yet available. You can check these fields in your browser; no data is sent to the clinic. Please call or email to request a visit.",
+        "Online messages are not yet available. You can check these fields in your browser; no data is sent to the clinic. Please call or email with your questions.",
       firstName: "First name",
       lastName: "Last name",
       phone: "Phone",
@@ -131,17 +131,17 @@ export const privacyAndContact = {
       messageHint:
         "Please do not enter a diagnosis, personal identity number or detailed health information. Maximum 1000 characters.",
       consent:
-        "I agree to the processing of my personal data so that AG Zobārstniecība can contact me about my appointment request.",
-      check: "Check request",
-      send: "Send request",
+        "I agree to the processing of my personal data so that AG Zobārstniecība can contact me about my question.",
+      check: "Check message",
+      send: "Send message",
       loading: "Please wait…",
       notSent:
-        "The fields are valid. Your request has not been sent. Please call or email the clinic to arrange a visit.",
+        "The fields are valid. Your message has not been sent. Please call or email the clinic with your questions.",
       failed:
-        "The request could not be sent. Please try again or contact the clinic.",
+        "The message could not be sent. Please try again or contact the clinic.",
       thanks: "Thank you!",
       success:
-        "Your request has been received. We will contact you to agree on an appointment time.",
+        "Your message has been received. We will contact you about your question.",
       errors: {
         summary: "Please check the highlighted fields.",
         required: "Please complete this field.",
@@ -193,7 +193,7 @@ export const privacyAndContact = {
       mapConsent: "Для карты нужно согласие на дополнительные cookie.",
       googlePrivacy: "Политика конфиденциальности Google",
       formUnavailable:
-        "Отправка онлайн пока недоступна. Поля можно проверить в браузере; заявка не отправляется. Для записи позвоните или напишите в клинику.",
+        "Отправка онлайн пока недоступна. Поля можно проверить в браузере; сообщение не отправляется. По вопросам позвоните или напишите в клинику.",
     },
     legal: {
       privacyTitle: "Политика конфиденциальности",
@@ -203,12 +203,12 @@ export const privacyAndContact = {
       contents: "На этой странице",
     },
     request: {
-      title: "Заявка на приём",
+      title: "Задать вопрос",
       headline: "Начнём с разговора.",
       intro:
-        "Оставьте контакты для обсуждения визита. Время приёма подтверждает клиника.",
+        "Обратитесь к нам с общими вопросами о клинике и услугах. Эта форма не предназначена для записи на приём.",
       unavailable:
-        "Отправка заявок онлайн пока недоступна. Можно проверить заполненные поля в браузере; данные не отправляются в клинику. Для записи позвоните или напишите нам.",
+        "Отправка сообщений онлайн пока недоступна. Можно проверить заполненные поля в браузере; данные не отправляются в клинику. По вопросам позвоните или напишите нам.",
       firstName: "Имя",
       lastName: "Фамилия",
       phone: "Телефон",
@@ -222,17 +222,17 @@ export const privacyAndContact = {
       messageHint:
         "Не указывайте диагноз, персональный код или подробные сведения о здоровье. До 1000 символов.",
       consent:
-        "Я согласен на обработку моих персональных данных, чтобы AG Zobārstniecība могла связаться со мной по поводу заявки на приём.",
-      check: "Проверить заявку",
-      send: "Отправить заявку",
+        "Я согласен на обработку моих персональных данных, чтобы AG Zobārstniecība могла связаться со мной по поводу моего вопроса.",
+      check: "Проверить сообщение",
+      send: "Отправить сообщение",
       loading: "Подождите…",
       notSent:
-        "Поля заполнены верно. Заявка не отправлена. Для записи позвоните или напишите в клинику.",
+        "Поля заполнены верно. Сообщение не отправлено. По вопросам позвоните или напишите в клинику.",
       failed:
-        "Не удалось отправить заявку. Повторите попытку или свяжитесь с клиникой.",
+        "Не удалось отправить сообщение. Повторите попытку или свяжитесь с клиникой.",
       thanks: "Спасибо!",
       success:
-        "Ваша заявка получена. Мы свяжемся с вами, чтобы согласовать время приёма.",
+        "Ваше сообщение получено. Мы свяжемся с вами по вашему вопросу.",
       errors: {
         summary: "Проверьте отмеченные поля.",
         required: "Заполните это поле.",

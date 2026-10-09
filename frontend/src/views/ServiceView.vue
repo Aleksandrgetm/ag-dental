@@ -39,7 +39,7 @@ watchEffect(() => {
         <p class="eyebrow">{{ t("page.serviceDetail") }}</p>
         <p class="lead">{{ local(service.text) }}</p>
         <p class="detail-note">{{ t("ui.updated") }}</p>
-        <RouterLink class="button" to="/kontakti"
+        <RouterLink class="button" to="/pieraksts"
           >{{ t("common.bookAppointment") }} </RouterLink
         >
       </div>

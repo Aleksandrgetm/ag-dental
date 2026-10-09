@@ -34,7 +34,7 @@ const consent = useCookieConsentStore();
         <p class="eyebrow">{{ t("nav.services") }}</p>
         <RouterLink to="/pakalpojumi">{{ t("common.allServices") }}</RouterLink
         ><RouterLink to="/cenas">{{ t("nav.prices") }}</RouterLink
-        ><RouterLink to="/kontakti">{{
+        ><RouterLink to="/pieraksts">{{
           t("common.bookAppointment")
         }}</RouterLink>
       </div>

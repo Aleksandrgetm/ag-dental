@@ -127,7 +127,7 @@ onBeforeUnmount(() => {
             {{ t("hero.first") }}<em>{{ t("hero.italic") }}</em>
           </h1>
           <p class="tour-description">{{ t("hero.sub") }}</p>
-          <RouterLink class="button button-light" to="/kontakti"
+          <RouterLink class="button button-light" to="/pieraksts"
             >{{ t("common.bookAppointment") }} <span aria-hidden="true">↗</span></RouterLink
           >
         </div>
