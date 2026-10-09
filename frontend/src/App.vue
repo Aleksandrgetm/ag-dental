@@ -43,24 +43,31 @@ watch(
 </script>
 <template>
   <v-app>
-    <WelcomeIntro />
-    <SiteHeader />
-    <v-main id="main" tabindex="-1">
-      <RouterView v-slot="{ Component }">
-        <component :is="Component" v-if="route.path === '/'" />
-        <Transition name="page" :css="animateRoute" @before-leave="leavingPage">
-          <div
-            v-if="route.path !== '/'"
-            :key="route.path"
-            class="content-design interior-design"
-            v-editorial-motion
+    <RouterView v-if="route.meta.adminLayout" />
+    <template v-else>
+      <WelcomeIntro />
+      <SiteHeader />
+      <v-main id="main" tabindex="-1">
+        <RouterView v-slot="{ Component }">
+          <component :is="Component" v-if="route.path === '/'" />
+          <Transition
+            name="page"
+            :css="animateRoute"
+            @before-leave="leavingPage"
           >
-            <component :is="Component" />
-          </div>
-        </Transition>
-      </RouterView>
-    </v-main>
-    <SiteFooter />
+            <div
+              v-if="route.path !== '/'"
+              :key="route.path"
+              class="content-design interior-design"
+              v-editorial-motion
+            >
+              <component :is="Component" />
+            </div>
+          </Transition>
+        </RouterView>
+      </v-main>
+      <SiteFooter />
+    </template>
     <CookieConsent />
   </v-app>
 </template>

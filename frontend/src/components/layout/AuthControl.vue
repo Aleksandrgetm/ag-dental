@@ -18,6 +18,7 @@ const id = props.mobile ? "mobile-account" : "header-account";
 async function toggle() {
   open.value = !open.value;
   if (open.value) {
+    void auth.refreshRole();
     await nextTick();
     signout.value?.focus();
   }
@@ -92,6 +93,14 @@ onBeforeUnmount(() => document.removeEventListener("pointerdown", outside));
         :aria-label="t('auth.account')"
       >
         <p class="account-email">{{ auth.user.email }}</p>
+        <RouterLink
+          v-if="auth.verifiedAdmin"
+          class="text-link account-admin"
+          to="/admin"
+          @click="close()"
+        >
+          {{ t("admin.title") }}
+        </RouterLink>
         <button
           ref="signout"
           class="text-link"
@@ -150,6 +159,13 @@ onBeforeUnmount(() => document.removeEventListener("pointerdown", outside));
   margin-bottom: 18px;
 }
 .account-panel button {
+  font-size: 12px;
+}
+.account-admin {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  margin-bottom: 8px;
   font-size: 12px;
 }
 .account-error {

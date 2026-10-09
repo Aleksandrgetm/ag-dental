@@ -1,8 +1,11 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { useAuthStore } from "../stores/auth";
+import { adminRoutes } from "./admin";
+import { safeAdminReturn } from "../services/admin/access";
 declare module "vue-router" {
   interface RouteMeta {
     requiresAuth?: boolean;
+    adminLayout?: boolean;
     requiresAdmin?: boolean;
     guestOnly?: boolean;
     authMode?: "login" | "register" | "forgot" | "reset";
@@ -11,6 +14,7 @@ declare module "vue-router" {
 const router = createRouter({
   history: createWebHistory(),
   routes: [
+    ...adminRoutes,
     ...(
       [
         ["/login", "login"],
@@ -99,8 +103,15 @@ const router = createRouter({
     return { top: 0 };
   },
 });
-router.beforeEach(async (to) => {
+router.beforeEach(async (to, from) => {
   const auth = useAuthStore();
+  // The admin gate renders a loading state and mounts children only after server verification.
+  if (to.meta.adminLayout) return;
+  // Preserve the existing Auth view; only consume a whitelisted admin return destination.
+  if (to.path === "/" && from.path === "/login" && auth.user) {
+    const destination = safeAdminReturn(from.query.returnTo);
+    if (destination) return destination;
+  }
   if (to.meta.requiresAuth || to.meta.requiresAdmin || to.meta.authMode) {
     await auth.initialize();
     if (to.meta.authMode && (to.hash || to.query.error || to.query.code))
@@ -111,7 +122,8 @@ router.beforeEach(async (to) => {
       await auth.refreshRole();
       if (auth.role !== "admin") return "/";
     }
-    if (to.meta.guestOnly && auth.user) return "/";
+    if (to.meta.guestOnly && auth.user && auth.adminStatus !== "unauthorized")
+      return safeAdminReturn(to.query.returnTo) || "/";
   }
 });
 router.afterEach(() => {
