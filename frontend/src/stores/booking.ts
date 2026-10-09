@@ -2,6 +2,7 @@ import { computed, reactive, toRefs } from "vue";
 import { defineStore } from "pinia";
 import { useAuthStore } from "./auth";
 import { supabase } from "../services/supabase";
+import { API_URL } from "../services/api";
 import { createBookingAPI } from "../services/booking/api";
 import { bookingStorage } from "../services/booking/storage";
 import {
@@ -57,7 +58,7 @@ export const useBookingStore = defineStore("booking", () => {
   const clients = demo
     ? import("../services/booking/demo").then((m) => m.createDemoClients())
     : Promise.resolve({
-        api: createBookingAPI(import.meta.env.VITE_API_URL || ""),
+        api: createBookingAPI(API_URL || ""),
         auth: realAuth,
       });
   const flow = clients.then(({ api, auth: identity }) =>

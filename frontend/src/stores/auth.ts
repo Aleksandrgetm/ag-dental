@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../services/supabase";
 import { authError, validateAuth } from "../services/authValidation";
+import { API_URL } from "../services/api";
 import {
   createAuthority,
   readIdentity,
@@ -25,7 +26,7 @@ export const useAuthStore = defineStore("auth", () => {
         ? { id: session.value.user.id, token: session.value.access_token }
         : null,
     (identity, signal) =>
-      readIdentity(import.meta.env.VITE_API_URL || "", identity, signal),
+      readIdentity(API_URL || "", identity, signal),
     (state) => {
       adminStatus.value = state;
       role.value = state === "admin" || state === "user" ? state : null;

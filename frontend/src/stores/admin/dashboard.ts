@@ -1,6 +1,7 @@
 import { ref, watch } from "vue";
 import { defineStore } from "pinia";
 import { useAuthStore } from "../auth";
+import { API_URL } from "../../services/api";
 import { clinicDate } from "../../services/booking/calendar";
 import {
   createAdminReader,
@@ -23,7 +24,7 @@ export const useAdminDashboard = defineStore("admin-dashboard", () => {
     checkedAt = ref<string | null>(null);
   let revision = 0,
     controller: AbortController | undefined;
-  const get = createAdminReader(import.meta.env.VITE_API_URL || "", {
+  const get = createAdminReader(API_URL || "", {
     credentials: () =>
       auth.session
         ? { id: auth.session.user.id, token: auth.session.access_token }
