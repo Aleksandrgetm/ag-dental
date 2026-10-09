@@ -64,6 +64,11 @@ const router = createRouter({
       meta: { title: "nav.news" },
     },
     {
+      path: "/pieraksts",
+      component: () => import("../views/BookingView.vue"),
+      meta: { title: "booking.title" },
+    },
+    {
       path: "/kontakti",
       component: () => import("../views/ContactView.vue"),
       meta: { title: "nav.contact" },
