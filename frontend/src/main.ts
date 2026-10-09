@@ -8,6 +8,7 @@ import vuetify from "./plugins/vuetify";
 import i18n from "./i18n";
 import { bookingMessages } from "./i18n/booking";
 import { authMessages } from "./i18n/auth";
+import { adminMessages } from "./i18n/admin";
 import { useAuthStore } from "./stores/auth";
 import "./style.css";
 
@@ -17,6 +18,7 @@ app.use(createPinia());
 for (const lang of ["lv", "ru", "en"] as const)
   i18n.global.mergeLocaleMessage(lang, {
     auth: authMessages[lang],
+    admin: adminMessages[lang],
     booking: bookingMessages[lang],
   });
 void useAuthStore().initialize();

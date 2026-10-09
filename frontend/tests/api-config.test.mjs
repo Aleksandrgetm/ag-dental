@@ -2,6 +2,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { resolveAPIBase } from "../src/services/apiConfig.ts";
 import { createBookingAPI } from "../src/services/booking/api.ts";
+import { createAuthority, readIdentity } from "../src/services/admin/access.ts";
+import { createAdminReader } from "../src/services/admin/dashboard.ts";
 import {
   createBookingFlow,
   initialBookingState,
@@ -101,5 +103,54 @@ test("missing API blocks every booking operation and produces the existing unava
   assert.deepEqual(state.services, []);
   assert.equal(state.receipt, null);
   assert.equal(state.step, 0);
+  assert.equal(calls, 0);
+});
+
+test("unusable API configuration blocks admin identity and dashboard requests without granting a role", async () => {
+  const identity = { id: "test-user", token: "untrusted-token" };
+  let calls = 0;
+  const transport = async () => {
+    calls++;
+    throw Error("Unexpected request");
+  };
+  for (const value of [
+    undefined,
+    "",
+    "invalid",
+    "//localhost/api",
+    "http://localhost:8080/api",
+    "https://127.0.0.1/api",
+  ]) {
+    const base = resolveAPIBase(value, "https://preview.example/admin") || "";
+    let role = null;
+    const authority = createAuthority(
+      () => identity,
+      (credentials, signal) => readIdentity(base, credentials, signal, transport),
+      (state) => {
+        role = state === "admin" || state === "user" ? state : null;
+      },
+    );
+    assert.equal(await authority.verify(), "unavailable");
+    assert.equal(role, null);
+    assert.equal(authority.isAdmin(), false);
+    const get = createAdminReader(
+      base,
+      {
+        credentials: () => identity,
+        reject: () => assert.fail("Missing configuration is not a rejected session"),
+      },
+      transport,
+    );
+    for (const path of [
+      "/admin/booking/appointments",
+      "/admin/booking/settings",
+      "/booking/services",
+    ]) {
+      await assert.rejects(
+        get(path, new AbortController().signal),
+        (error) => error.kind === "unavailable",
+      );
+    }
+  }
   assert.equal(calls, 0);
 });

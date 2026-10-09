@@ -4,6 +4,11 @@ import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../services/supabase";
 import { authError, validateAuth } from "../services/authValidation";
 import { API_URL } from "../services/api";
+import {
+  createAuthority,
+  readIdentity,
+  type AccessState,
+} from "../services/admin/access";
 
 export const useAuthStore = defineStore("auth", () => {
   const session = shallowRef<Session | null>(null),
@@ -14,35 +19,57 @@ export const useAuthStore = defineStore("auth", () => {
   const user = computed(() => session.value?.user ?? null);
   const configured = Boolean(supabase);
   let initialization: Promise<void> | undefined;
-  let revision = 0;
+  const adminStatus = ref<AccessState>("idle");
+  const authority = createAuthority(
+    () =>
+      session.value
+        ? { id: session.value.user.id, token: session.value.access_token }
+        : null,
+    (identity, signal) =>
+      readIdentity(API_URL || "", identity, signal),
+    (state) => {
+      adminStatus.value = state;
+      role.value = state === "admin" || state === "user" ? state : null;
+    },
+  );
+  const verifiedAdmin = computed(
+    () => adminStatus.value === "admin" && authority.isAdmin(),
+  );
   function accept(next: Session | null) {
     session.value = next;
     role.value = null;
-    revision++;
+    authority.invalidate();
     if (!next) recovery.value = false;
   }
-  async function refreshRole() {
-    const current = session.value,
-      version = revision;
-    role.value = null;
-    if (!current || !API_URL) return;
-    try {
-      const res = await fetch(`${API_URL}/auth/me`, {
-        headers: { Authorization: `Bearer ${current.access_token}` },
-        cache: "no-store",
-        signal: AbortSignal.timeout(8000),
-      });
-      if (!res.ok) return;
-      const data = await res.json();
-      if (
-        version === revision &&
-        data.id === current.user.id &&
-        ["user", "admin"].includes(data.role)
-      )
-        role.value = data.role;
-    } catch {
-      /* Authorization fails closed; public browsing still works. */
-    }
+  function refreshRole() {
+    return authority.verify();
+  }
+  function rejectAdminAccess(
+    state: "unauthorized" | "forbidden" | "unavailable",
+  ) {
+    authority.invalidate(state);
+  }
+  let adminRefresh: Promise<boolean> | undefined;
+  function refreshAdminSession(): Promise<boolean> {
+    if (adminRefresh) return adminRefresh;
+    if (!supabase || !session.value) return Promise.resolve(false);
+    adminRefresh = (async () => {
+      try {
+        const { data, error } = await supabase!.auth.refreshSession();
+        if (error || !data.session) {
+          rejectAdminAccess("unauthorized");
+          return false;
+        }
+        accept(data.session);
+        return true;
+      } catch {
+        rejectAdminAccess("unauthorized");
+        return false;
+      } finally {
+        adminRefresh = undefined;
+      }
+    })();
+    return adminRefresh;
   }
   function initialize() {
     if (initialization) return initialization;
@@ -168,5 +195,9 @@ export const useAuthStore = defineStore("auth", () => {
     forgotPassword,
     resetPassword,
     refreshRole,
+    adminStatus,
+    verifiedAdmin,
+    rejectAdminAccess,
+    refreshAdminSession,
   };
 });

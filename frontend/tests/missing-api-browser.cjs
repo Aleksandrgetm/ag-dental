@@ -9,6 +9,7 @@ const { tmpdir } = require("node:os");
 (async () => {
   const { build, preview } = await import("vite");
   const { bookingMessages } = await import("../src/i18n/booking.ts");
+  const { adminMessages } = await import("../src/i18n/admin.ts");
   const { services } = await import("../src/content/clinic.ts");
   const { articles } = await import("../src/content/articles.ts");
   const output = fs.mkdtempSync(path.join(tmpdir(), "ag-missing-api-"));
@@ -159,9 +160,13 @@ const { tmpdir } = require("node:os");
             false,
             `${route}/${locale}/${width}`,
           );
-          // This deployed dev base predates the admin feature; /admin must stay a 404.
-          if (route === "/admin")
-            assert.equal(await page.locator(".not-found").count(), 1);
+          // The merged admin feature remains protected even without a Go backend.
+          if (route === "/admin") {
+            const url = new URL(page.url());
+            assert.equal(url.pathname, "/login");
+            assert.equal(url.searchParams.get("returnTo"), "/admin");
+            assert.equal(await page.locator(".admin-shell").count(), 0);
+          }
           publicChecks++;
         }
         await page.goto(base + "/pieraksts");
@@ -231,6 +236,28 @@ const { tmpdir } = require("node:os");
         assert.equal(
           await page.locator(".site-header a[href='/admin']").count(),
           0,
+        );
+        await page.goto(base + "/admin");
+        await page.waitForFunction(
+          () =>
+            document
+              .querySelector("#app")
+              ?.__vue_app__?.config.globalProperties.$pinia?._s.get("auth")
+              ?.adminStatus === "unavailable",
+        );
+        assert.equal(
+          (await page.locator("#admin-main h1").textContent()).trim(),
+          adminMessages[locale].unavailable,
+        );
+        assert.equal(await page.locator(".admin-shell").count(), 0);
+        assert.deepEqual(
+          await page.evaluate(() => {
+            const auth = document
+              .querySelector("#app")
+              .__vue_app__.config.globalProperties.$pinia._s.get("auth");
+            return [auth.user?.id, auth.role, auth.verifiedAdmin];
+          }),
+          [id, null, false],
         );
         unavailableChecks++;
         await context.close();
