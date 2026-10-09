@@ -3,6 +3,7 @@ import { defineStore } from "pinia";
 import type { Session } from "@supabase/supabase-js";
 import { supabase } from "../services/supabase";
 import { authError, validateAuth } from "../services/authValidation";
+import { API_URL } from "../services/api";
 
 export const useAuthStore = defineStore("auth", () => {
   const session = shallowRef<Session | null>(null),
@@ -24,9 +25,9 @@ export const useAuthStore = defineStore("auth", () => {
     const current = session.value,
       version = revision;
     role.value = null;
-    if (!current) return;
+    if (!current || !API_URL) return;
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/auth/me`, {
+      const res = await fetch(`${API_URL}/auth/me`, {
         headers: { Authorization: `Bearer ${current.access_token}` },
         cache: "no-store",
         signal: AbortSignal.timeout(8000),
