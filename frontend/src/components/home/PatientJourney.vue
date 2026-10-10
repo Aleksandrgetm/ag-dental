@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { cmsLiteral } from "../../services/cms/content";
 import { ref } from "vue";
 import { useContent } from "../../content/useContent";
 const { t } = useContent();
@@ -8,13 +9,13 @@ const open = ref<number | null>(1);
   <section class="section journey-section">
     <div class="container journey-layout">
       <div class="journey-intro" data-reveal>
-        <p class="eyebrow">05 / {{ t("home.journeyLabel") }}</p>
+        <p class="eyebrow">{{ cmsLiteral('literal.caf66a73.0') }}{{ t("home.journeyLabel") }}</p>
         <h2>{{ t("home.journeyTitle") }}</h2>
         <RouterLink class="text-link" to="/pieraksts"
           >{{ t("common.bookAppointment") }} </RouterLink
         >
         <div class="journey-line-art" aria-hidden="true">
-          <span>AG.</span><i></i><i></i>
+          <span>{{ cmsLiteral('literal.caf66a73.1') }}</span><i></i><i></i>
         </div>
       </div>
       <ol class="journey-accordion">

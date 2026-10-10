@@ -52,6 +52,7 @@ const session = {
     delay = 0,
     path = "/admin",
     mode = "empty",
+    holdIdentity = false,
   } = {}) {
     const context = await browser.newContext({
       viewport: { width, height: 1000 },
@@ -65,6 +66,11 @@ const session = {
       external: [],
       refreshes: 0,
     };
+    let releaseIdentity;
+    const identityGate = new Promise((resolve) => {
+      releaseIdentity = resolve;
+    });
+    if (!holdIdentity) releaseIdentity();
     await context.addInitScript(
       ({ session, signedIn, locale }) => {
         localStorage.setItem(
@@ -123,9 +129,14 @@ const session = {
       }
       const path = u.pathname;
       control.requests.push({ path, method: req.method(), query: u.search });
+      if (path === "/api/cms/published")
+        return route.fulfill({ json: { schema_version: 1, documents: [] } });
+      if (path === "/api/admin/cms/documents")
+        return route.fulfill({ json: { documents: [] } });
       if (path === "/api/health")
         return route.fulfill({ json: { status: "ok" } });
       if (path === "/api/auth/me") {
+        await identityGate;
         const role = control.role;
         if (role === "timeout") return;
         if (control.delay)
@@ -216,13 +227,26 @@ const session = {
         errors.push(message.text());
     });
     await page.goto(BASE + path);
-    return { context, page, control, t: adminMessages[locale], locale };
+    return {
+      context,
+      page,
+      control,
+      t: adminMessages[locale],
+      locale,
+      releaseIdentity,
+    };
   }
   try {
     for (const role of ["user", "admin", "outage"]) {
-      const f = await setup({ role, delay: 300 });
+      const f = await setup({ role, holdIdentity: true });
       await f.page.locator(".admin-access").waitFor();
       assert.equal(await f.page.locator(".admin-dashboard").count(), 0);
+      assert.equal(
+        f.control.requests.filter((r) => r.path.startsWith("/api/admin/"))
+          .length,
+        0,
+      );
+      f.releaseIdentity();
       const expected =
         role === "user"
           ? f.t.denied
@@ -335,7 +359,11 @@ const session = {
             if (section !== "overview")
               await f.page.goto(BASE + adminPath(section));
             await f.page
-              .getByRole("heading", { name: f.t.nav[section], exact: true })
+              .getByRole("heading", {
+                name: f.t.nav[section],
+                exact: true,
+                level: 1,
+              })
               .waitFor();
             if (section === "overview") {
               await f.page.locator(".admin-stats").waitFor();
@@ -362,7 +390,18 @@ const session = {
               false,
               `${locale}/${width}/${section} overflow`,
             );
-            if (section !== "overview")
+            if (
+              ![
+                "overview",
+                "services",
+                "doctors",
+                "pages",
+                "news",
+                "media",
+                "seo",
+                "settings",
+              ].includes(section)
+            )
               assert.ok(
                 (await f.page.locator("#admin-main").innerText()).includes(
                   f.t.placeholderNote,

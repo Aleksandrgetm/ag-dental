@@ -1,9 +1,10 @@
 <script setup lang="ts">
+import { cmsLiteral } from "../services/cms/content";
 import { computed, ref, watchEffect } from "vue";
 import { useRoute } from "vue-router";
-import { localizeArticle } from "../content/articleTranslations";
-import { articles } from "../content/articles";
-import { media } from "../content/clinic";
+import { localizeArticle } from "../services/cms/content";
+import { articles } from "../services/cms/content";
+import { media } from "../services/cms/content";
 import { useContent } from "../content/useContent";
 import ArticleProgress from "../components/common/ArticleProgress.vue";
 import ContactBand from "../components/ContactBand.vue";
@@ -103,7 +104,7 @@ watchEffect(() => {
             </div>
             <blockquote v-if="quoteIndex >= 0" class="article-pull-quote">
               <p>{{ article.paragraphs[quoteIndex] }}</p>
-              <cite>AG Zobārstniecība</cite>
+              <cite>{{ cmsLiteral('literal.cf6ad05d.0') }}</cite>
             </blockquote>
           </div>
         </div>

@@ -117,6 +117,9 @@ const BASE = process.env.TEST_BASE_URL || "http://localhost:5173";
       body: JSON.stringify({ id, email: user.email, role: "user" }),
     }),
   );
+  await context.route("**/api/cms/published", (r) =>
+    r.fulfill({ json: { schema_version: 1, documents: [] } }),
+  );
   await context.route("**/api/health", (r) =>
     r.fulfill({
       status: 200,

@@ -12,7 +12,7 @@ import { useContent } from "../../content/useContent";
 import { useCookieConsentStore } from "../../stores/cookieConsent";
 import { LANGUAGE_KEY } from "../../services/cookieConsent";
 import AuthControl from "./AuthControl.vue";
-import { clinic } from "../../content/clinic";
+import { clinic, cmsLiteral } from "../../services/cms/content";
 const { t, locale } = useContent();
 const consent = useCookieConsentStore();
 const route = useRoute();
@@ -220,7 +220,7 @@ onBeforeUnmount(() => {
         <a :href="clinic.tel">{{ clinic.phone }}</a>
         <div class="menu-visit-info">
           Ūnijas iela 25 · Rīga
-          <p>{{ t("ui.hours") }} · 09:00–18:00</p>
+          <p>{{ t("ui.hours") }} · {{ cmsLiteral("settings.hours") }}</p>
         </div>
         <AuthControl mobile @signed-out="open = false" />
       </div></div

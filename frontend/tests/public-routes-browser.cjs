@@ -54,6 +54,10 @@ if (!["localhost", "127.0.0.1"].includes(new URL(BASE).hostname))
             url.origin === new URL(BASE).origin &&
             request.method() === "GET"
           ) {
+            if (url.pathname === "/api/cms/published")
+              return route.fulfill({
+                json: { schema_version: 1, documents: [] },
+              });
             if (url.pathname === "/api/health")
               return route.fulfill({ json: { status: "ok" } });
             if (!url.pathname.startsWith("/api/")) return route.continue();

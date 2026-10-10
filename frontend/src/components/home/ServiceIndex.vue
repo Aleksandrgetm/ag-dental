@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import { cmsLiteral } from "../../services/cms/content";
 import { computed, ref } from "vue";
-import { services, media } from "../../content/clinic";
+import { services, media } from "../../services/cms/content";
 import { useContent } from "../../content/useContent";
-import { refinement as copy } from "../../content/refinement";
+import { refinement as copy } from "../../services/cms/content";
 const { t, local } = useContent();
 const selected = ref(1);
 function selectPreview(index: number) {
@@ -16,7 +17,7 @@ const current = computed(() => services[selected.value]!);
     <div class="container">
       <div class="section-heading" data-reveal>
         <div>
-          <p class="eyebrow">02 / {{ t("home.servicesLabel") }}</p>
+          <p class="eyebrow">{{ cmsLiteral('literal.2d23801e.0') }}{{ t("home.servicesLabel") }}</p>
           <h2>{{ t("home.servicesTitle") }}</h2>
         </div>
         <p class="section-aside">{{ local(copy.servicesNote) }}</p>
@@ -40,7 +41,7 @@ const current = computed(() => services[selected.value]!);
             />
           </div>
           <div class="service-index-caption">
-            <span>0{{ selected + 1 }} / 08</span>
+            <span>0{{ selected + 1 }}{{ cmsLiteral('literal.2d23801e.2') }}</span>
             <p>{{ local(current.short) }}</p>
           </div>
         </div>

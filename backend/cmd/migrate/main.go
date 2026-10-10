@@ -15,7 +15,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-var versions = []string{"001_user_roles", "002_booking_foundation", "003_automatic_confirmation"}
+var versions = []string{"001_user_roles", "002_booking_foundation", "003_automatic_confirmation", "004_website_cms"}
 
 func main() {
 	adopt := flag.Bool("adopt-auth-baseline", false, "validate an existing, unrecorded auth schema and record migration 001 only")
@@ -67,6 +67,9 @@ func run(ctx context.Context, dsn, dir string, adopt, down, downConfirmation boo
 		return adoptAuth(ctx, conn, ledgerExists)
 	}
 	if down || downConfirmation {
+		if ledgerExists && isApplied(ctx, conn, "004_website_cms") {
+			return errors.New("CMS migration is present; review dependent CMS rollback before reverting booking migrations")
+		}
 		if !ledgerExists {
 			return errors.New("No migration ledger; rollback refused")
 		}
@@ -143,9 +146,10 @@ func validateLedger(ctx context.Context, db queryer) error {
 			AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='schema_migrations' AND column_name='applied_at' AND udt_name='timestamptz' AND is_nullable='NO' AND column_default='now()')
 			AND EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid='public.schema_migrations'::regclass AND contype='p' AND pg_get_constraintdef(oid)='PRIMARY KEY (version)')`},
 		{"unknown or out-of-order migration history", `SELECT
-			NOT EXISTS (SELECT 1 FROM public.schema_migrations WHERE version NOT IN ('001_user_roles','002_booking_foundation','003_automatic_confirmation'))
+			NOT EXISTS (SELECT 1 FROM public.schema_migrations WHERE version NOT IN ('001_user_roles','002_booking_foundation','003_automatic_confirmation','004_website_cms'))
 			AND (NOT EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='002_booking_foundation') OR EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='001_user_roles'))
-			AND (NOT EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='003_automatic_confirmation') OR EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='002_booking_foundation'))`},
+			AND (NOT EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='003_automatic_confirmation') OR EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='002_booking_foundation'))
+			AND (NOT EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='004_website_cms') OR EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='003_automatic_confirmation'))`},
 		{"migration ledger grants/policies", `SELECT
 			NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='schema_migrations')
 			AND NOT has_table_privilege('anon','public.schema_migrations','SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')

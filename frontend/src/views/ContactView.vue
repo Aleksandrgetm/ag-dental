@@ -1,15 +1,15 @@
 <script setup lang="ts">
+import { cmsLiteral } from "../services/cms/content";
 import ContactQuestionForm from "../components/ContactQuestionForm.vue";
 import VisitQuestions from "../components/VisitQuestions.vue";
-import { clinic } from "../content/clinic";
+import { clinic } from "../services/cms/content";
 import { useContent } from "../content/useContent";
 import { useCookieConsentStore } from "../stores/cookieConsent";
+import { computed } from "vue";
 const { t } = useContent();
 const consent = useCookieConsentStore();
 // Reuse the verified address query. No guessed coordinates or private API key.
-const mapQuery =
-  new URL(clinic.map).searchParams.get("query") || clinic.address;
-const mapSource = `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}&output=embed`;
+const mapSource = computed(() => `https://www.google.com/maps?q=${encodeURIComponent(new URL(clinic.map).searchParams.get("query") || clinic.address)}&output=embed`);
 </script>
 <template>
   <div class="contacts-page">
@@ -31,11 +31,11 @@ const mapSource = `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}
           </div>
           <div>
             <dt>{{ t("ui.hoursTitle") }}</dt>
-            <dd>{{ t("ui.hours") }}<br />09:00–18:00</dd>
+            <dd>{{ t("ui.hours") }}<br />{{ cmsLiteral('literal.2925fd0e.0') }}</dd>
           </div>
           <div>
             <dt>{{ t("ui.address") }}</dt>
-            <dd>Ūnijas iela 25<br />Rīga · Teika · LV-1039</dd>
+            <dd>{{ cmsLiteral('literal.2925fd0e.1') }}<br />{{ cmsLiteral('literal.2925fd0e.2') }}</dd>
           </div>
           <div>
             <dt>{{ t("contact.parking") }}</dt>
@@ -48,11 +48,11 @@ const mapSource = `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}
     <section class="container contacts-map" aria-labelledby="map-heading">
       <div class="map-heading">
         <div>
-          <p class="eyebrow">Rīga · Teika</p>
+          <p class="eyebrow">{{ cmsLiteral('literal.2925fd0e.3') }}</p>
           <h2 id="map-heading">{{ t("common.directions") }}</h2>
         </div>
         <div class="map-address">
-          <p>Ūnijas iela 25, Rīga</p>
+          <p>{{ cmsLiteral('literal.2925fd0e.4') }}</p>
           <a
             class="text-link"
             :href="clinic.map"
@@ -74,7 +74,7 @@ const mapSource = `https://www.google.com/maps?q=${encodeURIComponent(mapQuery)}
           allowfullscreen
         />
         <div v-else class="map-placeholder">
-          <p class="eyebrow">Google Maps</p>
+          <p class="eyebrow">{{ cmsLiteral('literal.2925fd0e.5') }}</p>
           <h3>{{ t("contact.mapConsent") }}</h3>
           <p>{{ t("cookie.mapsText") }}</p>
           <button class="button" @click="consent.settingsOpen = true">

@@ -70,9 +70,19 @@ func TestPostgresIntegration(t *testing.T) {
 	defer conn.Close(ctx)
 	s := booking.NewStore(db)
 	s.Now = func() time.Time { return time.Date(2026, 10, 11, 0, 0, 0, 0, time.UTC) }
+	// Include the additive CMS FK when present, without CASCADE or touching
+	// unknown tables. The opt-in disposable database guard above still applies.
+	truncateTables := "booking_settings_events,notification_outbox,appointment_events,appointments,doctor_time_off,doctor_schedules,doctor_services,doctors,services"
+	var hasCMS bool
+	if e := db.Raw("SELECT to_regclass('public.cms_booking_service_links') IS NOT NULL").Scan(&hasCMS).Error; e != nil {
+		t.Fatal(e)
+	}
+	if hasCMS {
+		truncateTables += ",cms_booking_service_links"
+	}
 	reset := func(t *testing.T) {
 		t.Helper()
-		_, e := conn.Exec(ctx, `TRUNCATE booking_settings_events,notification_outbox,appointment_events,appointments,doctor_time_off,doctor_schedules,doctor_services,doctors,services;
+		_, e := conn.Exec(ctx, "TRUNCATE "+truncateTables+`;
    UPDATE booking_settings SET confirmation_mode=DEFAULT,booking_horizon_days=60,minimum_advance_minutes=120,slot_interval_minutes=15,timezone='Europe/Riga',privacy_notice_version=NULL,cancellation_policy='{}';
    INSERT INTO auth.users(id) VALUES ('30000000-0000-4000-8000-000000000001') ON CONFLICT DO NOTHING;
    UPDATE user_roles SET role='admin' WHERE user_id='30000000-0000-4000-8000-000000000001';

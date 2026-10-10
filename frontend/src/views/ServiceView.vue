@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, watchEffect } from "vue";
 import { useRoute } from "vue-router";
-import { services, media } from "../content/clinic";
-import prices from "../content/prices.json";
+import { services, media } from "../services/cms/content";
+import { localizedPrices } from "../services/cms/content";
 import { useContent } from "../content/useContent";
 import ContactBand from "../components/ContactBand.vue";
 import PriceList from "../components/PriceList.vue";
@@ -12,6 +12,7 @@ const route = useRoute(),
 const service = computed(() =>
   services.find((s) => s.slug === route.params.slug),
 );
+const prices = computed(() => localizedPrices.map(category => ({items:category.items.map(item => ({...item,name:local(item.name)}))})));
 watchEffect(() => {
   if (service.value)
     document.title = local(service.value.title) + " · AG Zobārstniecība";
