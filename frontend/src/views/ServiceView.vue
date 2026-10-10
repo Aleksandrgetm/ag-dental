@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { cmsMediaAlt, cmsMediaSrcset } from "../services/cms/content";
 import { computed, watchEffect } from "vue";
 import { useRoute } from "vue-router";
 import { services, media } from "../services/cms/content";
@@ -12,7 +13,11 @@ const route = useRoute(),
 const service = computed(() =>
   services.find((s) => s.slug === route.params.slug),
 );
-const prices = computed(() => localizedPrices.map(category => ({items:category.items.map(item => ({...item,name:local(item.name)}))})));
+const prices = computed(() =>
+  localizedPrices.map((category) => ({
+    items: category.items.map((item) => ({ ...item, name: local(item.name) })),
+  })),
+);
 watchEffect(() => {
   if (service.value)
     document.title = local(service.value.title) + " · AG Zobārstniecība";
@@ -32,7 +37,15 @@ watchEffect(() => {
         class="service-detail-image"
         data-reveal="image"
         :src="media[service.image as keyof typeof media]"
-        :alt="local(service.title)"
+        :srcset="cmsMediaSrcset(media[service.image as keyof typeof media])"
+        sizes="(max-width: 768px) 100vw, 60vw"
+        :alt="
+          cmsMediaAlt(
+            media[service.image as keyof typeof media],
+            locale,
+            local(service.title),
+          )
+        "
         width="840"
         height="720"
       />
@@ -41,16 +54,16 @@ watchEffect(() => {
         <p class="lead">{{ local(service.text) }}</p>
         <p class="detail-note">{{ t("ui.updated") }}</p>
         <RouterLink class="button" to="/pieraksts"
-          >{{ t("common.bookAppointment") }} </RouterLink
-        >
+          >{{ t("common.bookAppointment") }}
+        </RouterLink>
       </div>
     </section>
     <section class="container section service-prices">
       <div class="section-heading">
         <h2>{{ t("nav.prices") }}</h2>
-        <RouterLink class="text-link" to="/cenas"
-          >{{ t("common.prices") }}</RouterLink
-        >
+        <RouterLink class="text-link" to="/cenas">{{
+          t("common.prices")
+        }}</RouterLink>
       </div>
       <p v-if="locale !== 'lv'" class="source-note">
         {{ t("ui.sourceLanguage") }}
@@ -65,8 +78,8 @@ watchEffect(() => {
           .slice(0, 3)"
         :key="s.slug"
         :to="`/pakalpojumi/${s.slug}`"
-        >{{ local(s.title) }} </RouterLink
-      >
+        >{{ local(s.title) }}
+      </RouterLink>
     </div>
     <ContactBand /></template
   ><NotFoundView v-else />

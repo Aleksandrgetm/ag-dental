@@ -1,3 +1,6 @@
+import { mediaID, publicMediaURL } from "./mediaReference";
+import { acceptMediaMetadata } from "./publishedMedia";
+export { cmsMediaAlt, cmsMediaSrcset } from "./publishedMedia";
 import { reactive, ref } from "vue";
 import * as original from "../../content/clinic";
 import { refinement as originalRefinement } from "../../content/refinement";
@@ -134,6 +137,7 @@ export function acceptPublished(response: unknown): boolean {
   const body = response as {
     schema_version?: number;
     documents?: { key: string; payload: Tree; revision: string }[];
+    media?: { id: string; alt: Record<string, string>; variants: any[] }[];
   };
   if (body?.schema_version !== 1 || !Array.isArray(body.documents))
     return false;
@@ -152,6 +156,30 @@ export function acceptPublished(response: unknown): boolean {
         return false;
     updates.push({ binding, data: row.payload });
   }
+  const available = new Set((body.media || []).map((a) => "cms-media:" + a.id));
+  for (const { data } of updates) {
+    const refs =
+      JSON.stringify(data).match(/cms-media:upload\.[a-f0-9]{32}/g) || [];
+    if (
+      refs.some((ref) => !available.has(ref) || !publicMediaURL(API_URL, ref))
+    )
+      return false;
+  }
+  acceptMediaMetadata(body.media || []);
+  const mapping = media as Record<string, string>;
+  for (const ref of available) {
+    const url = publicMediaURL(API_URL, ref);
+    if (url) mapping[ref] = url;
+  }
+  // Individual service/article references may point directly to existing approved images.
+  for (const url of Object.values(original.media))
+    if (
+      url.startsWith("/media/") &&
+      !["video", "poster"].some(
+        (key) => original.media[key as keyof typeof original.media] === url,
+      )
+    )
+      mapping[url] = url;
   for (const { binding: b, data } of updates) {
     if (b.target === "messages") {
       for (const l of ["lv", "ru", "en"] as const)
@@ -162,7 +190,16 @@ export function acceptPublished(response: unknown): boolean {
       patch(literalState[b.key], data);
     else if (b.target === "seo") cmsSEO[b.path[0]!] = copy(data);
     else {
-      patch(valueAt(roots[b.target], b.path), data);
+      const rendered =
+        b.key === "clinic.media"
+          ? Object.fromEntries(
+              Object.entries(data).map(([key, value]) => [
+                key,
+                mediaID(value) ? publicMediaURL(API_URL, value) : value,
+              ]),
+            )
+          : data;
+      patch(valueAt(roots[b.target], b.path), rendered);
       if (b.target === "articles") patch(articles[Number(b.path[0])], data.lv);
     }
   }

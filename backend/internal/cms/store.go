@@ -96,6 +96,9 @@ func (s *Store) Change(ctx context.Context, key, actor, operation, revision stri
 			if e := tx.Raw(`INSERT INTO public.cms_revisions(document_key,payload,actor_id) VALUES (?,?::jsonb,?::uuid) RETURNING id`, key, string(payload), actor).Scan(&revision).Error; e != nil {
 				return e
 			}
+			if e := attachMedia(tx, key, revision, payload, false); e != nil {
+				return e
+			}
 			if e := tx.Exec(`UPDATE public.cms_documents SET draft_revision=?::uuid,version=version+1,updated_at=now() WHERE key=?`, revision, key).Error; e != nil {
 				return e
 			}
@@ -118,6 +121,9 @@ func (s *Store) Change(ctx context.Context, key, actor, operation, revision stri
 				return ErrInvalid
 			}
 			if e := Validate(key, r.Payload); e != nil {
+				return e
+			}
+			if e := attachMedia(tx, key, revision, r.Payload, true); e != nil {
 				return e
 			}
 			if e := tx.Exec(`UPDATE public.cms_revisions SET published_at=COALESCE(published_at,now()) WHERE id=?::uuid`, revision).Error; e != nil {

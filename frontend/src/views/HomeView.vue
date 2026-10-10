@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { cmsMediaAlt, cmsMediaSrcset } from "../services/cms/content";
 import { cmsLiteral, cmsInline } from "../services/cms/content";
 import ScrollClinicHero from "../components/home/ScrollClinicHero.vue";
 import ServiceIndex from "../components/home/ServiceIndex.vue";
@@ -59,6 +60,8 @@ const preview = services.filter((s) =>
         <img
           v-photo-parallax
           :src="media.room"
+          :srcset="cmsMediaSrcset(media.room)"
+          sizes="(max-width: 768px) 100vw, 60vw"
           alt=""
           loading="lazy"
           width="1280"
@@ -95,7 +98,15 @@ const preview = services.filter((s) =>
               <img
                 v-photo-parallax
                 :src="media.doctor"
-                :alt="cmsLiteral('literal.dceb04b2.8')"
+                :srcset="cmsMediaSrcset(media.doctor)"
+                sizes="(max-width: 768px) 100vw, 60vw"
+                :alt="
+                  cmsMediaAlt(
+                    media.doctor,
+                    locale,
+                    cmsLiteral('literal.dceb04b2.8'),
+                  )
+                "
                 loading="lazy"
                 width="840"
                 height="1120"
@@ -194,7 +205,15 @@ const preview = services.filter((s) =>
             ><div class="journal-feature-image">
               <img
                 :src="media.original"
-                :alt="cmsLiteral('literal.dceb04b2.16')"
+                :srcset="cmsMediaSrcset(media.original)"
+                sizes="(max-width: 768px) 100vw, 60vw"
+                :alt="
+                  cmsMediaAlt(
+                    media.original,
+                    locale,
+                    cmsLiteral('literal.dceb04b2.16'),
+                  )
+                "
                 loading="lazy"
                 width="526"
                 height="526"

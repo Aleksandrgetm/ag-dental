@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
+import { computed, onBeforeUnmount, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { cmsDestination, cmsDestinations } from "../../services/cms/navigation";
 import { useI18n } from "vue-i18n";
@@ -15,7 +15,6 @@ import {
   docImage,
   visibleFields,
   valueAt,
-  mediaAssets,
   type Section,
   type Doc,
 } from "../../services/cms/catalog";
@@ -47,26 +46,8 @@ const category = computed({
     );
   },
 });
-const detail = computed({
-  get: () =>
-    mediaAssets.find((a) => a.id === destination.value?.mediaID) || null,
-  set: (asset: (typeof mediaAssets)[number] | null) => {
-    void router.push(
-      asset ? "/admin/media/" + encodeURIComponent(asset.id) : "/admin/media",
-    );
-  },
-});
 const search = ref(""),
-  mediaFilter = ref(""),
-  mediaType = ref(""),
   pagePreview = ref(false);
-const detailPanel = ref<HTMLElement>();
-async function showDetail(asset: (typeof mediaAssets)[number]) {
-  detail.value = asset;
-  await nextTick();
-  detailPanel.value?.focus();
-  detailPanel.value?.scrollIntoView({ block: "start" });
-}
 const snapshots = ref<Record<string, any>>({}),
   pending = ref(false);
 const label = (v: any): string =>
@@ -92,14 +73,6 @@ const match = (value: any) =>
     .includes(search.value.toLocaleLowerCase());
 const matchedPages = computed(() =>
   pages.filter((p) => match([p.title, p.path])),
-);
-const filteredMedia = computed(() =>
-  mediaAssets.filter(
-    (a) =>
-      match(a.filename) &&
-      (!mediaFilter.value || a.usage_groups.includes(mediaFilter.value)) &&
-      (!mediaType.value || a.kind === mediaType.value),
-  ),
 );
 const genericDocs = computed(() =>
   documents
@@ -153,24 +126,6 @@ const documentTitle = (d: Doc) =>
   d.key.startsWith("news.")
     ? data(d)[locale.value].title
     : label(data(d).title) || label(d.title);
-const imageLabel = (a: (typeof mediaAssets)[number]) =>
-  a.protected
-    ? t("cms.systemManaged")
-    : !a.url.startsWith("/")
-      ? t("cms.sourceOnly")
-      : a.filename;
-const usage = (a: (typeof mediaAssets)[number]) =>
-  a.usage_groups
-    .map((g) =>
-      g === "home"
-        ? t("nav.home")
-        : g === "about"
-          ? t("nav.about")
-          : g === "other"
-            ? t("cms.other")
-            : t("admin.nav." + g),
-    )
-    .join(", ") || t("cms.unused");
 let controller = new AbortController(),
   request = 0;
 const loadKeys = computed(() => {
@@ -261,42 +216,6 @@ function openItem(index: number) {
       <label
         >{{ t("cms.search") }}<input v-model="search" type="search"
       /></label>
-      <label v-if="group === 'media'"
-        >{{ t("cms.usage")
-        }}<select v-model="mediaFilter">
-          <option value="">{{ t("cms.allMedia") }}</option>
-          <option
-            v-for="g in [
-              'home',
-              'services',
-              'doctors',
-              'about',
-              'news',
-              'other',
-            ]"
-            :value="g"
-            :key="g"
-          >
-            {{
-              g === "home"
-                ? t("nav.home")
-                : g === "about"
-                  ? t("nav.about")
-                  : g === "other"
-                    ? t("cms.other")
-                    : t("admin.nav." + g)
-            }}
-          </option>
-        </select></label
-      >
-      <label v-if="group === 'media'"
-        >{{ t("cms.fileType")
-        }}<select v-model="mediaType">
-          <option value="">{{ t("cms.allMedia") }}</option>
-          <option value="image">{{ t("cms.image") }}</option>
-          <option value="video">{{ t("cms.video") }}</option>
-        </select></label
-      >
     </div>
     <template v-if="group === 'pages'">
       <template v-if="!currentPage">
@@ -545,68 +464,6 @@ function openItem(index: number) {
         </article>
       </div>
     </template>
-    <template v-else-if="group === 'media'">
-      <p class="cms-note">{{ t("cms.uploadNote") }}</p>
-      <button class="cms-unavailable" disabled>{{ t("cms.upload") }}</button>
-      <p class="cms-note">{{ mediaAssets.length }} · {{ t("cms.files") }}</p>
-      <section
-        v-if="detail"
-        ref="detailPanel"
-        tabindex="-1"
-        class="cms-media-detail"
-        aria-live="polite"
-      >
-        <button class="cms-back" @click="detail = null">
-          {{ t("cms.close") }}
-        </button>
-        <h2>{{ detail.filename }}</h2>
-        <img
-          v-if="
-            !detail.protected &&
-            detail.url.startsWith('/') &&
-            imageURL(detail.url)
-          "
-          :src="detail.url"
-          :alt="detail.filename"
-        />
-        <p v-if="detail.protected">{{ t("cms.systemNote") }}</p>
-        <dl>
-          <dt>{{ t("cms.fileType") }}</dt>
-          <dd>{{ detail.filename.split(".").at(-1)?.toUpperCase() }}</dd>
-          <dt>{{ t("cms.fileSize") }}</dt>
-          <dd>{{ Math.ceil(detail.bytes / 1024) }} KB</dd>
-          <dt>{{ t("cms.usage") }}</dt>
-          <dd>{{ usage(detail) }}</dd>
-        </dl>
-      </section>
-      <div class="cms-media">
-        <button
-          v-for="asset in filteredMedia"
-          :key="asset.id"
-          class="cms-media-tile"
-          @click="showDetail(asset)"
-          :aria-label="t('cms.assetDetails') + ': ' + asset.filename"
-        >
-          <img
-            v-if="
-              !asset.protected &&
-              asset.url.startsWith('/') &&
-              imageURL(asset.url)
-            "
-            :src="asset.url"
-            :alt="asset.filename"
-            loading="lazy"
-          /><span v-else class="cms-media-placeholder">{{
-            imageLabel(asset)
-          }}</span
-          ><strong>{{ asset.filename }}</strong
-          ><span
-            >{{ asset.filename.split(".").at(-1)?.toUpperCase() }} ·
-            {{ Math.ceil(asset.bytes / 1024) }} KB</span
-          ><small>{{ usage(asset) }}</small>
-        </button>
-      </div>
-    </template>
     <template v-else-if="group === 'settings'">
       <div class="cms-card-grid">
         <article
@@ -814,60 +671,6 @@ button:hover:not(:disabled) {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
-.cms-media {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
-  margin-top: 24px;
-}
-.cms-media-tile {
-  border: 1px solid var(--line);
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  min-width: 0;
-}
-.cms-media-tile img,
-.cms-media-placeholder {
-  width: 100%;
-  aspect-ratio: 4/3;
-  object-fit: contain;
-  background: var(--sage);
-}
-.cms-media-placeholder {
-  display: grid;
-  place-content: center;
-  text-align: center;
-  padding: 20px;
-  font-size: 12px;
-}
-.cms-media-tile strong {
-  font-weight: 500;
-}
-.cms-media-tile > span {
-  font-size: 12px;
-}
-.cms-media-detail {
-  border: 1px solid var(--line);
-  padding: 24px;
-  margin: 24px 0;
-}
-.cms-media-detail img {
-  max-width: 100%;
-  height: 240px;
-  object-fit: contain;
-}
-dt {
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 16px;
-}
-dd {
-  margin: 4px 0;
-  font-size: 13px;
-  overflow-wrap: anywhere;
-}
 .cms-unavailable {
   border: 1px solid var(--line);
   padding: 12px;
@@ -901,20 +704,12 @@ dd {
   .cms-section-body {
     padding: 20px;
   }
-  .cms-media {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
   .cms-items article {
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 10px;
   }
   .cms-items article > div {
     grid-column: 1/-1;
-  }
-}
-@media (max-width: 380px) {
-  .cms-media {
-    grid-template-columns: 1fr;
   }
 }
 </style>

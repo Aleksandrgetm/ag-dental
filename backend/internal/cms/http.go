@@ -31,7 +31,12 @@ func Register(r *gin.Engine, s *Store, v auth.Verifier, roles auth.Roles) {
 			failure(c, e)
 			return
 		}
-		body, _ := json.Marshal(gin.H{"schema_version": 1, "documents": rows})
+		assets, e := s.PublishedMedia(c.Request.Context(), rows)
+		if e != nil {
+			failure(c, e)
+			return
+		}
+		body, _ := json.Marshal(gin.H{"schema_version": 1, "documents": rows, "media": assets})
 		sum := sha256.Sum256(body)
 		tag := `"` + hex.EncodeToString(sum[:]) + `"`
 		c.Header("ETag", tag)

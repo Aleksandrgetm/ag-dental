@@ -1,3 +1,4 @@
+import { previewURL } from "./mediaPreviewCache.ts";
 // Presentation only: document keys and field scopes refer to the existing CMS registry.
 // No content is stored here and no public component is mounted in an admin preview.
 import manifest from "../../../../backend/internal/cms/content.json" with { type: "json" };
@@ -132,6 +133,7 @@ export function imageURL(
 ): string | undefined {
   if (typeof value !== "string") return;
   const url = images[value] || value;
+  if (previewURL(url)) return previewURL(url);
   const asset = mediaAssets.find(
     (a) =>
       a.url === url &&

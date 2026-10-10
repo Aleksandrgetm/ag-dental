@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { cmsMediaAlt, cmsMediaSrcset } from "../services/cms/content";
 import { cmsLiteral } from "../services/cms/content";
 import { computed, ref, watchEffect } from "vue";
 import { useRoute } from "vue-router";
 import { localizeArticle } from "../services/cms/content";
+import { articles as baselineArticles } from "../content/articles";
 import { articles } from "../services/cms/content";
 import { media } from "../services/cms/content";
 import { useContent } from "../content/useContent";
@@ -11,6 +13,11 @@ import ContactBand from "../components/ContactBand.vue";
 import NotFoundView from "./NotFoundView.vue";
 const route = useRoute(),
   { t, date, locale } = useContent();
+const portrait = computed(
+  () =>
+    baselineArticles.find((a) => a.slug === route.params.slug)?.image ===
+    "doctor",
+);
 const reading = ref<HTMLElement>();
 const articleIndex = computed(() =>
   articles.findIndex((a) => a.slug === route.params.slug),
@@ -55,28 +62,27 @@ watchEffect(() => {
             <h1 data-reveal>{{ article.title }}</h1>
             <p class="article-lead">{{ article.paragraphs[0] }}</p>
           </header>
-          <figure
-            class="article-photograph"
-            :class="{ portrait: article.image === 'doctor' }"
-          >
+          <figure class="article-photograph" :class="{ portrait: portrait }">
             <div class="article-image-frame" data-reveal="image">
               <img
                 :src="media[article.image as keyof typeof media]"
-                :alt="
-                  article.image === 'doctor'
-                    ? 'Dr. Anda Gutovska'
-                    : 'AG Zobārstniecība'
+                :srcset="
+                  cmsMediaSrcset(media[article.image as keyof typeof media])
                 "
-                :width="article.image === 'doctor' ? 840 : 526"
-                :height="article.image === 'doctor' ? 1120 : 526"
+                sizes="(max-width: 768px) 100vw, 60vw"
+                :alt="
+                  cmsMediaAlt(
+                    media[article.image as keyof typeof media],
+                    locale,
+                    portrait ? 'Dr. Anda Gutovska' : 'AG Zobārstniecība',
+                  )
+                "
+                :width="portrait ? 840 : 526"
+                :height="portrait ? 1120 : 526"
               />
             </div>
             <figcaption>
-              {{
-                article.image === "doctor"
-                  ? "Dr. Anda Gutovska"
-                  : "AG Zobārstniecība"
-              }}
+              {{ portrait ? "Dr. Anda Gutovska" : "AG Zobārstniecība" }}
             </figcaption>
           </figure>
           <div
@@ -104,7 +110,7 @@ watchEffect(() => {
             </div>
             <blockquote v-if="quoteIndex >= 0" class="article-pull-quote">
               <p>{{ article.paragraphs[quoteIndex] }}</p>
-              <cite>{{ cmsLiteral('literal.cf6ad05d.0') }}</cite>
+              <cite>{{ cmsLiteral("literal.cf6ad05d.0") }}</cite>
             </blockquote>
           </div>
         </div>

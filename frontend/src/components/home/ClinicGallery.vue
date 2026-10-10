@@ -1,22 +1,40 @@
 <script setup lang="ts">
+import { cmsMediaAlt, cmsMediaSrcset } from "../../services/cms/content";
 import { cmsLiteral } from "../../services/cms/content";
+import { useI18n } from "vue-i18n";
+const { locale } = useI18n();
 import { media } from "../../services/cms/content";
 </script>
 
 <template>
-  <section class="section clinic-about" lang="lv" aria-labelledby="clinic-about-title">
+  <section
+    class="section clinic-about"
+    lang="lv"
+    aria-labelledby="clinic-about-title"
+  >
     <div class="container">
       <div class="clinic-about-spread">
         <header class="clinic-about-heading" data-reveal>
-          <p class="eyebrow">{{ cmsLiteral('literal.811f7800.0') }}</p>
-          <h2 id="clinic-about-title">{{ cmsLiteral('literal.811f7800.1') }}<br />{{ cmsLiteral('literal.811f7800.2') }}<br /><em>{{ cmsLiteral('literal.811f7800.3') }}</em>
+          <p class="eyebrow">{{ cmsLiteral("literal.811f7800.0") }}</p>
+          <h2 id="clinic-about-title">
+            {{ cmsLiteral("literal.811f7800.1") }}<br />{{
+              cmsLiteral("literal.811f7800.2")
+            }}<br /><em>{{ cmsLiteral("literal.811f7800.3") }}</em>
           </h2>
         </header>
 
         <figure class="clinic-about-photo" data-reveal="image">
           <img
             :src="media.detail"
-            :alt="cmsLiteral('literal.811f7800.4')"
+            :srcset="cmsMediaSrcset(media.detail)"
+            sizes="(max-width: 768px) 100vw, 60vw"
+            :alt="
+              cmsMediaAlt(
+                media.detail,
+                locale,
+                cmsLiteral('literal.811f7800.4'),
+              )
+            "
             loading="lazy"
             width="1280"
             height="720"
@@ -24,19 +42,30 @@ import { media } from "../../services/cms/content";
         </figure>
 
         <div class="clinic-about-body" data-reveal data-delay="80">
-          <p class="clinic-about-lead">{{ cmsLiteral('literal.811f7800.5') }}</p>
-          <p>{{ cmsLiteral('literal.811f7800.6') }}</p>
-          <RouterLink class="text-link clinic-about-link" to="/par-mums">{{ cmsLiteral('literal.811f7800.7') }}</RouterLink>
+          <p class="clinic-about-lead">
+            {{ cmsLiteral("literal.811f7800.5") }}
+          </p>
+          <p>{{ cmsLiteral("literal.811f7800.6") }}</p>
+          <RouterLink class="text-link clinic-about-link" to="/par-mums">{{
+            cmsLiteral("literal.811f7800.7")
+          }}</RouterLink>
         </div>
 
         <dl class="clinic-about-facts" data-reveal data-delay="120">
           <div>
-            <dt class="clinic-about-years">{{ cmsLiteral('literal.811f7800.8') }}</dt>
-            <dd>{{ cmsLiteral('literal.811f7800.9') }}<span>{{ cmsLiteral('literal.811f7800.10') }}</span></dd>
+            <dt class="clinic-about-years">
+              {{ cmsLiteral("literal.811f7800.8") }}
+            </dt>
+            <dd>
+              {{ cmsLiteral("literal.811f7800.9")
+              }}<span>{{ cmsLiteral("literal.811f7800.10") }}</span>
+            </dd>
           </div>
           <div>
-            <dt class="clinic-about-place">{{ cmsLiteral('literal.811f7800.11') }}</dt>
-            <dd>{{ cmsLiteral('literal.811f7800.12') }}</dd>
+            <dt class="clinic-about-place">
+              {{ cmsLiteral("literal.811f7800.11") }}
+            </dt>
+            <dd>{{ cmsLiteral("literal.811f7800.12") }}</dd>
           </div>
         </dl>
       </div>
