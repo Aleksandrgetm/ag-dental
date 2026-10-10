@@ -145,6 +145,9 @@ const session = {
     await context.route("**/api/auth/me", (r) =>
       r.fulfill({ json: { id: s2, email: user.email, role: "user" } }),
     );
+    await context.route("**/api/cms/published", (r) =>
+      r.fulfill({ json: { schema_version: 1, documents: [] } }),
+    );
     await context.route("**/api/health", (r) =>
       r.fulfill({ json: { status: "ok" } }),
     );

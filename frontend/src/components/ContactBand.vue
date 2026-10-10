@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { clinic } from "../content/clinic";
+import { cmsLiteral } from "../services/cms/content";
+import { clinic } from "../services/cms/content";
 import { useContent } from "../content/useContent";
 const { t } = useContent();
 </script>
@@ -7,8 +8,8 @@ const { t } = useContent();
   <section class="contact-band">
     <div class="container">
       <div class="contact-band-top">
-        <p class="eyebrow">AG ZOBĀRSTNIECĪBA · RĪGA</p>
-        <span class="tiny-label">Ūnijas iela 25</span>
+        <p class="eyebrow">{{ cmsLiteral('literal.b07ef827.0') }}</p>
+        <span class="tiny-label">{{ cmsLiteral('literal.b07ef827.1') }}</span>
       </div>
       <div class="contact-band-grid">
         <h2 data-reveal>{{ t("home.contactTitle") }}</h2>
@@ -20,7 +21,7 @@ const { t } = useContent();
         </div>
       </div>
       <div class="contact-band-bottom">
-        <span>{{ t("ui.hours") }} · 09:00–18:00</span
+        <span>{{ t("ui.hours") }}{{ cmsLiteral('literal.b07ef827.2') }}</span
         ><RouterLink to="/kontakti">{{ t("common.directions") }}</RouterLink
         ><span>{{ t("ui.parking") }}</span>
       </div>

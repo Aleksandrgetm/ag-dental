@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
-import { localizeArticle } from "../content/articleTranslations";
-import { articles } from "../content/articles";
+import { localizeArticle } from "../services/cms/content";
+import { articles } from "../services/cms/content";
 import { useContent } from "../content/useContent";
 import ContactBand from "../components/ContactBand.vue";
 const { t, date, locale } = useContent();

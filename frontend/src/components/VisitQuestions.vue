@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { refinement as copy } from "../content/refinement";
+import { refinement as copy } from "../services/cms/content";
 import { useContent } from "../content/useContent";
 import { vAccordionMotion } from "../directives/accordionMotion";
 const { local } = useContent();

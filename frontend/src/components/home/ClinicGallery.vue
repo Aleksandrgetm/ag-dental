@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { media } from "../../content/clinic";
+import { cmsLiteral } from "../../services/cms/content";
+import { media } from "../../services/cms/content";
 </script>
 
 <template>
@@ -7,16 +8,15 @@ import { media } from "../../content/clinic";
     <div class="container">
       <div class="clinic-about-spread">
         <header class="clinic-about-heading" data-reveal>
-          <p class="eyebrow">PAR MUMS</p>
-          <h2 id="clinic-about-title">
-            Vairāk nekā<br />15 gadu pieredze<br /><em>un rūpes.</em>
+          <p class="eyebrow">{{ cmsLiteral('literal.811f7800.0') }}</p>
+          <h2 id="clinic-about-title">{{ cmsLiteral('literal.811f7800.1') }}<br />{{ cmsLiteral('literal.811f7800.2') }}<br /><em>{{ cmsLiteral('literal.811f7800.3') }}</em>
           </h2>
         </header>
 
         <figure class="clinic-about-photo" data-reveal="image">
           <img
             :src="media.detail"
-            alt="AG Zobārstniecības klīnikas gaišais gaitenis ar ārstniecības kabinetiem"
+            :alt="cmsLiteral('literal.811f7800.4')"
             loading="lazy"
             width="1280"
             height="720"
@@ -24,28 +24,19 @@ import { media } from "../../content/clinic";
         </figure>
 
         <div class="clinic-about-body" data-reveal data-delay="80">
-          <p class="clinic-about-lead">
-            AG Zobārstniecība — mierīga un iejūtīga zobārstniecība visai ģimenei
-            Rīgā, Teikā.
-          </p>
-          <p>
-            Vispirms radām vidi, kur varat justies droši. Uzklausām, izrunājam
-            jūsu situāciju un kopā meklējam piemērotāko ārstēšanas risinājumu.
-            Katram pacientam — individuāla pieeja un rūpīgi pārdomāta ārstēšana.
-          </p>
-          <RouterLink class="text-link clinic-about-link" to="/par-mums">
-            Iepazīt klīniku
-          </RouterLink>
+          <p class="clinic-about-lead">{{ cmsLiteral('literal.811f7800.5') }}</p>
+          <p>{{ cmsLiteral('literal.811f7800.6') }}</p>
+          <RouterLink class="text-link clinic-about-link" to="/par-mums">{{ cmsLiteral('literal.811f7800.7') }}</RouterLink>
         </div>
 
         <dl class="clinic-about-facts" data-reveal data-delay="120">
           <div>
-            <dt class="clinic-about-years">15+</dt>
-            <dd>gadu pieredze<span>Dr. Anda Gutovska</span></dd>
+            <dt class="clinic-about-years">{{ cmsLiteral('literal.811f7800.8') }}</dt>
+            <dd>{{ cmsLiteral('literal.811f7800.9') }}<span>{{ cmsLiteral('literal.811f7800.10') }}</span></dd>
           </div>
           <div>
-            <dt class="clinic-about-place">Rīga · Teika</dt>
-            <dd>Ūnijas iela 25</dd>
+            <dt class="clinic-about-place">{{ cmsLiteral('literal.811f7800.11') }}</dt>
+            <dd>{{ cmsLiteral('literal.811f7800.12') }}</dd>
           </div>
         </dl>
       </div>

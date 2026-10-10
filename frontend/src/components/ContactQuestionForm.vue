@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, reactive, ref, watch } from "vue";
-import { clinic } from "../content/clinic";
+import { clinic } from "../services/cms/content";
 import { useContent } from "../content/useContent";
 import {
   fieldLimits,

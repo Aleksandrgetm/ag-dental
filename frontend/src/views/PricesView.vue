@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import { cmsLiteral } from "../services/cms/content";
 import { computed, ref, watch, onMounted, onBeforeUnmount } from "vue";
-import { localizedPrices } from "../content/pricing";
+import { localizedPrices } from "../services/cms/content";
 import { useContent } from "../content/useContent";
-import { refinement as copy } from "../content/refinement";
+import { refinement as copy } from "../services/cms/content";
 import PriceList from "../components/PriceList.vue";
 import ContactBand from "../components/ContactBand.vue";
 const { t, local, locale } = useContent();
@@ -164,7 +165,7 @@ onBeforeUnmount(() => {
         :data-category="category.index"
       >
         <div class="price-category-title">
-          <span class="eyebrow">0{{ category.index + 1 }} / EUR</span>
+          <span class="eyebrow">0{{ category.index + 1 }}{{ cmsLiteral('literal.29417b3a.2') }}</span>
           <h2 :lang="locale">{{ category.title }}</h2>
         </div>
         <PriceList :items="category.items" :language="locale" />

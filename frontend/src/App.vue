@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch, defineAsyncComponent } from "vue";
 import { useRoute } from "vue-router";
 import { useContent } from "./content/useContent";
 import { useClinicStore } from "./stores/clinic";
@@ -9,6 +9,9 @@ import SiteFooter from "./components/layout/SiteFooter.vue";
 import WelcomeIntro from "./components/common/WelcomeIntro.vue";
 import { vEditorialMotion } from "./directives/editorialMotion";
 import "./styles/editorial.css";
+const CmsMetadata = defineAsyncComponent(
+  () => import("./components/common/CmsMetadata.vue"),
+);
 const route = useRoute(),
   { t, locale } = useContent(),
   store = useClinicStore();
@@ -43,6 +46,7 @@ watch(
 </script>
 <template>
   <v-app>
+    <CmsMetadata />
     <RouterView v-if="route.meta.adminLayout" />
     <template v-else>
       <WelcomeIntro />

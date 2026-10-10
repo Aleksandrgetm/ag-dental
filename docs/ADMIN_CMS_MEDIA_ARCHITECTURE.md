@@ -1,5 +1,7 @@
 # Future CMS and media architecture
 
+Historical Phase 3.1 proposal. The implemented content-migration foundation and its current scope, approval gates and validation are documented in [CMS_INTEGRATION.md](CMS_INTEGRATION.md). The original proposal below remains as context for later extensions.
+
 Design proposal for later implementation, reviewed 9 October 2026. Phase 3.1 creates no content tables, uploads, buckets, policies or publishing endpoints. The current public website continues using its approved bundled content.
 
 ## Employee workflow

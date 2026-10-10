@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/Aleksandrgetm/Dental/internal/auth"
 	"github.com/Aleksandrgetm/Dental/internal/booking"
+	"github.com/Aleksandrgetm/Dental/internal/cms"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -24,7 +25,7 @@ func New(db *gorm.DB, v auth.Verifier, origins []string) *gin.Engine {
 		c.Next()
 	})
 	_ = r.SetTrustedProxies(nil)
-	r.Use(cors.New(cors.Config{AllowOrigins: origins, AllowMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}, AllowHeaders: []string{"Origin", "Content-Type", "Authorization", "Idempotency-Key"}, ExposeHeaders: []string{"Idempotency-Replayed", "Retry-After"}, AllowCredentials: true}))
+	r.Use(cors.New(cors.Config{AllowOrigins: origins, AllowMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"}, AllowHeaders: []string{"Origin", "Content-Type", "Authorization", "Idempotency-Key", "If-None-Match"}, ExposeHeaders: []string{"Idempotency-Replayed", "Retry-After", "ETag"}, AllowCredentials: true}))
 	r.GET("/api/health", func(c *gin.Context) {
 		raw, e := db.DB()
 		if e == nil {
@@ -42,5 +43,6 @@ func New(db *gorm.DB, v auth.Verifier, origins []string) *gin.Engine {
 	r.GET("/api/auth/me", auth.RequireAuth(v, roles), auth.Me)
 	r.GET("/api/admin/health", auth.RequireAuth(v, roles), auth.RequireRole("admin"), func(c *gin.Context) { c.JSON(200, gin.H{"status": "ok"}) })
 	booking.Register(r, booking.NewStore(db), v, roles)
+	cms.Register(r, &cms.Store{DB: db}, v, roles)
 	return r
 }

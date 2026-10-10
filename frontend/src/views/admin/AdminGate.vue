@@ -39,12 +39,32 @@ let alive = true,
   timer: ReturnType<typeof setInterval> | undefined;
 let refreshAttempted = false;
 const ready = ref(false);
+// Preserve only this administrator's in-memory editor during revalidation. This
+// is a mounting decision, never an authorization grant: visibility and API writes
+// still require the current token's verified role. Expiry/revocation unmount it.
+const editorGrant = ref<{ userID: string } | null>(null);
+const keepEditor = computed(
+  () =>
+    !!editorGrant.value &&
+    editorGrant.value.userID === auth.user?.id &&
+    [
+      "services",
+      "doctors",
+      "pages",
+      "news",
+      "media",
+      "seo",
+      "settings",
+    ].includes(String(route.meta.adminSection)) &&
+    ["admin", "checking", "idle", "unavailable"].includes(auth.adminStatus),
+);
 const checking = computed(
   () =>
     ["idle", "checking", "guest"].includes(auth.adminStatus) ||
     (auth.verifiedAdmin && !ready.value),
 );
 async function check() {
+  const previousFocus = document.activeElement as HTMLElement | null;
   ready.value = false;
   const current = ++attempt;
   await auth.initialize();
@@ -52,7 +72,7 @@ async function check() {
   if (!auth.user) {
     await router.replace({
       path: "/login",
-      query: { returnTo: safeAdminReturn(route.path) || "/admin" },
+      query: { returnTo: safeAdminReturn(route.fullPath) || "/admin" },
     });
     return;
   }
@@ -64,8 +84,31 @@ async function check() {
   if (result === "admin" || result === "user") refreshAttempted = false;
   if (alive && current === attempt) {
     ready.value = result === "admin";
+    if (
+      ready.value &&
+      [
+        "services",
+        "doctors",
+        "pages",
+        "news",
+        "media",
+        "seo",
+        "settings",
+      ].includes(String(route.meta.adminSection))
+    )
+      editorGrant.value = {
+        userID: auth.user!.id,
+      };
+    else if (!["checking", "idle", "unavailable"].includes(result))
+      editorGrant.value = null;
     await nextTick();
-    document.getElementById("admin-main")?.focus({ preventScroll: true });
+    if (
+      keepEditor.value &&
+      previousFocus?.isConnected &&
+      previousFocus !== document.body
+    )
+      previousFocus.focus({ preventScroll: true });
+    else document.getElementById("admin-main")?.focus({ preventScroll: true });
   }
 }
 function focus() {
@@ -77,7 +120,7 @@ watch(
   { immediate: true },
 );
 watch(
-  () => auth.session?.access_token,
+  () => [auth.user?.id, auth.session?.access_token],
   () => void check(),
 );
 onMounted(() => {
@@ -94,9 +137,14 @@ onBeforeUnmount(() => {
 });
 </script>
 <template>
-  <AdminLayout v-if="auth.verifiedAdmin && ready"><RouterView /></AdminLayout>
+  <AdminLayout
+    v-if="(auth.verifiedAdmin && ready) || keepEditor"
+    v-show="auth.verifiedAdmin && ready"
+    :inert="!(auth.verifiedAdmin && ready)"
+    ><RouterView
+  /></AdminLayout>
   <main
-    v-else
+    v-if="!auth.verifiedAdmin || !ready"
     id="admin-main"
     class="admin-access"
     tabindex="-1"
@@ -118,7 +166,7 @@ onBeforeUnmount(() => {
         class="button"
         :to="{
           path: '/login',
-          query: { returnTo: safeAdminReturn(route.path) || '/admin' },
+          query: { returnTo: safeAdminReturn(route.fullPath) || '/admin' },
         }"
         >{{ t("auth.login") }}</RouterLink
       ></template

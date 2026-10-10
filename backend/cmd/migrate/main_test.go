@@ -44,7 +44,21 @@ func TestMigrationsIntegration(t *testing.T) {
 		}
 	}
 	migrate := func(adopt, down bool) error { return run(ctx, dsn, "../../migrations", adopt, down, false) }
-	downConfirmation := func() error { return run(ctx, dsn, "../../migrations", false, false, true) }
+	downCMS := func() error {
+		return executeFile(ctx, conn, "../../migrations/004_website_cms.down.sql", "Remove empty local-test CMS")
+	}
+	downConfirmation := func() error {
+		var exists bool
+		if err := conn.QueryRow(ctx, "SELECT to_regclass('public.cms_documents') IS NOT NULL").Scan(&exists); err != nil {
+			return err
+		}
+		if exists {
+			if err := downCMS(); err != nil {
+				return err
+			}
+		}
+		return run(ctx, dsn, "../../migrations", false, false, true)
+	}
 
 	// Roles are cluster-wide and may already support the booking tests in another
 	// database. Bootstrap only this dedicated database's schemas and auth stub.
@@ -66,7 +80,7 @@ func TestMigrationsIntegration(t *testing.T) {
 		if err := migrate(false, false); err != nil {
 			t.Fatal(err)
 		}
-		assertBool(t, "SELECT count(*)=3 FROM public.schema_migrations")
+		assertBool(t, "SELECT count(*)=4 FROM public.schema_migrations")
 		assertBool(t, "SELECT role='user' FROM public.user_roles WHERE user_id='30000000-0000-4000-8000-000000000001'")
 		assertBool(t, "SELECT confirmation_mode='automatic' AND privacy_notice_version IS NULL FROM public.booking_settings")
 		assertBool(t, "SELECT column_default='''automatic''::text' FROM information_schema.columns WHERE table_schema='public' AND table_name='booking_settings' AND column_name='confirmation_mode'")
@@ -78,7 +92,7 @@ func TestMigrationsIntegration(t *testing.T) {
 		}
 		assertBool(t, "SELECT role='admin' FROM public.user_roles WHERE user_id='30000000-0000-4000-8000-000000000001'")
 		assertBool(t, "SELECT confirmation_mode='manual' FROM public.booking_settings")
-		assertBool(t, "SELECT count(*)=3 FROM public.schema_migrations")
+		assertBool(t, "SELECT count(*)=4 FROM public.schema_migrations")
 		assertBool(t, "SELECT count(*)=1 FROM public.booking_settings_events")
 	})
 	if t.Failed() {
@@ -90,7 +104,7 @@ func TestMigrationsIntegration(t *testing.T) {
 		if err := migrate(false, false); err == nil {
 			t.Fatal("runner accepted an unknown migration")
 		}
-		assertBool(t, "SELECT count(*)=4 FROM public.schema_migrations")
+		assertBool(t, "SELECT count(*)=5 FROM public.schema_migrations")
 		exec(t, "DELETE FROM public.schema_migrations WHERE version='999_unknown'")
 	})
 
@@ -98,7 +112,11 @@ func TestMigrationsIntegration(t *testing.T) {
 		if err := migrate(false, true); err == nil {
 			t.Fatal("booking rollback accepted a later applied migration")
 		}
-		assertBool(t, "SELECT count(*)=3 FROM public.schema_migrations")
+		assertBool(t, "SELECT count(*)=4 FROM public.schema_migrations")
+		if err := run(ctx, dsn, "../../migrations", false, false, true); err == nil {
+			t.Fatal("confirmation rollback ignored CMS dependency")
+		}
+		assertBool(t, "SELECT count(*)=5 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relname IN ('cms_documents','cms_revisions','cms_events','cms_media','cms_booking_service_links') AND c.relrowsecurity")
 		if err := downConfirmation(); err != nil {
 			t.Fatal(err)
 		}

@@ -48,6 +48,10 @@ fs.mkdirSync(OUT, { recursive: true });
             url.pathname.startsWith("/api/") ||
             req.method() !== "GET"
           ) {
+            if (url.pathname === "/api/cms/published" && req.method() === "GET")
+              return route.fulfill({
+                json: { schema_version: 1, documents: [] },
+              });
             if (url.pathname === "/api/health" && req.method() === "GET")
               return route.fulfill({ json: { status: "ok" } });
             requests.push(`${req.method()} ${url.origin}${url.pathname}`);

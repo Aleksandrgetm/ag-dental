@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { cmsLiteral, cmsInline } from "../services/cms/content";
 import ScrollClinicHero from "../components/home/ScrollClinicHero.vue";
 import ServiceIndex from "../components/home/ServiceIndex.vue";
 import PatientJourney from "../components/home/PatientJourney.vue";
@@ -12,10 +13,9 @@ import {
   about,
   doctorBio,
   services,
-  l,
-} from "../content/clinic";
-import { articles } from "../content/articles";
-import { refinement as copy } from "../content/refinement";
+} from "../services/cms/content";
+import { articles } from "../services/cms/content";
+import { refinement as copy } from "../services/cms/content";
 import { useContent } from "../content/useContent";
 const { t, local, date, locale } = useContent();
 const preview = services.filter((s) =>
@@ -28,7 +28,9 @@ const preview = services.filter((s) =>
     <section id="intro" class="section intro-section">
       <div class="container">
         <div class="intro-masthead">
-          <p class="eyebrow">01 / {{ t("home.introLabel") }}</p>
+          <p class="eyebrow">
+            {{ cmsLiteral("literal.dceb04b2.0") }}{{ t("home.introLabel") }}
+          </p>
           <span class="tiny-label">{{ local(copy.welcome) }}</span>
         </div>
         <div class="intro-editorial">
@@ -45,7 +47,8 @@ const preview = services.filter((s) =>
           </div>
         </div>
         <div class="intro-footnote">
-          <span>AG ZOBĀRSTNIECĪBA</span><span>Ūnijas iela 25 · Rīga–Teika</span
+          <span>{{ cmsLiteral("literal.dceb04b2.1") }}</span
+          ><span>{{ cmsLiteral("literal.dceb04b2.2") }}</span
           ><span>{{ t("ui.appointment") }}</span>
         </div>
       </div>
@@ -60,10 +63,14 @@ const preview = services.filter((s) =>
           loading="lazy"
           width="1280"
           height="720"
-        /><span class="image-annotation">AG / RĪGA</span>
+        /><span class="image-annotation">{{
+          cmsLiteral("literal.dceb04b2.3")
+        }}</span>
       </div>
       <div class="about-editorial-copy" data-reveal>
-        <p class="eyebrow">03 / {{ t("home.aboutLabel") }}</p>
+        <p class="eyebrow">
+          {{ cmsLiteral("literal.dceb04b2.4") }}{{ t("home.aboutLabel") }}
+        </p>
         <h2>{{ t("home.aboutTitle") }}</h2>
         <p>{{ local(about) }}</p>
         <RouterLink class="text-link" to="/par-mums"
@@ -74,8 +81,13 @@ const preview = services.filter((s) =>
     <section class="section doctor-feature">
       <div class="container">
         <div class="doctor-feature-top" data-reveal>
-          <p class="eyebrow">04 / {{ t("home.doctorLabel") }}</p>
-          <h2>Dr. Anda <em>Gutovska.</em></h2>
+          <p class="eyebrow">
+            {{ cmsLiteral("literal.dceb04b2.5") }}{{ t("home.doctorLabel") }}
+          </p>
+          <h2>
+            {{ cmsLiteral("literal.dceb04b2.6")
+            }}<em>{{ cmsLiteral("literal.dceb04b2.7") }}</em>
+          </h2>
         </div>
         <div class="doctor-feature-grid">
           <figure class="doctor-feature-photo" data-reveal="image">
@@ -83,7 +95,7 @@ const preview = services.filter((s) =>
               <img
                 v-photo-parallax
                 :src="media.doctor"
-                alt="Dr. Anda Gutovska"
+                :alt="cmsLiteral('literal.dceb04b2.8')"
                 loading="lazy"
                 width="840"
                 height="1120"
@@ -95,7 +107,7 @@ const preview = services.filter((s) =>
             <p class="doctor-principle">{{ t("home.doctorTitle") }}</p>
             <p>{{ local(doctorBio) }}</p>
             <div class="experience-note">
-              <span>15+</span>
+              <span>{{ cmsLiteral("literal.dceb04b2.9") }}</span>
               <p>{{ local(copy.years) }}</p>
             </div>
             <RouterLink class="text-link" to="/par-mums"
@@ -126,7 +138,9 @@ const preview = services.filter((s) =>
     <section class="section prices-home">
       <div class="container prices-editorial">
         <div data-reveal>
-          <p class="eyebrow">06 / {{ t("home.pricesLabel") }}</p>
+          <p class="eyebrow">
+            {{ cmsLiteral("literal.dceb04b2.11") }}{{ t("home.pricesLabel") }}
+          </p>
           <h2>{{ t("home.pricesTitle") }}</h2>
           <p class="section-aside">{{ t("page.pricesIntro") }}</p>
           <RouterLink class="text-link" to="/cenas"
@@ -135,28 +149,18 @@ const preview = services.filter((s) =>
         </div>
         <div class="price-sheet" data-reveal data-delay="100">
           <div class="price-sheet-heading">
-            <span>AG / {{ t("nav.prices") }}</span
-            ><span>EUR</span>
+            <span
+              >{{ cmsLiteral("literal.dceb04b2.12")
+              }}{{ t("nav.prices") }}</span
+            ><span>{{ cmsLiteral("literal.dceb04b2.13") }}</span>
           </div>
           <div class="price-preview" v-for="(s, i) in preview" :key="s.slug">
             <span class="index-number">0{{ i + 1 }}</span
             ><RouterLink :to="`/pakalpojumi/${s.slug}`">{{
               s.slug === "bernu-zobarstnieciba"
-                ? local(
-                    l(
-                      "Bērna konsultācija",
-                      "Детская консультация",
-                      "Child’s consultation",
-                    ),
-                  )
+                ? local(cmsInline("inline.home.0"))
                 : s.slug === "zobu-higiena"
-                  ? local(
-                      l(
-                        "Pilna higiēna ar sodas strūklu",
-                        "Гигиена с содоструйной обработкой",
-                        "Full hygiene with air polishing",
-                      ),
-                    )
+                  ? local(cmsInline("inline.home.1"))
                   : local(s.title)
             }}</RouterLink
             ><span class="preview-amount">{{ s.price }}<small>€</small></span>
@@ -170,7 +174,9 @@ const preview = services.filter((s) =>
       <div class="container">
         <div class="section-heading" data-reveal>
           <div>
-            <p class="eyebrow">08 / {{ t("home.newsLabel") }}</p>
+            <p class="eyebrow">
+              {{ cmsLiteral("literal.dceb04b2.15") }}{{ t("home.newsLabel") }}
+            </p>
             <h2>{{ t("home.newsTitle") }}</h2>
           </div>
           <RouterLink class="text-link" to="/jaunumi"
@@ -188,7 +194,7 @@ const preview = services.filter((s) =>
             ><div class="journal-feature-image">
               <img
                 :src="media.original"
-                alt="AG Zobārstniecība"
+                :alt="cmsLiteral('literal.dceb04b2.16')"
                 loading="lazy"
                 width="526"
                 height="526"

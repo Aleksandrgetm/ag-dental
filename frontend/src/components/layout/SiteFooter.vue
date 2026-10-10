@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { cmsLiteral } from "../../services/cms/content";
 import { useCookieConsentStore } from "../../stores/cookieConsent";
-import { clinic } from "../../content/clinic";
+import { clinic } from "../../services/cms/content";
 import { useContent } from "../../content/useContent";
 const { t } = useContent();
 const consent = useCookieConsentStore();
@@ -10,9 +11,9 @@ const consent = useCookieConsentStore();
     <div class="container footer-grid">
       <div>
         <RouterLink class="brand" to="/"
-          ><span class="brand-monogram">AG.</span
+          ><span class="brand-monogram">{{ cmsLiteral('literal.1ee975dd.0') }}</span
           ><span class="brand-name"
-            >ZOBĀRSTNIECĪBA<span>RĪGA · TEIKA</span></span
+            >{{ cmsLiteral('literal.1ee975dd.1') }}<span>{{ cmsLiteral('literal.1ee975dd.2') }}</span></span
           ></RouterLink
         >
         <p class="footer-tagline">{{ t("page.footer") }}</p>
@@ -22,12 +23,12 @@ const consent = useCookieConsentStore();
         <a :href="clinic.tel">{{ clinic.phone }}</a
         ><a :href="`mailto:${clinic.email}`">{{ clinic.email }}</a
         ><a :href="clinic.map" target="_blank" rel="noopener noreferrer"
-          >Ūnijas iela 25, Rīga ↗</a
+          >{{ cmsLiteral('literal.1ee975dd.3') }}</a
         >
       </div>
       <div>
         <p class="eyebrow">{{ t("ui.hoursTitle") }}</p>
-        <p>{{ t("ui.hours") }}<br />09:00–18:00</p>
+        <p>{{ t("ui.hours") }}<br />{{ cmsLiteral('literal.1ee975dd.4') }}</p>
         <small>{{ t("ui.appointment") }}</small>
       </div>
       <div>
@@ -39,19 +40,18 @@ const consent = useCookieConsentStore();
         }}</RouterLink>
       </div>
     </div>
-    <div class="footer-wordmark container" aria-hidden="true">
-      AG Zobārstniecība<span>RĪGA · TEIKA</span>
+    <div class="footer-wordmark container" aria-hidden="true">{{ cmsLiteral('literal.1ee975dd.5') }}<span>{{ cmsLiteral('literal.1ee975dd.6') }}</span>
     </div>
     <div class="container footer-bottom">
-      <span>© {{ new Date().getFullYear() }} AG Zobārstniecība</span>
+      <span>© {{ new Date().getFullYear() }}{{ cmsLiteral('literal.1ee975dd.7') }}</span>
       <div>
         <a :href="clinic.instagram" target="_blank" rel="noopener noreferrer"
-          >Instagram ↗</a
+          >{{ cmsLiteral('literal.1ee975dd.8') }}</a
         ><a :href="clinic.facebook" target="_blank" rel="noopener noreferrer"
-          >Facebook ↗</a
+          >{{ cmsLiteral('literal.1ee975dd.9') }}</a
         >
       </div>
-      <span>Rīga, Latvija</span>
+      <span>{{ cmsLiteral('literal.1ee975dd.10') }}</span>
     </div>
     <nav class="container footer-legal" :aria-label="t('legal.privacyTitle')">
       <RouterLink to="/privatuma-politika">{{

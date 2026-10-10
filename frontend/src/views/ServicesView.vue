@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { services, media } from "../content/clinic";
+import { services, media } from "../services/cms/content";
 import { useContent } from "../content/useContent";
 import ContactBand from "../components/ContactBand.vue";
 const { t, local } = useContent();

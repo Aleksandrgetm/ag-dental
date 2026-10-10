@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { adminGroups, adminPath } from "../../services/admin/navigation";
+import { useCmsNavigationStore } from "../../stores/cmsNavigation";
+const navigation = useCmsNavigationStore();
 const { t } = useI18n();
 defineEmits<{ navigate: [] }>();
 </script>
@@ -13,9 +15,19 @@ defineEmits<{ navigate: [] }>();
       <RouterLink
         v-for="item in group.items"
         :key="item"
-        :to="adminPath(item)"
-        :class="{ selected: $route.path === adminPath(item) }"
-        :aria-current="$route.path === adminPath(item) ? 'page' : undefined"
+        :to="navigation.last[item] || adminPath(item)"
+        :class="{
+          selected:
+            $route.path === adminPath(item) ||
+            (item !== 'overview' &&
+              $route.path.startsWith(adminPath(item) + '/')),
+        }"
+        :aria-current="
+          $route.path === adminPath(item) ||
+          (item !== 'overview' && $route.path.startsWith(adminPath(item) + '/'))
+            ? 'page'
+            : undefined
+        "
         @click="$emit('navigate')"
         >{{ t(`admin.nav.${item}`) }}</RouterLink
       >

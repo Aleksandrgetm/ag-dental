@@ -12,10 +12,44 @@ export const adminPaths = [
   "/admin/settings",
 ] as const;
 export function safeAdminReturn(value: unknown): string | null {
-  return typeof value === "string" &&
-    (adminPaths as readonly string[]).includes(value)
-    ? value
-    : null;
+  if (typeof value !== "string" || value.length > 1800 || /[\\\s#]/.test(value))
+    return null;
+  const [path, query] = value.split("?");
+  if (!path || value.split("?").length > 2) return null;
+  if ((adminPaths as readonly string[]).includes(path))
+    return query ? null : path;
+  if (
+    !/^\/admin\/(pages|services|doctors|news|media|seo|settings)\/[A-Za-z0-9_.~%/-]+$/.test(
+      path,
+    )
+  )
+    return null;
+  try {
+    if (
+      path
+        .split("/")
+        .slice(3)
+        .some(
+          (segment) =>
+            !segment ||
+            [".", ".."].includes(decodeURIComponent(segment)) ||
+            /[\\/\s?#%\u0000-\u001f\u007f]/.test(decodeURIComponent(segment)),
+        )
+    )
+      return null;
+  } catch {
+    return null;
+  }
+  if (query) {
+    const params = new URLSearchParams(query);
+    if (
+      [...params.keys()].some((key) => key !== "part") ||
+      params.getAll("part").length !== 1 ||
+      !/^[a-zA-Z0-9_.-]+$/.test(params.get("part") || "")
+    )
+      return null;
+  }
+  return value;
 }
 export type AccessState =
   | "idle"
