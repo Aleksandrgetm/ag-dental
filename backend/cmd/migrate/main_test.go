@@ -45,6 +45,9 @@ func TestMigrationsIntegration(t *testing.T) {
 	}
 	migrate := func(adopt, down bool) error { return run(ctx, dsn, "../../migrations", adopt, down, false) }
 	downCMS := func() error {
+		if err := executeFile(ctx, conn, "../../migrations/005_cms_media.down.sql", "Remove empty local-test media extension"); err != nil {
+			return err
+		}
 		return executeFile(ctx, conn, "../../migrations/004_website_cms.down.sql", "Remove empty local-test CMS")
 	}
 	downConfirmation := func() error {
@@ -80,7 +83,7 @@ func TestMigrationsIntegration(t *testing.T) {
 		if err := migrate(false, false); err != nil {
 			t.Fatal(err)
 		}
-		assertBool(t, "SELECT count(*)=4 FROM public.schema_migrations")
+		assertBool(t, "SELECT count(*)=5 FROM public.schema_migrations")
 		assertBool(t, "SELECT role='user' FROM public.user_roles WHERE user_id='30000000-0000-4000-8000-000000000001'")
 		assertBool(t, "SELECT confirmation_mode='automatic' AND privacy_notice_version IS NULL FROM public.booking_settings")
 		assertBool(t, "SELECT column_default='''automatic''::text' FROM information_schema.columns WHERE table_schema='public' AND table_name='booking_settings' AND column_name='confirmation_mode'")
@@ -92,7 +95,7 @@ func TestMigrationsIntegration(t *testing.T) {
 		}
 		assertBool(t, "SELECT role='admin' FROM public.user_roles WHERE user_id='30000000-0000-4000-8000-000000000001'")
 		assertBool(t, "SELECT confirmation_mode='manual' FROM public.booking_settings")
-		assertBool(t, "SELECT count(*)=4 FROM public.schema_migrations")
+		assertBool(t, "SELECT count(*)=5 FROM public.schema_migrations")
 		assertBool(t, "SELECT count(*)=1 FROM public.booking_settings_events")
 	})
 	if t.Failed() {
@@ -104,7 +107,7 @@ func TestMigrationsIntegration(t *testing.T) {
 		if err := migrate(false, false); err == nil {
 			t.Fatal("runner accepted an unknown migration")
 		}
-		assertBool(t, "SELECT count(*)=5 FROM public.schema_migrations")
+		assertBool(t, "SELECT count(*)=6 FROM public.schema_migrations")
 		exec(t, "DELETE FROM public.schema_migrations WHERE version='999_unknown'")
 	})
 
@@ -112,7 +115,7 @@ func TestMigrationsIntegration(t *testing.T) {
 		if err := migrate(false, true); err == nil {
 			t.Fatal("booking rollback accepted a later applied migration")
 		}
-		assertBool(t, "SELECT count(*)=4 FROM public.schema_migrations")
+		assertBool(t, "SELECT count(*)=5 FROM public.schema_migrations")
 		if err := run(ctx, dsn, "../../migrations", false, false, true); err == nil {
 			t.Fatal("confirmation rollback ignored CMS dependency")
 		}

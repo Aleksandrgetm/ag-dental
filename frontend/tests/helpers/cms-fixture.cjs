@@ -4,6 +4,7 @@ const manifest = require("../../../backend/internal/cms/content.json");
 const BASE = process.env.TEST_BASE_URL || "http://127.0.0.1:5185";
 if (!["localhost", "127.0.0.1"].includes(new URL(BASE).hostname))
   throw Error("Local preview required");
+const dimensions = require("../../../backend/internal/media/registered_dimensions.json");
 const clone = (v) => JSON.parse(JSON.stringify(v));
 const ordered = (v) =>
   Array.isArray(v)
@@ -51,6 +52,19 @@ module.exports.createCMSFixture = async function (
   context.setDefaultTimeout(15000);
   const state = {
     role: "admin",
+    uploadEnabled: false,
+    uploadStatus: 200,
+    uploadDelay: 200,
+    uploadKeys: [],
+    mediaRows: manifest.media.map((a) => ({
+      id: a.id,
+      url: a.url,
+      protected: a.protected,
+      origin: "registered",
+      state: "ready",
+      usages: [],
+      metadata: { ...a, ...dimensions[a.id] },
+    })),
     identityStatus: 200,
     cmsOutage: false,
     session: clone(session),
@@ -134,6 +148,13 @@ module.exports.createCMSFixture = async function (
       return route.fulfill({
         json: {
           schema_version: 1,
+          media: state.mediaRows
+            .filter((a) => a.published_at)
+            .map((a) => ({
+              id: a.id,
+              alt: a.metadata.alt,
+              variants: a.metadata.variants,
+            })),
           documents: state.empty
             ? []
             : [...state.rows.values()].map((r) => ({
@@ -144,6 +165,119 @@ module.exports.createCMSFixture = async function (
                 ).payload,
               })),
         },
+      });
+    }
+    if (
+      u.pathname.startsWith("/api/admin/cms/media") ||
+      u.pathname.startsWith("/api/cms/media/")
+    ) {
+      const pub = u.pathname.startsWith("/api/cms/media/");
+      if (!pub) {
+        assert.ok(req.headers().authorization?.startsWith("Bearer "));
+        if (state.role !== "admin")
+          return route.fulfill({ status: 403, json: { error: "forbidden" } });
+      }
+      if (state.cmsOutage)
+        return route.fulfill({
+          status: 503,
+          json: { error: "media_unavailable" },
+        });
+      const suffix = u.pathname.split("/media")[1].split("/").filter(Boolean),
+        id = suffix[0],
+        variant = suffix[1];
+      if (!id && req.method() === "GET")
+        return route.fulfill({
+          json: {
+            assets: state.mediaRows,
+            upload_enabled: state.uploadEnabled,
+            video_slots: false,
+          },
+        });
+      if (!id && req.method() === "POST") {
+        state.uploadKeys.push(req.headers()["idempotency-key"]);
+        await new Promise((r) => setTimeout(r, state.uploadDelay));
+        if (state.uploadStatus !== 200)
+          return route.fulfill({
+            status: state.uploadStatus,
+            json: {
+              error:
+                state.uploadStatus === 422
+                  ? "invalid_file"
+                  : "media_unavailable",
+            },
+          });
+        const id = "upload." + crypto.randomUUID().replaceAll("-", "");
+        const body = req.postDataBuffer().toString();
+        const name = body.match(/filename="([^"\r\n]+)"/)?.[1] || "test.png";
+        const alt = JSON.parse(body.match(/name="alt"\r\n\r\n([^\r]+)/)[1]);
+        const asset = {
+          id,
+          url: "cms-media:" + id,
+          protected: false,
+          origin: "upload",
+          state: "ready",
+          usages: [],
+          created_at: new Date().toISOString(),
+          metadata: {
+            filename: name,
+            kind: "image",
+            bytes: 100,
+            width: 64,
+            height: 48,
+            alt,
+            variants: [
+              {
+                name: "display.webp",
+                mime: "image/webp",
+                width: 64,
+                height: 48,
+                bytes: 100,
+              },
+              {
+                name: "medium.webp",
+                mime: "image/webp",
+                width: 64,
+                height: 48,
+                bytes: 100,
+              },
+              {
+                name: "thumb.webp",
+                mime: "image/webp",
+                width: 64,
+                height: 48,
+                bytes: 100,
+              },
+            ],
+          },
+        };
+        state.mediaRows.push(asset);
+        return route.fulfill({ json: { asset, duplicate: false } });
+      }
+      const asset = state.mediaRows.find((a) => a.id === id);
+      if (!asset || asset.protected || (pub && !asset.published_at))
+        return route.fulfill({ status: 404, json: { error: "media_missing" } });
+      if (req.method() === "POST" || req.method() === "DELETE") {
+        const used = [...state.rows.values()].some((r) =>
+          r.revisions.some((v) =>
+            JSON.stringify(v.payload).includes(asset.url),
+          ),
+        );
+        if (used)
+          return route.fulfill({
+            status: 409,
+            json: { error: "media_referenced" },
+          });
+        if (req.method() === "DELETE")
+          state.mediaRows = state.mediaRows.filter((a) => a.id !== id);
+        else asset.state = "archived";
+        return route.fulfill({ status: 204 });
+      }
+      return route.fulfill({
+        contentType: "image/png",
+        body: Buffer.from(
+          "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jB9sAAAAASUVORK5CYII=",
+          "base64",
+        ),
       });
     }
     if (u.pathname.startsWith("/api/admin/cms/documents")) {
@@ -210,6 +344,10 @@ module.exports.createCMSFixture = async function (
         const rev = row.revisions.find((r) => r.id === body.revision_id);
         assert.ok(rev);
         rev.published_at = new Date().toISOString();
+        for (const asset of state.mediaRows) {
+          if (JSON.stringify(rev.payload).includes(asset.url))
+            asset.published_at = rev.published_at;
+        }
         row.document.published_revision = rev.id;
         row.document.draft_revision = rev.id;
       }

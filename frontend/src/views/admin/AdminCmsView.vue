@@ -7,13 +7,19 @@ import {
   useRouter,
 } from "vue-router";
 import { useI18n } from "vue-i18n";
+import MediaLibrary from "../../components/admin/MediaLibrary.vue";
+import {
+  mediaRequest,
+  loadMediaPreview,
+  clearMediaPreviews,
+  type MediaAsset,
+} from "../../services/cms/media";
 import CmsNavigator from "../../components/admin/CmsNavigator.vue";
 import CmsContentPreview from "../../components/admin/CmsContentPreview.vue";
 import {
   findDoc,
   visibleFields,
   imageURL,
-  mediaAssets,
   type Doc,
   type Section,
   type Part,
@@ -40,6 +46,42 @@ const route = useRoute(),
 const group = computed(() => String(route.meta.adminSection));
 const destination = computed(() => cmsSelection(route.path, route.query.part));
 const missing = ref(false);
+const picker = ref<HTMLDialogElement>();
+const replaceField = ref<any>(null);
+function showPicker(field: any) {
+  replaceField.value = field;
+  picker.value?.showModal();
+}
+function closePicker() {
+  picker.value?.close();
+  replaceField.value = null;
+}
+function useImage(asset: MediaAsset) {
+  if (!replaceField.value) return;
+  if (
+    selected.value?.key === "clinic.media" &&
+    !window.confirm(t("media.confirmShared"))
+  )
+    return;
+  update(replaceField.value.path, asset.url);
+  closePicker();
+}
+async function previews() {
+  const refs = JSON.stringify([payload.value, currentImages.value]).match(
+    /cms-media:upload\.[a-f0-9]{32}/g,
+  );
+  if (!refs?.length) return;
+  try {
+    const library = await mediaRequest();
+    await Promise.all(
+      library.assets
+        .filter((a: MediaAsset) => refs.includes(a.url))
+        .map((a: MediaAsset) =>
+          loadMediaPreview(a, "display.webp").catch(() => {}),
+        ),
+    );
+  } catch {}
+}
 let catalogReady = false,
   catalogRequest: Promise<void> | undefined,
   routeSerial = 0;
@@ -198,6 +240,7 @@ async function choose(doc: Doc) {
       ? result.booking_links
       : [];
     loaded.value = true;
+    void previews();
   } catch (e) {
     if (current === serial) error.value = (e as Error).message;
   } finally {
@@ -300,6 +343,7 @@ onBeforeUnmount(() => {
   serial++;
   routeSerial++;
   controller.abort();
+  clearMediaPreviews();
   payload.value = null;
   history.value = [];
   bookingLinks.value = [];
@@ -363,7 +407,9 @@ watch(
     {{ t("cms.editorMissing") }}
     <button class="cms-link" @click="back">{{ t("cms.back") }}</button>
   </p>
+  <MediaLibrary v-if="group === 'media' && !missing" />
   <CmsNavigator
+    v-if="group !== 'media'"
     v-show="!selected && !missing"
     :group="group"
     :states="states"
@@ -485,52 +531,28 @@ watch(
             :src="imageURL(fieldValue(field), currentImages)"
             :alt="t('cms.image')"
           />
-          <select
-            v-if="field.type === 'media'"
-            :value="fieldValue(field)"
-            :disabled="locked(field)"
-            @change="
-              update(field.path, ($event.target as HTMLSelectElement).value)
-            "
+          <div
+            v-if="['media', 'image-key'].includes(field.type)"
+            class="cms-image-replace"
           >
-            <option
-              v-for="asset in mediaAssets.filter(
-                (a) =>
-                  a.kind === 'image' &&
-                  !a.protected &&
-                  a.url.startsWith('/media/'),
-              )"
-              :key="asset.id"
-              :value="asset.url"
+            <button
+              type="button"
+              :aria-label="t('media.replace')"
+              :disabled="locked(field)"
+              @click="showPicker(field)"
             >
-              {{ asset.filename }}
-            </option>
-          </select>
-          <select
-            v-else-if="field.type === 'image-key'"
-            :value="fieldValue(field)"
-            :disabled="locked(field)"
-            @change="
-              update(field.path, ($event.target as HTMLSelectElement).value)
-            "
-          >
-            <option
-              v-for="key in [
-                'room',
-                'detail',
-                'doctor',
-                'original',
-                'location',
-              ]"
-              :key="key"
-              :value="key"
-            >
+              {{ t("media.replace") }}
+            </button>
+            <p class="cms-note">
               {{
-                mediaAssets.find((a) => a.url === imageURL(key, currentImages))
-                  ?.filename
+                t(
+                  selected.key === "clinic.media"
+                    ? "media.shared"
+                    : "media.local",
+                )
               }}
-            </option>
-          </select>
+            </p>
+          </div>
           <textarea
             v-else-if="field.type === 'text'"
             :value="fieldValue(field)"
@@ -589,13 +611,9 @@ watch(
           :images="currentImages"
         />
       </div>
-      <aside v-if="imageFields.length && !preview" class="cms-note">
-        <p>{{ t("cms.imageNote") }}</p>
-        <button type="button" class="cms-link" disabled>
-          {{ t("cms.upload") }}
-        </button>
-        <p>{{ t("cms.uploadNote") }}</p>
-      </aside>
+      <p v-if="imageFields.length && !preview" class="cms-note">
+        {{ t("media.saveFirst") }}
+      </p>
       <p v-if="activePart?.prefixes" class="cms-note">
         {{ t("cms.scopedPublishNote") }}
       </p>
@@ -623,6 +641,14 @@ watch(
         </button>
       </div>
     </form>
+    <dialog ref="picker" class="cms-media-picker" @cancel.prevent="closePicker">
+      <MediaLibrary
+        v-if="replaceField"
+        picker
+        @select="useImage"
+        @close="closePicker"
+      />
+    </dialog>
     <details v-if="history.length" class="cms-history">
       <summary>{{ t("cms.history") }}</summary>
       <div v-for="revision in history" :key="revision.id">
@@ -658,6 +684,30 @@ watch(
   </section>
 </template>
 <style scoped>
+.cms-media-picker {
+  width: min(1120px, calc(100vw - 32px));
+  max-height: 90dvh;
+  margin: auto;
+  padding: 24px;
+  border: 1px solid var(--line);
+  background: var(--white);
+  color: var(--ink);
+}
+.cms-media-picker::backdrop {
+  background: rgb(20 30 20 / 45%);
+}
+.cms-image-replace button {
+  padding: 12px 16px;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  text-align: left;
+}
+@media (max-width: 500px) {
+  .cms-media-picker {
+    padding: 16px;
+    width: calc(100vw - 16px);
+  }
+}
 .cms-notice,
 .cms-note {
   font-size: 13px;

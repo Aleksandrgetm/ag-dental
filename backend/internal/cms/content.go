@@ -5,6 +5,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"errors"
+	"github.com/Aleksandrgetm/Dental/internal/media"
 	"net/mail"
 	"net/url"
 	"reflect"
@@ -37,13 +38,14 @@ type Definition struct {
 	Data          json.RawMessage   `json:"data"`
 }
 type Asset struct {
-	ID          string   `json:"id"`
-	URL         string   `json:"url"`
-	SHA         string   `json:"sha256"`
-	Protected   bool     `json:"protected"`
-	Filename    string   `json:"filename"`
-	Kind        string   `json:"kind"`
-	Bytes       int64    `json:"bytes"`
+	ID        string `json:"id"`
+	URL       string `json:"url"`
+	SHA       string `json:"sha256"`
+	Protected bool   `json:"protected"`
+	Filename  string `json:"filename"`
+	Kind      string `json:"kind"`
+	Bytes     int64  `json:"bytes"
+ "github.com/Aleksandrgetm/Dental/internal/media"`
 	Usages      []string `json:"usages"`
 	UsageGroups []string `json:"usage_groups"`
 	Legacy      bool     `json:"legacy"`
@@ -199,7 +201,7 @@ func Validate(key string, raw json.RawMessage) error {
 				return ErrInvalid
 			}
 		case "media":
-			found := false
+			found := media.ReferenceID(s) != ""
 			for _, a := range Baseline.Media {
 				if a.URL == s && strings.HasPrefix(s, "/media/") && !a.Protected {
 					found = true
@@ -209,7 +211,13 @@ func Validate(key string, raw json.RawMessage) error {
 				return ErrInvalid
 			}
 		case "image-key":
-			if !strings.Contains("|room|detail|doctor|original|location|", "|"+s+"|") {
+			legacy := false
+			for _, a := range Baseline.Media {
+				if a.URL == s && !a.Protected && strings.HasPrefix(s, "/media/") {
+					legacy = true
+				}
+			}
+			if !legacy && media.ReferenceID(s) == "" && !strings.Contains("|room|detail|doctor|original|location|", "|"+s+"|") {
 				return ErrInvalid
 			}
 		}

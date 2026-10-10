@@ -137,7 +137,12 @@ for (const asset of mediaAssets)
   });
 export const cmsDestinations = [...destinations.values()];
 export function cmsDestination(path: string) {
-  return destinations.get(path);
+  const registered = destinations.get(path);
+  if (registered) return registered;
+  const id = path.match(/^\/admin\/media\/(upload\.[a-f0-9]{32})$/)?.[1];
+  return id
+    ? { path, group: "media", parent: "/admin/media", mediaID: id }
+    : undefined;
 }
 export function sectionDestination(
   group: string,

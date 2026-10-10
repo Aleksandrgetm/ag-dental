@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { cmsMediaSrcset } from "../services/cms/content";
 import { services, media } from "../services/cms/content";
 import { useContent } from "../content/useContent";
 import ContactBand from "../components/ContactBand.vue";
@@ -24,6 +25,8 @@ const { t, local } = useContent();
       <span class="service-row-image"
         ><img
           :src="media[s.image as keyof typeof media]"
+          :srcset="cmsMediaSrcset(media[s.image as keyof typeof media])"
+          sizes="(max-width: 768px) 100vw, 60vw"
           alt=""
           loading="lazy"
           width="240"

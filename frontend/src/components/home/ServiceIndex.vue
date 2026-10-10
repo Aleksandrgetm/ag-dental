@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { cmsMediaSrcset } from "../../services/cms/content";
 import { cmsLiteral } from "../../services/cms/content";
 import { computed, ref } from "vue";
 import { services, media } from "../../services/cms/content";
@@ -17,7 +18,9 @@ const current = computed(() => services[selected.value]!);
     <div class="container">
       <div class="section-heading" data-reveal>
         <div>
-          <p class="eyebrow">{{ cmsLiteral('literal.2d23801e.0') }}{{ t("home.servicesLabel") }}</p>
+          <p class="eyebrow">
+            {{ cmsLiteral("literal.2d23801e.0") }}{{ t("home.servicesLabel") }}
+          </p>
           <h2>{{ t("home.servicesTitle") }}</h2>
         </div>
         <p class="section-aside">{{ local(copy.servicesNote) }}</p>
@@ -33,6 +36,8 @@ const current = computed(() => services[selected.value]!);
               v-for="(s, i) in services"
               :key="s.slug"
               :src="media[s.image as keyof typeof media]"
+              :srcset="cmsMediaSrcset(media[s.image as keyof typeof media])"
+              sizes="(max-width: 768px) 100vw, 60vw"
               alt=""
               loading="lazy"
               :class="{ 'is-selected': selected === i }"
@@ -41,7 +46,9 @@ const current = computed(() => services[selected.value]!);
             />
           </div>
           <div class="service-index-caption">
-            <span>0{{ selected + 1 }}{{ cmsLiteral('literal.2d23801e.2') }}</span>
+            <span
+              >0{{ selected + 1 }}{{ cmsLiteral("literal.2d23801e.2") }}</span
+            >
             <p>{{ local(current.short) }}</p>
           </div>
         </div>

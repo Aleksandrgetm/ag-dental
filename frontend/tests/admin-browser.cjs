@@ -131,6 +131,11 @@ const session = {
       control.requests.push({ path, method: req.method(), query: u.search });
       if (path === "/api/cms/published")
         return route.fulfill({ json: { schema_version: 1, documents: [] } });
+      if (path === "/api/admin/cms/media")
+        return route.fulfill({
+          status: 503,
+          json: { error: "media_unavailable" },
+        });
       if (path === "/api/admin/cms/documents")
         return route.fulfill({ json: { documents: [] } });
       if (path === "/api/health")

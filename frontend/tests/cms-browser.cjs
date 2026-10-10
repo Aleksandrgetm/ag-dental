@@ -39,6 +39,7 @@ const session = {
   user,
 };
 (async () => {
+  const { mediaMessages } = await import("../src/i18n/media.ts");
   const { cmsMessages } = await import("../src/i18n/cms.ts");
   const browser = await chromium.launch({ channel: "chrome", headless: true });
   const errors = [];
@@ -143,6 +144,11 @@ const session = {
           },
         });
       }
+      if (u.pathname === "/api/admin/cms/media")
+        return route.fulfill({
+          status: 503,
+          json: { error: "media_unavailable" },
+        });
       if (u.pathname.startsWith("/api/admin/cms/documents")) {
         assert.equal(
           req.headers().authorization,
@@ -231,11 +237,15 @@ const session = {
           await f.page.goto(BASE + "/admin/" + group);
           await f.page.locator(".cms-search").waitFor();
           assert.ok(
-            (await f.page.locator(".cms-navigator button").count()) > 0,
+            (await f.page
+              .locator(".cms-navigator button, .media-library button")
+              .count()) > 0,
           );
           assert.equal(
             await f.page
-              .locator(".cms-navigator video, .cms-navigator iframe")
+              .locator(
+                ".cms-navigator video, .cms-navigator iframe, .media-library video",
+              )
               .count(),
             0,
           );
@@ -419,17 +429,23 @@ const session = {
       .first()
       .getByRole("button", { name: formCheck.t.edit, exact: true })
       .click();
-    await formCheck.page.locator(".cms-field select").waitFor();
-    await formCheck.page.locator(".cms-field select").selectOption("room");
+    await formCheck.page
+      .getByRole("button", { name: mediaMessages.en.replace, exact: true })
+      .click();
+    await formCheck.page
+      .locator('.cms-media-picker [data-media-id="media.d01fde275cd62850"]')
+      .click();
+    await formCheck.page
+      .getByRole("button", { name: mediaMessages.en.select, exact: true })
+      .click();
     assert.ok(
       (
         await formCheck.page.locator(".cms-field-image").getAttribute("src")
       ).endsWith("tour-room.jpg"),
     );
-    assert.ok(
-      await formCheck.page
-        .getByRole("button", { name: formCheck.t.upload, exact: true })
-        .isDisabled(),
+    assert.equal(
+      await formCheck.page.locator(".cms-media-picker[open]").count(),
+      0,
     );
     await formCheck.page
       .getByRole("button", { name: formCheck.t.preview, exact: true })
@@ -457,13 +473,13 @@ const session = {
     );
     await formCheck.page
       .getByRole("button", {
-        name: formCheck.t.assetDetails + ": clinic-tour.mp4",
+        name: mediaMessages.en.details + ": clinic-tour.mp4",
         exact: true,
       })
       .click();
     assert.ok(
       (await formCheck.page.locator(".cms-media-detail").innerText()).includes(
-        formCheck.t.systemNote,
+        mediaMessages.en.protectedNote,
       ),
     );
     assert.equal(

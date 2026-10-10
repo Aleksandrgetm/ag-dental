@@ -9,6 +9,7 @@ import i18n from "./i18n";
 import { bookingMessages } from "./i18n/booking";
 import { authMessages } from "./i18n/auth";
 import { adminMessages } from "./i18n/admin";
+import { mediaMessages } from "./i18n/media";
 import { cmsMessages } from "./i18n/cms";
 import { useAuthStore } from "./stores/auth";
 import { refreshPublished } from "./services/cms/content";
@@ -22,6 +23,7 @@ for (const lang of ["lv", "ru", "en"] as const)
     auth: authMessages[lang],
     admin: adminMessages[lang],
     cms: cmsMessages[lang],
+    media: mediaMessages[lang],
     booking: bookingMessages[lang],
   });
 void useAuthStore().initialize();

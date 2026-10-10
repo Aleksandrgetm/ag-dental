@@ -48,7 +48,7 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
-	api := &http.Server{Addr: ":" + port, Handler: server.New(db, verifier, origins), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 30 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 32 * 1024}
+	api := &http.Server{Addr: ":" + port, Handler: server.New(db, verifier, origins), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 125 * time.Second, WriteTimeout: 150 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 32 * 1024}
 	log.Println("API listening on configured port")
 	if err = api.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatal("API server stopped")

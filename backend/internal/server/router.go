@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm"
 	"io"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -19,7 +20,11 @@ func New(db *gorm.DB, v auth.Verifier, origins []string) *gin.Engine {
 	r := gin.New()
 	r.Use(gin.RecoveryWithWriter(io.Discard))
 	r.Use(func(c *gin.Context) {
-		ctx, cancel := context.WithTimeout(c.Request.Context(), 12*time.Second)
+		timeout := 12 * time.Second
+		if strings.HasPrefix(c.Request.URL.Path, "/api/admin/cms/media") || strings.HasPrefix(c.Request.URL.Path, "/api/cms/media/") {
+			timeout = 120 * time.Second
+		}
+		ctx, cancel := context.WithTimeout(c.Request.Context(), timeout)
 		defer cancel()
 		c.Request = c.Request.WithContext(ctx)
 		c.Next()
@@ -44,5 +49,6 @@ func New(db *gorm.DB, v auth.Verifier, origins []string) *gin.Engine {
 	r.GET("/api/admin/health", auth.RequireAuth(v, roles), auth.RequireRole("admin"), func(c *gin.Context) { c.JSON(200, gin.H{"status": "ok"}) })
 	booking.Register(r, booking.NewStore(db), v, roles)
 	cms.Register(r, &cms.Store{DB: db}, v, roles)
+	cms.RegisterMedia(r, &cms.Store{DB: db}, v, roles, cms.MediaEnvironment())
 	return r
 }
