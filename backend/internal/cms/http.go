@@ -36,7 +36,12 @@ func Register(r *gin.Engine, s *Store, v auth.Verifier, roles auth.Roles) {
 			failure(c, e)
 			return
 		}
-		body, _ := json.Marshal(gin.H{"schema_version": 1, "documents": rows, "media": assets})
+		withdrawn, e := s.WithdrawnNews(c.Request.Context())
+		if e != nil {
+			failure(c, e)
+			return
+		}
+		body, _ := json.Marshal(gin.H{"schema_version": 1, "documents": rows, "media": assets, "withdrawn_news": withdrawn})
 		sum := sha256.Sum256(body)
 		tag := `"` + hex.EncodeToString(sum[:]) + `"`
 		c.Header("ETag", tag)
@@ -48,6 +53,27 @@ func Register(r *gin.Engine, s *Store, v auth.Verifier, roles auth.Roles) {
 		c.Data(200, "application/json; charset=utf-8", body)
 	})
 	admin := r.Group("/api/admin/cms", auth.RequireAuth(v, roles), auth.RequireRole("admin"))
+	admin.POST("/documents", func(c *gin.Context) {
+		var req struct {
+			Key     string          `json:"key"`
+			Payload json.RawMessage `json:"payload"`
+		}
+		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 140*1024)
+		d := json.NewDecoder(c.Request.Body)
+		d.DisallowUnknownFields()
+		var extra any
+		if d.Decode(&req) != nil || d.Decode(&extra) != io.EOF {
+			failure(c, ErrInvalid)
+			return
+		}
+		who, _ := auth.Current(c)
+		result, e := s.CreateContent(c.Request.Context(), req.Key, who.ID, req.Payload)
+		if e != nil {
+			failure(c, e)
+			return
+		}
+		c.JSON(201, result)
+	})
 	admin.GET("/documents", func(c *gin.Context) {
 		rows, e := s.List(c.Request.Context())
 		if e != nil {
@@ -105,4 +131,5 @@ func Register(r *gin.Engine, s *Store, v auth.Verifier, roles auth.Roles) {
 	admin.PUT("/documents/:key/draft", change("draft_saved"))
 	admin.POST("/documents/:key/publish", change("published"))
 	admin.POST("/documents/:key/rollback", change("rolled_back"))
+	admin.POST("/documents/:key/unpublish", change("unpublished"))
 }

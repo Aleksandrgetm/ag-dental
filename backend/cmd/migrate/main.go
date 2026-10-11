@@ -18,19 +18,20 @@ import (
 var versions = []string{"001_user_roles", "002_booking_foundation", "003_automatic_confirmation", "004_website_cms", "005_cms_media"}
 
 func main() {
+	operations := flag.Bool("apply-admin-operations", false, "apply only reviewed migration 006 after the complete 001–005 baseline")
 	adopt := flag.Bool("adopt-auth-baseline", false, "validate an existing, unrecorded auth schema and record migration 001 only")
 	down := flag.Bool("down-booking", false, "roll back migration 002 only if it contains no real catalog or appointment data")
 	downConfirmation := flag.Bool("down-confirmation-default", false, "roll back migration 003, restoring manual mode for future bookings without changing appointments")
 	dir := flag.String("dir", "migrations", "directory containing reviewed migration SQL")
 	flag.Parse()
-	if (*adopt && (*down || *downConfirmation)) || (*down && *downConfirmation) {
+	if (*adopt && (*down || *downConfirmation)) || (*down && *downConfirmation) || (*operations && (*adopt || *down || *downConfirmation)) {
 		fmt.Fprintln(os.Stderr, "Choose only one migration operation")
 		os.Exit(1)
 	}
 	_ = godotenv.Load()
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
-	if err := run(ctx, os.Getenv("DATABASE_URL"), *dir, *adopt, *down, *downConfirmation); err != nil {
+	if err := runWithOperations(ctx, os.Getenv("DATABASE_URL"), *dir, *adopt, *down, *downConfirmation, *operations); err != nil {
 		// Never print connection strings, SQL arguments, role contents or server errors.
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -38,6 +39,13 @@ func main() {
 }
 
 func run(ctx context.Context, dsn, dir string, adopt, down, downConfirmation bool) error {
+	return runWithOperations(ctx, dsn, dir, adopt, down, downConfirmation, false)
+}
+
+func runWithOperations(ctx context.Context, dsn, dir string, adopt, down, downConfirmation, operations bool) error {
+	if operations && (adopt || down || downConfirmation) {
+		return errors.New("Choose only one migration operation")
+	}
 	if dsn == "" {
 		return errors.New("DATABASE_URL is required")
 	}
@@ -59,6 +67,12 @@ func run(ctx context.Context, dsn, dir string, adopt, down, downConfirmation boo
 		if err = validateLedger(ctx, conn); err != nil {
 			return err
 		}
+	}
+	if operations {
+		if !ledgerExists || !rolesExist {
+			return errors.New("006 requires the complete existing 001–005 baseline")
+		}
+		return applyOperations(ctx, conn, dir)
 	}
 	if adopt {
 		if !rolesExist {
@@ -113,9 +127,13 @@ func executeFile(ctx context.Context, conn *pgx.Conn, path, success string) erro
 	if err != nil {
 		return fmt.Errorf("Could not read reviewed migration file %s", filepath.Base(path))
 	}
-	if _, err = conn.Exec(ctx, string(sql)); err != nil {
+	return executeSQL(ctx, conn, sql, filepath.Base(path), success)
+}
+
+func executeSQL(ctx context.Context, conn *pgx.Conn, sql []byte, name, success string) error {
+	if _, err := conn.Exec(ctx, string(sql)); err != nil {
 		_, _ = conn.Exec(context.Background(), "ROLLBACK")
-		return fmt.Errorf("Migration %s failed and was rolled back; inspect schema/permissions with an administrator (server details withheld)", filepath.Base(path))
+		return fmt.Errorf("Migration %s did not report success; inspect ledger and schema before any retry; commit outcome may be uncertain (server details withheld)", name)
 	}
 	fmt.Println(success)
 	return nil
@@ -146,11 +164,12 @@ func validateLedger(ctx context.Context, db queryer) error {
 			AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='schema_migrations' AND column_name='applied_at' AND udt_name='timestamptz' AND is_nullable='NO' AND column_default='now()')
 			AND EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid='public.schema_migrations'::regclass AND contype='p' AND pg_get_constraintdef(oid)='PRIMARY KEY (version)')`},
 		{"unknown or out-of-order migration history", `SELECT
-			NOT EXISTS (SELECT 1 FROM public.schema_migrations WHERE version NOT IN ('001_user_roles','002_booking_foundation','003_automatic_confirmation','004_website_cms','005_cms_media'))
+			NOT EXISTS (SELECT 1 FROM public.schema_migrations WHERE version NOT IN ('001_user_roles','002_booking_foundation','003_automatic_confirmation','004_website_cms','005_cms_media','006_admin_operations'))
 			AND (NOT EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='002_booking_foundation') OR EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='001_user_roles'))
 			AND (NOT EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='003_automatic_confirmation') OR EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='002_booking_foundation'))
 			AND (NOT EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='004_website_cms') OR EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='003_automatic_confirmation'))
- AND (NOT EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='005_cms_media') OR EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='004_website_cms'))`},
+ AND (NOT EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='005_cms_media') OR EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='004_website_cms'))
+ AND (NOT EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='006_admin_operations') OR EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='005_cms_media'))`},
 		{"migration ledger grants/policies", `SELECT
 			NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='schema_migrations')
 			AND NOT has_table_privilege('anon','public.schema_migrations','SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')

@@ -48,6 +48,7 @@ func New(db *gorm.DB, v auth.Verifier, origins []string) *gin.Engine {
 	r.GET("/api/auth/me", auth.RequireAuth(v, roles), auth.Me)
 	r.GET("/api/admin/health", auth.RequireAuth(v, roles), auth.RequireRole("admin"), func(c *gin.Context) { c.JSON(200, gin.H{"status": "ok"}) })
 	booking.Register(r, booking.NewStore(db), v, roles)
+	booking.RegisterOperations(r, booking.NewStore(db), v, roles)
 	cms.Register(r, &cms.Store{DB: db}, v, roles)
 	cms.RegisterMedia(r, &cms.Store{DB: db}, v, roles, cms.MediaEnvironment())
 	return r

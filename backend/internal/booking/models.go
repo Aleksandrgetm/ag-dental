@@ -81,6 +81,7 @@ type Receipt struct {
 	Status           string    `json:"status"`
 }
 type Appointment struct {
+	Version               string    `json:"version,omitempty" gorm:"-"`
 	ID                    string    `json:"id"`
 	BookingReference      string    `json:"booking_reference"`
 	AuthUserID            *string   `json:"auth_user_id,omitempty"`

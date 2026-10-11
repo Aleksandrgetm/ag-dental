@@ -88,6 +88,54 @@ func TestCMSPostgres(t *testing.T) {
 	}
 	const actor = "11111111-1111-4111-8111-111111111111"
 	exec("INSERT INTO auth.users(id) VALUES (?::uuid)", actor)
+	exec("UPDATE public.user_roles SET role='admin' WHERE user_id=?::uuid", actor)
+	t.Run("imported news withdrawal preserves revisions and can be restored", func(t *testing.T) {
+		key := ""
+		for _, definition := range Baseline.Documents {
+			if definition.Target == "articles" {
+				key = definition.Key
+				break
+			}
+		}
+		article, revisions, err := s.Detail(ctx, key)
+		if err != nil || article.PublishedRevision == nil {
+			t.Fatal("missing imported article", err)
+		}
+		original := *article.PublishedRevision
+		withdrawn, err := s.Change(ctx, key, actor, "unpublished", original, article.Version, nil)
+		if err != nil || withdrawn.PublishedRevision != nil {
+			t.Fatal("withdrawal failed", err)
+		}
+		keys, err := s.WithdrawnNews(ctx)
+		if err != nil || len(keys) != 1 || keys[0] != key {
+			t.Fatal("safe withdrawal identity missing", keys, err)
+		}
+		public, err := s.Published(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, row := range public {
+			if row.Key == key {
+				t.Fatal("withdrawn payload leaked")
+			}
+		}
+		_, after, err := s.Detail(ctx, key)
+		if err != nil || len(after) != len(revisions) {
+			t.Fatal("revisions changed", err)
+		}
+		restored, err := s.Change(ctx, key, actor, "rolled_back", original, withdrawn.Version, nil)
+		if err != nil || restored.PublishedRevision == nil || *restored.PublishedRevision != original {
+			t.Fatal("restore failed", err)
+		}
+		keys, err = s.WithdrawnNews(ctx)
+		if err != nil || len(keys) != 0 {
+			t.Fatal("withdrawal remains after restore", err)
+		}
+		protected, _, _ := s.Detail(ctx, "clinic.about")
+		if _, err = s.Change(ctx, "clinic.about", actor, "unpublished", "", protected.Version, nil); !errors.Is(err, ErrInvalid) {
+			t.Fatal("non-news withdrawal accepted", err)
+		}
+	})
 	d, _, e := s.Detail(ctx, "clinic.about")
 	if e != nil {
 		t.Fatal(e)

@@ -35,6 +35,9 @@ func (r *currentRoles) Lookup(context.Context, string) (string, error) { r.calls
 func TestAllBookingAdminRoutesRejectUntrustedAccess(t *testing.T) {
 	gin.SetMode(gin.TestMode)
 	endpoints := [][2]string{
+		{"POST", "/api/admin/booking/appointments/search"},
+		{"GET", "/api/admin/booking/appointments/11111111-1111-4111-8111-111111111111/history"},
+		{"GET", "/api/admin/booking/appointments/11111111-1111-4111-8111-111111111111/availability"},
 		{"GET", "/api/admin/booking/appointments"},
 		{"GET", "/api/admin/booking/appointments/11111111-1111-4111-8111-111111111111"},
 		{"POST", "/api/admin/booking/appointments"},

@@ -12,6 +12,7 @@ import (
 
 type Filter struct {
 	Date, DoctorID, ServiceID, Status string
+	DateFrom, DateTo, Search          string
 	Limit, Offset                     int
 }
 
@@ -23,7 +24,7 @@ func validStatus(s string) bool {
 	return false
 }
 func (s *Store) List(ctx context.Context, f Filter) ([]Appointment, error) {
-	if (f.DoctorID != "" && !ValidID(f.DoctorID)) || (f.ServiceID != "" && !ValidID(f.ServiceID)) || (f.Status != "" && !validStatus(f.Status)) || f.Offset < 0 {
+	if (f.DoctorID != "" && !ValidID(f.DoctorID)) || (f.ServiceID != "" && !ValidID(f.ServiceID)) || (f.Status != "" && !validStatus(f.Status)) || f.Offset < 0 || f.Offset > 10000 {
 		return nil, ErrInvalid
 	}
 	if f.Limit == 0 {
@@ -33,6 +34,25 @@ func (s *Store) List(ctx context.Context, f Filter) ([]Appointment, error) {
 		return nil, ErrInvalid
 	}
 	q := s.DB.WithContext(ctx).Model(&Appointment{})
+	if len(f.Search) > 100 {
+		return nil, ErrInvalid
+	}
+	if f.Search != "" {
+		needle := "%" + strings.NewReplacer("\\", "\\\\", "%", "\\%", "_", "\\_").Replace(strings.TrimSpace(f.Search)) + "%"
+		q = q.Where("first_name ILIKE ? OR last_name ILIKE ? OR booking_reference ILIKE ? OR email ILIKE ? OR phone ILIKE ?", needle, needle, needle, needle, needle)
+	}
+	if f.DateFrom != "" || f.DateTo != "" {
+		loc, _ := time.LoadLocation("Europe/Riga")
+		start, e := time.ParseInLocation("2006-01-02", f.DateFrom, loc)
+		if e != nil {
+			return nil, ErrInvalid
+		}
+		end, e := time.ParseInLocation("2006-01-02", f.DateTo, loc)
+		if e != nil || end.Before(start) || end.After(start.AddDate(0, 0, 42)) || f.Date != "" {
+			return nil, ErrInvalid
+		}
+		q = q.Where("starts_at >= ? AND starts_at < ?", start, end.AddDate(0, 0, 1))
+	}
 	if f.DoctorID != "" {
 		q = q.Where("doctor_id=?", f.DoctorID)
 	}
@@ -52,6 +72,9 @@ func (s *Store) List(ctx context.Context, f Filter) ([]Appointment, error) {
 	}
 	rows := []Appointment{}
 	e := q.Order("starts_at,id").Limit(f.Limit).Offset(f.Offset).Find(&rows).Error
+	for i := range rows {
+		rows[i].Version = appointmentVersion(rows[i])
+	}
 	return rows, e
 }
 func getAppointment(tx *gorm.DB, id string) (Appointment, error) {
@@ -66,14 +89,49 @@ func getAppointment(tx *gorm.DB, id string) (Appointment, error) {
 	return a, e
 }
 func (s *Store) Get(ctx context.Context, id string) (Appointment, error) {
-	return getAppointment(s.DB.WithContext(ctx), id)
+	a, e := getAppointment(s.DB.WithContext(ctx), id)
+	a.Version = appointmentVersion(a)
+	return a, e
+}
+
+func (s *Store) RescheduleAvailability(ctx context.Context, id, service, doctor, date string) ([]Slot, error) {
+	if !ValidID(id) || !ValidID(service) || !ValidID(doctor) {
+		return nil, ErrInvalid
+	}
+	var slots []Slot
+	e := s.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if e := tx.Exec("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ READ ONLY").Error; e != nil {
+			return e
+		}
+		a, e := getAppointment(tx, id)
+		if e != nil {
+			return e
+		}
+		if a.Status != "pending" && a.Status != "confirmed" {
+			return ErrTransition
+		}
+		slots, _, e = loadAvailability(tx, service, doctor, date, s.now(), id)
+		return e
+	})
+	return slots, e
+}
+func appointmentVersion(a Appointment) string {
+	a.Version = ""
+	raw, _ := json.Marshal(a)
+	return revision(raw)
 }
 func (s *Store) Transition(ctx context.Context, id, to, actor string) (Receipt, error) {
+	return s.TransitionChecked(ctx, id, to, actor, "")
+}
+func (s *Store) TransitionChecked(ctx context.Context, id, to, actor, expected string) (Receipt, error) {
 	if !ValidID(id) || !ValidID(actor) || !validStatus(to) {
 		return Receipt{}, ErrInvalid
 	}
 	var receipt Receipt
 	e := s.WithConfigurationLock(ctx, func(tx *gorm.DB) error {
+		if e := operationAdmin(tx, actor); e != nil {
+			return e
+		}
 		a, e := getAppointment(tx, id)
 		if e != nil {
 			return e
@@ -81,6 +139,9 @@ func (s *Store) Transition(ctx context.Context, id, to, actor string) (Receipt, 
 		if a.Status == to {
 			receipt = a.receipt()
 			return nil
+		}
+		if expected != "" && expected != appointmentVersion(a) {
+			return ErrConflict
 		}
 		if !CanTransition(a.Status, to) {
 			return ErrTransition
@@ -110,9 +171,10 @@ func (s *Store) Transition(ctx context.Context, id, to, actor string) (Receipt, 
 }
 
 type RescheduleRequest struct {
-	ServiceID string    `json:"service_id,omitempty"`
-	DoctorID  string    `json:"doctor_id"`
-	StartsAt  time.Time `json:"starts_at"`
+	ExpectedVersion string    `json:"expected_version,omitempty"`
+	ServiceID       string    `json:"service_id,omitempty"`
+	DoctorID        string    `json:"doctor_id"`
+	StartsAt        time.Time `json:"starts_at"`
 }
 
 func (s *Store) Reschedule(ctx context.Context, id, actor string, r RescheduleRequest) (Receipt, error) {
@@ -121,6 +183,9 @@ func (s *Store) Reschedule(ctx context.Context, id, actor string, r RescheduleRe
 	}
 	var receipt Receipt
 	e := s.WithConfigurationLock(ctx, func(tx *gorm.DB) error {
+		if e := operationAdmin(tx, actor); e != nil {
+			return e
+		}
 		a, e := getAppointment(tx, id)
 		if e != nil {
 			return e
@@ -131,6 +196,13 @@ func (s *Store) Reschedule(ctx context.Context, id, actor string, r RescheduleRe
 		serviceID := strings.ToLower(r.ServiceID)
 		if serviceID == "" {
 			serviceID = a.ServiceID
+		}
+		if r.ExpectedVersion != "" && r.ExpectedVersion != appointmentVersion(a) {
+			if a.ServiceID == serviceID && a.DoctorID == r.DoctorID && a.StartsAt.Equal(r.StartsAt) {
+				receipt = a.receipt()
+				return nil
+			}
+			return ErrConflict
 		}
 		loc, _ := time.LoadLocation("Europe/Riga")
 		slots, _, e := loadAvailability(tx, serviceID, r.DoctorID, r.StartsAt.In(loc).Format("2006-01-02"), s.now(), a.ID)
@@ -187,6 +259,9 @@ func (s *Store) UpdateSettings(ctx context.Context, cfg Settings, actor string) 
 		return ErrInvalid
 	}
 	return s.WithConfigurationLock(ctx, func(tx *gorm.DB) error {
+		if e := operationAdmin(tx, actor); e != nil {
+			return e
+		}
 		previous, err := settings(tx)
 		if err != nil {
 			return err

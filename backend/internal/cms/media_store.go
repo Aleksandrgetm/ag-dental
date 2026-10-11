@@ -59,8 +59,15 @@ func (s *Store) MediaList(ctx context.Context) ([]MediaRow, error) {
 	for _, u := range usages {
 		byID[u.MediaID] = append(byID[u.MediaID], u.MediaUsage)
 	}
+	profileAssets, e := profileReferenceAssets(s.DB.WithContext(ctx))
+	if e != nil {
+		return nil, e
+	}
 	for i := range rows {
 		rows[i].Usages = byID[rows[i].ID]
+		if profileAssets[rows[i].ID] {
+			rows[i].Usages = append(rows[i].Usages, MediaUsage{Document: "Specialist profile history", Path: "portrait", Draft: true})
+		}
 		if rows[i].Usages == nil {
 			rows[i].Usages = []MediaUsage{}
 		}
@@ -82,7 +89,7 @@ func (s *Store) Media(ctx context.Context, id string) (MediaRow, error) {
 // Serialize publication, draft references, archive and deletion on the same DB lock.
 // The revision reference graph includes ALL retained history, not merely the UI's latest 30.
 func attachMedia(tx *gorm.DB, key, revision string, payload json.RawMessage, publish bool) error {
-	d := definitions[key]
+	d, _ := DefinitionFor(key)
 	value, e := decode(payload)
 	if e != nil {
 		return ErrInvalid
@@ -257,7 +264,11 @@ func (s *Store) ArchiveMedia(ctx context.Context, id, actor string) error {
 		if e := tx.Raw(`SELECT count(*) FROM public.cms_media_references WHERE media_id=?`, id).Scan(&n).Error; e != nil {
 			return e
 		}
-		if n > 0 || row.PublishedAt != nil {
+		profiles, e := profileReferenceCount(tx, id)
+		if e != nil {
+			return e
+		}
+		if n > 0 || profiles > 0 || row.PublishedAt != nil {
 			return ErrReferenced
 		}
 		if row.State == "archived" {
@@ -295,7 +306,11 @@ func (s *Store) PurgeMedia(ctx context.Context, id, actor string, storage media.
 		if e := tx.Raw(`SELECT count(*) FROM public.cms_media_references WHERE media_id=?`, id).Scan(&n).Error; e != nil {
 			return e
 		}
-		if n > 0 || row.PublishedAt != nil {
+		profiles, e := profileReferenceCount(tx, id)
+		if e != nil {
+			return e
+		}
+		if n > 0 || profiles > 0 || row.PublishedAt != nil {
 			return ErrReferenced
 		}
 		var md media.Metadata
@@ -332,7 +347,8 @@ func (s *Store) PublishedMedia(ctx context.Context, documents []Published) ([]Pu
 		if e != nil {
 			return nil, e
 		}
-		for _, f := range definitions[d.Key].Fields {
+		definition, _ := DefinitionFor(d.Key)
+		for _, f := range definition.Fields {
 			if f.Type == "media" || f.Type == "image-key" {
 				text, _ := at(value, f.Path).(string)
 				if id := media.ReferenceID(text); id != "" {

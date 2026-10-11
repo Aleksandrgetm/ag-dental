@@ -25,27 +25,27 @@ type Field struct {
 	Locked        bool     `json:"locked"`
 }
 type Definition struct {
-	SystemManaged bool              `json:"system_managed"`
-	Key           string            `json:"key"`
-	Group         string            `json:"group"`
-	Title         map[string]string `json:"title"`
-	Routes        []string          `json:"routes"`
-	Target        string            `json:"target"`
-	Path          []string          `json:"path"`
-	SourceHash    string            `json:"source_hash"`
-	Locked        bool              `json:"locked"`
-	Fields        []Field           `json:"fields"`
-	Data          json.RawMessage   `json:"data"`
+	PriceReference []int             `json:"price_reference"`
+	SystemManaged  bool              `json:"system_managed"`
+	Key            string            `json:"key"`
+	Group          string            `json:"group"`
+	Title          map[string]string `json:"title"`
+	Routes         []string          `json:"routes"`
+	Target         string            `json:"target"`
+	Path           []string          `json:"path"`
+	SourceHash     string            `json:"source_hash"`
+	Locked         bool              `json:"locked"`
+	Fields         []Field           `json:"fields"`
+	Data           json.RawMessage   `json:"data"`
 }
 type Asset struct {
-	ID        string `json:"id"`
-	URL       string `json:"url"`
-	SHA       string `json:"sha256"`
-	Protected bool   `json:"protected"`
-	Filename  string `json:"filename"`
-	Kind      string `json:"kind"`
-	Bytes     int64  `json:"bytes"
- "github.com/Aleksandrgetm/Dental/internal/media"`
+	ID          string   `json:"id"`
+	URL         string   `json:"url"`
+	SHA         string   `json:"sha256"`
+	Protected   bool     `json:"protected"`
+	Filename    string   `json:"filename"`
+	Kind        string   `json:"kind"`
+	Bytes       int64    `json:"bytes"`
 	Usages      []string `json:"usages"`
 	UsageGroups []string `json:"usage_groups"`
 	Legacy      bool     `json:"legacy"`
@@ -75,8 +75,13 @@ func init() {
 		definitions[d.Key] = d
 	}
 }
-func ManifestBytes() []byte                       { return append([]byte(nil), content...) }
-func DefinitionFor(key string) (Definition, bool) { d, ok := definitions[key]; return d, ok }
+func ManifestBytes() []byte { return append([]byte(nil), content...) }
+func DefinitionFor(key string) (Definition, bool) {
+	if d, ok := definitions[key]; ok {
+		return d, true
+	}
+	return createdDefinition(key)
+}
 func decode(raw []byte) (any, error) {
 	var v any
 	d := json.NewDecoder(bytes.NewReader(raw))
@@ -144,6 +149,9 @@ var phone = regexp.MustCompile(`^(tel:)?\+?[0-9 ()-]{5,30}$`)
 var placeholders = regexp.MustCompile(`\{[^{}]*\}`)
 
 func Validate(key string, raw json.RawMessage) error {
+	if _, ok := createdDefinition(key); ok {
+		return validateCreated(raw)
+	}
 	d, ok := definitions[key]
 	if !ok || len(raw) > 512*1024 {
 		return ErrInvalid
@@ -153,6 +161,9 @@ func Validate(key string, raw json.RawMessage) error {
 		return ErrInvalid
 	}
 	value, e := decode(raw)
+	if e == nil && strings.HasPrefix(key, "prices.") {
+		return validatePrices(original, value)
+	}
 	if e != nil || !shape(original, value) {
 		return ErrInvalid
 	}
@@ -234,6 +245,6 @@ func Validate(key string, raw json.RawMessage) error {
 
 // System-managed references stay in the technical inventory, outside CMS editing/publication.
 func AdminVisible(key string) bool {
-	d, ok := definitions[key]
+	d, ok := DefinitionFor(key)
 	return ok && !d.SystemManaged
 }

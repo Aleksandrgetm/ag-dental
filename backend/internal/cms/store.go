@@ -10,11 +10,12 @@ import (
 
 type Store struct{ DB *gorm.DB }
 type Document struct {
-	Key               string  `json:"key"`
-	Version           int64   `json:"version"`
-	DraftRevision     *string `json:"draft_revision"`
-	PublishedRevision *string `json:"published_revision"`
-	SourceHash        string  `json:"-"`
+	Title             json.RawMessage `json:"title,omitempty"`
+	Key               string          `json:"key"`
+	Version           int64           `json:"version"`
+	DraftRevision     *string         `json:"draft_revision"`
+	PublishedRevision *string         `json:"published_revision"`
+	SourceHash        string          `json:"-"`
 }
 type Revision struct {
 	ID          string          `json:"id"`
@@ -39,9 +40,24 @@ func (s *Store) Published(ctx context.Context) ([]Published, error) {
 	}
 	return visible, e
 }
+
+// WithdrawnNews returns only known public article identities, never draft payloads.
+func (s *Store) WithdrawnNews(ctx context.Context) ([]string, error) {
+	keys := []string{}
+	if e := s.DB.WithContext(ctx).Raw(`SELECT key FROM public.cms_documents WHERE published_revision IS NULL ORDER BY key`).Scan(&keys).Error; e != nil {
+		return nil, e
+	}
+	visible := []string{}
+	for _, key := range keys {
+		if d, ok := DefinitionFor(key); ok && d.Target == "articles" && !d.SystemManaged {
+			visible = append(visible, key)
+		}
+	}
+	return visible, nil
+}
 func (s *Store) List(ctx context.Context) ([]Document, error) {
 	rows := []Document{}
-	e := s.DB.WithContext(ctx).Raw(`SELECT key,version,draft_revision,published_revision,source_hash FROM public.cms_documents ORDER BY key`).Scan(&rows).Error
+	e := s.DB.WithContext(ctx).Raw(`SELECT d.key,d.version,d.draft_revision,d.published_revision,d.source_hash,r.payload->'title' AS title FROM public.cms_documents d LEFT JOIN public.cms_revisions r ON r.id=d.draft_revision ORDER BY d.key`).Scan(&rows).Error
 	visible := rows[:0]
 	for _, row := range rows {
 		if AdminVisible(row.Key) {
@@ -69,7 +85,7 @@ func (s *Store) Detail(ctx context.Context, key string) (Document, []Revision, e
 }
 func (s *Store) Change(ctx context.Context, key, actor, operation, revision string, version int64, payload json.RawMessage) (Document, error) {
 	var result Document
-	d, ok := definitions[key]
+	d, ok := DefinitionFor(key)
 	if !ok || d.Locked || d.SystemManaged {
 		return result, ErrInvalid
 	}
@@ -79,6 +95,9 @@ func (s *Store) Change(ctx context.Context, key, actor, operation, revision stri
 		}
 	}
 	e := s.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if e := cmsAdmin(tx, actor); e != nil {
+			return e
+		}
 		q := tx.Raw(`SELECT key,version,draft_revision,published_revision,source_hash FROM public.cms_documents WHERE key=? FOR UPDATE`, key).Scan(&result)
 		if q.Error != nil {
 			return q.Error
@@ -91,6 +110,29 @@ func (s *Store) Change(ctx context.Context, key, actor, operation, revision stri
 		}
 		if result.SourceHash != d.SourceHash {
 			return ErrConflict
+		}
+		if d.Target == "created" && operation == "draft_saved" {
+			var originalSlug string
+			if e := tx.Raw("SELECT payload->>'slug' FROM public.cms_revisions WHERE document_key=? ORDER BY created_at,id LIMIT 1", key).Scan(&originalSlug).Error; e != nil {
+				return e
+			}
+			var next CreatedContent
+			json.Unmarshal(payload, &next)
+			if next.Slug != originalSlug {
+				return ErrInvalid
+			}
+		}
+		if operation == "unpublished" {
+			if (d.Target != "created" && d.Target != "articles") || result.DraftRevision == nil {
+				return ErrInvalid
+			}
+			if e := tx.Exec("UPDATE public.cms_documents SET published_revision=NULL,version=version+1,updated_at=now() WHERE key=?", key).Error; e != nil {
+				return e
+			}
+			if e := tx.Exec("INSERT INTO public.cms_events(document_key,revision_id,event_type,actor_id) VALUES (?,?::uuid,'unpublished',?::uuid)", key, *result.DraftRevision, actor).Error; e != nil {
+				return e
+			}
+			return tx.Raw("SELECT key,version,draft_revision,published_revision FROM public.cms_documents WHERE key=?", key).Scan(&result).Error
 		}
 		if operation == "draft_saved" {
 			if e := tx.Raw(`INSERT INTO public.cms_revisions(document_key,payload,actor_id) VALUES (?,?::jsonb,?::uuid) RETURNING id`, key, string(payload), actor).Scan(&revision).Error; e != nil {
