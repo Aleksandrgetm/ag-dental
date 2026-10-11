@@ -1,0 +1,68 @@
+{
+  "crawled_at": "2026-10-11T18:31:24.673692+00:00",
+  "limit": 500,
+  "remaining": 0,
+  "search_console_available": false,
+  "pages": [
+    {
+      "url": "https://www.zobarstnieciba-ag.lv/",
+      "status": 200,
+      "final_url": "https://www.zobarstnieciba-ag.lv/"
+    },
+    {
+      "url": "https://www.zobarstnieciba-ag.lv/robots.txt",
+      "status": 200,
+      "final_url": "https://www.zobarstnieciba-ag.lv/robots.txt"
+    },
+    {
+      "url": "https://www.zobarstnieciba-ag.lv/sitemap.xml",
+      "status": 200,
+      "final_url": "https://www.zobarstnieciba-ag.lv/sitemap.xml"
+    },
+    {
+      "url": "https://www.zobarstnieciba-ag.lv/pakalpojumi/",
+      "status": 200,
+      "final_url": "https://www.zobarstnieciba-ag.lv/pakalpojumi/"
+    },
+    {
+      "url": "https://www.zobarstnieciba-ag.lv/jaunumi/",
+      "status": 200,
+      "final_url": "https://www.zobarstnieciba-ag.lv/jaunumi/"
+    },
+    {
+      "url": "https://www.zobarstnieciba-ag.lv/par-mums/",
+      "status": 200,
+      "final_url": "https://www.zobarstnieciba-ag.lv/par-mums/"
+    },
+    {
+      "url": "https://www.zobarstnieciba-ag.lv/kontakti/",
+      "status": 200,
+      "final_url": "https://www.zobarstnieciba-ag.lv/kontakti/"
+    },
+    {
+      "url": "https://www.zobarstnieciba-ag.lv/jaunumi/params/post/5259478/zobu-higiena-kas-pieejama-ikvienam",
+      "status": 200,
+      "final_url": "https://www.zobarstnieciba-ag.lv/jaunumi/params/post/5259478/zobu-higiena-kas-pieejama-ikvienam"
+    },
+    {
+      "url": "https://www.zobarstnieciba-ag.lv/jaunumi/params/post/5259473/zobu-protezes-un-protezesana",
+      "status": 200,
+      "final_url": "https://www.zobarstnieciba-ag.lv/jaunumi/params/post/5259473/zobu-protezes-un-protezesana"
+    },
+    {
+      "url": "https://www.zobarstnieciba-ag.lv/jaunumi/params/post/5159831/zobu-higiena",
+      "status": 200,
+      "final_url": "https://www.zobarstnieciba-ag.lv/jaunumi/params/post/5159831/zobu-higiena"
+    },
+    {
+      "url": "https://www.zobarstnieciba-ag.lv/jaunumi/params/post/4689080/aktualitates",
+      "status": 200,
+      "final_url": "https://www.zobarstnieciba-ag.lv/jaunumi/params/post/4689080/aktualitates"
+    },
+    {
+      "url": "https://www.zobarstnieciba-ag.lv/cdn-cgi/l/email-protection",
+      "status": 404,
+      "final_url": "https://www.zobarstnieciba-ag.lv/cdn-cgi/l/email-protection"
+    }
+  ]
+}

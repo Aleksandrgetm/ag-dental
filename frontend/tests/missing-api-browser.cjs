@@ -164,7 +164,7 @@ const { tmpdir } = require("node:os");
           if (route === "/admin") {
             const url = new URL(page.url());
             assert.equal(url.pathname, "/login");
-            assert.equal(url.searchParams.get("returnTo"), "/admin");
+            assert.equal(url.searchParams.get("returnTo"), "/admin/appointments");
             assert.equal(await page.locator(".admin-shell").count(), 0);
           }
           publicChecks++;

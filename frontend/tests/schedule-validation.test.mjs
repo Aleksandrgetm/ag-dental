@@ -1,0 +1,6 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {scheduleErrors} from '../src/services/admin/scheduleValidation.ts';
+const h=(start,end,other={})=>({weekday:1,start,end,...other});
+test('working hours reject blank, invalid, reversed and overlapping times',()=>{assert.deepEqual(scheduleErrors([]),{});assert.equal(scheduleErrors([h('','')])[1],'timeRequired');assert.equal(scheduleErrors([h('29:00','30:00')])[1],'timeRequired');assert.equal(scheduleErrors([h('17:00','09:00')])[1],'timeOrder');assert.equal(scheduleErrors([h('09:00','12:00'),h('11:00','14:00')])[1],'timeOverlap');assert.deepEqual(scheduleErrors([h('09:00','12:00'),h('12:00','17:00')]),{})});
+test('separate effective periods do not overlap and dates remain ordered',()=>{assert.deepEqual(scheduleErrors([h('09:00','12:00',{effective_until:'2026-10-10'}),h('09:00','12:00',{effective_from:'2026-10-11'})]),{});assert.equal(scheduleErrors([h('09:00','12:00',{effective_from:'2026-10-12',effective_until:'2026-10-11'})])[1],'effectiveOrder')});
+
+test('preserves a saved midnight end boundary accepted by PostgreSQL',()=>{assert.deepEqual(scheduleErrors([h('20:00','24:00')]),{});assert.equal(scheduleErrors([h('24:00','24:01')])[1],'timeRequired')});

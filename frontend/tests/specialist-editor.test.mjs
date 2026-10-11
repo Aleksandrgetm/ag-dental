@@ -1,0 +1,2 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {specialistEditorMessages} from '../src/i18n/specialistEditor.ts';
+test('all specialist task and confirmation labels are localized',()=>{for(const lang of ['lv','ru','en']){assert.deepEqual(Object.keys(specialistEditorMessages[lang]).sort(),Object.keys(specialistEditorMessages.en).sort());for(const value of Object.values(specialistEditorMessages[lang]))assert.ok(value.trim())}});

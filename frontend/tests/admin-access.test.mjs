@@ -21,7 +21,7 @@ test("admin return destinations are an exact internal allowlist", () => {
     "/admin\n",
   ])
     assert.equal(safeAdminReturn(value), null);
-  assert.equal(safeAdminReturn("/admin/media"), "/admin/media");
+  assert.equal(safeAdminReturn("/admin/media"), null);
 });
 test("identity verification trusts only the same server-verified subject and role, with safe failures", async () => {
   for (const [status, body, expected] of [

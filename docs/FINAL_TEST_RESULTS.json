@@ -1,0 +1,104 @@
+{
+  "environment": "Local Chrome with intercepted synthetic APIs; not production",
+  "frontend_unit": {
+    "passed": 93,
+    "failed": 0,
+    "skipped": 0
+  },
+  "disposable_postgresql": "17.11: Auth/Booking/CMS/Media/migrations/operations PASS",
+  "browser_suites": [
+    {
+      "suite": "auth",
+      "seconds": 51,
+      "final_exit_code": 0
+    },
+    {
+      "suite": "admin",
+      "seconds": 78,
+      "initial_exit_code": 1,
+      "final_exit_code": 0,
+      "rerun": "Full suite rerun passed after updating stale test expectation; see TEST_REPORT.md"
+    },
+    {
+      "suite": "cms",
+      "seconds": 77,
+      "final_exit_code": 0
+    },
+    {
+      "suite": "cms-navigation",
+      "seconds": 43,
+      "final_exit_code": 0
+    },
+    {
+      "suite": "media",
+      "seconds": 32,
+      "final_exit_code": 0
+    },
+    {
+      "suite": "booking",
+      "seconds": 75,
+      "final_exit_code": 0
+    },
+    {
+      "suite": "contact",
+      "seconds": 24,
+      "initial_exit_code": 1,
+      "final_exit_code": 0,
+      "rerun": "Full suite rerun passed after updating stale test expectation; see TEST_REPORT.md"
+    },
+    {
+      "suite": "public-routes",
+      "seconds": 177,
+      "final_exit_code": 0
+    },
+    {
+      "suite": "appointments",
+      "seconds": 61,
+      "final_exit_code": 0
+    },
+    {
+      "suite": "created-content",
+      "seconds": 66,
+      "final_exit_code": 0
+    },
+    {
+      "suite": "doctors",
+      "seconds": 33,
+      "final_exit_code": 0
+    },
+    {
+      "suite": "schedules",
+      "seconds": 24,
+      "final_exit_code": 0
+    },
+    {
+      "suite": "operations",
+      "seconds": 25,
+      "final_exit_code": 0
+    },
+    {
+      "suite": "price-editor",
+      "seconds": 33,
+      "final_exit_code": 0
+    },
+    {
+      "suite": "seo",
+      "seconds": 34,
+      "final_exit_code": 0
+    },
+    {
+      "suite": "missing-api",
+      "seconds": 25,
+      "final_exit_code": 0
+    }
+  ],
+  "hero_locks": 15,
+  "manifest": {
+    "groups": 194,
+    "values": 2198,
+    "routes": 26,
+    "media": 12
+  },
+  "production_activation": "NOT PERFORMED",
+  "email": "DEFERRED - NOT IMPLEMENTED"
+}

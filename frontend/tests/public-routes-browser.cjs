@@ -26,7 +26,7 @@ if (!["localhost", "127.0.0.1"].includes(new URL(BASE).hostname))
   let checks = 0;
   try {
     for (const locale of ["lv", "ru", "en"]) {
-      for (const width of [390, 1440]) {
+      for (const width of [320, 375, 390, 430, 768, 1024, 1440, 1920]) {
         const context = await browser.newContext({
           viewport: { width, height: 1000 },
           reducedMotion: "reduce",
@@ -89,6 +89,9 @@ if (!["localhost", "127.0.0.1"].includes(new URL(BASE).hostname))
             false,
             `${path}/${locale}/${width}: overflow`,
           );
+          if (path === "/cenas") {
+            assert.equal(await page.locator('.price-search-control .v-icon svg path').count(), 1);
+          }
           checks++;
         }
         await context.close();

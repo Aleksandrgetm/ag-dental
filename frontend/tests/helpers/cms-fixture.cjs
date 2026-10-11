@@ -148,6 +148,7 @@ module.exports.createCMSFixture = async function (
       return route.fulfill({
         json: {
           schema_version: 1,
+          withdrawn_news: [...state.rows.values()].filter(r=>r.document.key.startsWith("news.")&&!r.document.published_revision).map(r=>r.document.key),
           media: state.mediaRows
             .filter((a) => a.published_at)
             .map((a) => ({
@@ -157,7 +158,7 @@ module.exports.createCMSFixture = async function (
             })),
           documents: state.empty
             ? []
-            : [...state.rows.values()].map((r) => ({
+            : [...state.rows.values()].filter(r=>r.document.published_revision).map((r) => ({
                 key: r.document.key,
                 revision: r.document.published_revision,
                 payload: r.revisions.find(
@@ -339,6 +340,9 @@ module.exports.createCMSFixture = async function (
           published_at: null,
         });
         row.document.draft_revision = rev;
+      } else if (action === "unpublish") {
+        assert.ok(key.startsWith("news."));
+        row.document.published_revision = null;
       } else {
         assert.equal(req.method(), "POST");
         const rev = row.revisions.find((r) => r.id === body.revision_id);
@@ -354,6 +358,7 @@ module.exports.createCMSFixture = async function (
       row.document.version++;
       return route.fulfill({ json: row.document });
     }
+    if (req.method() === "GET" && /^\/api\/admin\/operations\/(doctors|services)(\/options)?$/.test(u.pathname)) return route.fulfill({json:u.pathname.endsWith('/options')?{doctors:[],services:[],sources:[],privacy_ready:false}:{items:[]}});
     throw Error("Unexpected API " + u.pathname);
   });
   const page = await context.newPage();

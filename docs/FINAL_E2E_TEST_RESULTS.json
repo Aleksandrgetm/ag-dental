@@ -1,0 +1,101 @@
+{
+  "date": "2026-10-11",
+  "branch": "feature/final-development",
+  "production_access": false,
+  "build": "PASS; main chunk 1291.69 kB / 287.15 kB gzip warning",
+  "unit_http": {
+    "passed": 108,
+    "failed": 0
+  },
+  "go": "PASS all packages via test-media-local.sh; real disposable PostgreSQL 17.11",
+  "go_vet": "PASS",
+  "hero_locks": 15,
+  "manifest": {
+    "groups": 194,
+    "values": 2198,
+    "routes": 26,
+    "media": 12
+  },
+  "real_e2e": "PASS; FINAL_E2E_EVIDENCE.json",
+  "mocked_browser": {
+    "booking": {
+      "status": "PASS",
+      "summary": "{\"mode\":\"mocked-api\",\"layoutChecks\":172,\"flows\":31,\"errors\":[],\"screenshots\":\"/var/folders/35/2zb346tj6fv4k19rpl03mg0r0000gn/T/ag-booking-browser\"}"
+    },
+    "auth": {
+      "status": "PASS",
+      "summary": "{\"layoutChecks\":96,\"flows\":\"register/login/persistence/logout/recovery/confirmation\",\"errors\":[]}"
+    },
+    "appointments": {
+      "status": "PASS",
+      "summary": "Appointment browser: 24 locale/viewport scenarios passed"
+    },
+    "specialist-editor": {
+      "status": "PASS",
+      "summary": "Specialist editor: 24 locale/viewport workflows; scoped task saves, all biography languages, portrait, draft/publish, weekly hours, explicit activation, conflict retention, focus revalidation and revoked roles."
+    },
+    "specialist-link": {
+      "status": "PASS",
+      "summary": "Existing specialist linking: 6 multilingual new/existing identity cases; explicit link consent, preserved services/hours, no duplicate writes and unchanged CMS revisions."
+    },
+    "specialist-time-off": {
+      "status": "PASS",
+      "summary": "Embedded specialist absence: 6 locale/viewport workflows, breaks, blocked days, vacations, impact conflict and availability preview."
+    },
+    "specialist-media": {
+      "status": "PASS",
+      "summary": "Inline portrait media: 3 locales; disabled gate, Hero exclusions, file rejection, preview, failed upload/retry with same key and selection. All Storage/API transport mocked."
+    },
+    "admin-simple-workflows": {
+      "status": "PASS",
+      "summary": "Simple doctor workflow: 24 locale/viewport cases; one Add click, atomic save, portrait, eligibility, hours, revalidation and deep-link refresh"
+    },
+    "simple-admin-access": {
+      "status": "PASS",
+      "summary": "Admin authorization: 12 guest, ordinary-user/forged-metadata and unavailable-identity route cases; zero privileged requests."
+    },
+    "created-content": {
+      "status": "PASS",
+      "summary": "Created content browser: 24 locale/viewport scenarios passed"
+    },
+    "public-routes": {
+      "status": "PASS",
+      "summary": "{\"publicRoutes\":20,\"publicRouteChecks\":480,\"errors\":[]}"
+    },
+    "seo": {
+      "status": "PASS",
+      "summary": "SEO browser: 120 rendered route/locale/viewport checks passed"
+    },
+    "contact": {
+      "status": "PASS",
+      "summary": "Contact checks passed: 24 responsive/locale layouts, 24 validation/no-delivery flows; no API writes or external requests. Screenshots: /var/folders/35/2zb346tj6fv4k19rpl03mg0r0000gn/T/ag-contact-browser"
+    },
+    "missing-api": {
+      "status": "PASS",
+      "summary": "{\"publicChecks\":132,\"unavailableAndAuthChecks\":6,\"unexpectedRequests\":[],\"errors\":[]}"
+    }
+  },
+  "screenshots": [
+    "docs/screenshots/final-e2e/appointment-details.png",
+    "docs/screenshots/final-e2e/calendar-populated.png",
+    "docs/screenshots/final-e2e/news-editor.png",
+    "docs/screenshots/final-e2e/public-home-1440.png",
+    "docs/screenshots/final-e2e/public-home-390.png",
+    "docs/screenshots/final-e2e/public-kontakti-1440.png",
+    "docs/screenshots/final-e2e/public-kontakti-390.png",
+    "docs/screenshots/final-e2e/public-pieraksts-1440.png",
+    "docs/screenshots/final-e2e/public-pieraksts-390.png",
+    "docs/screenshots/final-e2e/specialist-schedule.png"
+  ],
+  "regenerated_existing_screenshots": [
+    "docs/screenshots/appointment-calendar/after-390.png",
+    "docs/screenshots/appointment-calendar/after-1440.png",
+    "docs/screenshots/specialist-editor/profile-390.png",
+    "docs/screenshots/specialist-editor/profile-1440.png",
+    "docs/screenshots/specialist-editor/services-390.png",
+    "docs/screenshots/specialist-editor/services-1440.png",
+    "docs/screenshots/specialist-editor/schedule-390.png",
+    "docs/screenshots/specialist-editor/schedule-1440.png"
+  ],
+  "cleanup": "PASS; acceptance containers/network/private temp directories removed; mock Vite stopped"
+}
