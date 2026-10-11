@@ -1,0 +1,216 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "routes": [
+    {
+      "src": "^/.*$",
+      "headers": {
+        "X-Content-Type-Options": "nosniff",
+        "Referrer-Policy": "strict-origin-when-cross-origin",
+        "X-Frame-Options": "DENY"
+      },
+      "continue": true
+    },
+    {
+      "src": "^/robots\\.txt$",
+      "dest": "/api/render?path=/robots.txt"
+    },
+    {
+      "src": "^/sitemap\\.xml$",
+      "dest": "/api/render?path=/sitemap.xml"
+    },
+    {
+      "src": "^/pakalpojumi/$",
+      "headers": {
+        "Location": "/cenas"
+      },
+      "status": 301
+    },
+    {
+      "src": "^/jaunumi/$",
+      "headers": {
+        "Location": "/jaunumi"
+      },
+      "status": 301
+    },
+    {
+      "src": "^/par\\-mums/$",
+      "headers": {
+        "Location": "/par-mums"
+      },
+      "status": 301
+    },
+    {
+      "src": "^/kontakti/$",
+      "headers": {
+        "Location": "/kontakti"
+      },
+      "status": 301
+    },
+    {
+      "src": "^/jaunumi/params/post/5259478/zobu\\-higiena\\-kas\\-pieejama\\-ikvienam$",
+      "headers": {
+        "Location": "/jaunumi/zobu-higiena-kas-pieejama-ikvienam"
+      },
+      "status": 301
+    },
+    {
+      "src": "^/jaunumi/params/post/5259473/zobu\\-protezes\\-un\\-protezesana$",
+      "headers": {
+        "Location": "/jaunumi/zobu-protezes-un-protezesana"
+      },
+      "status": 301
+    },
+    {
+      "src": "^/jaunumi/params/post/5159831/zobu\\-higiena$",
+      "headers": {
+        "Location": "/jaunumi/zobu-higiena"
+      },
+      "status": 301
+    },
+    {
+      "src": "^/jaunumi/params/post/4689080/aktualitates$",
+      "headers": {
+        "Location": "/jaunumi/aktualitates"
+      },
+      "status": 301
+    },
+    {
+      "src": "^/(admin(?:/.*)?|login|register|forgot-password|reset-password|pieraksts)$",
+      "headers": {
+        "X-Robots-Tag": "noindex, nofollow",
+        "Cache-Control": "no-store"
+      },
+      "continue": true
+    },
+    {
+      "src": "(^/$)",
+      "dest": "/api/render?path=$1"
+    },
+    {
+      "src": "(^/pakalpojumi$)",
+      "dest": "/api/render?path=$1"
+    },
+    {
+      "src": "(^/pakalpojumi/konsultacija$)",
+      "dest": "/api/render?path=$1"
+    },
+    {
+      "src": "(^/pakalpojumi/zobu\\-arstesana$)",
+      "dest": "/api/render?path=$1"
+    },
+    {
+      "src": "(^/pakalpojumi/saknu\\-kanalu\\-arstesana$)",
+      "dest": "/api/render?path=$1"
+    },
+    {
+      "src": "(^/pakalpojumi/zobu\\-higiena$)",
+      "dest": "/api/render?path=$1"
+    },
+    {
+      "src": "(^/pakalpojumi/zobu\\-balinasana$)",
+      "dest": "/api/render?path=$1"
+    },
+    {
+      "src": "(^/pakalpojumi/zobu\\-kirurgija$)",
+      "dest": "/api/render?path=$1"
+    },
+    {
+      "src": "(^/pakalpojumi/zobu\\-protezesana$)",
+      "dest": "/api/render?path=$1"
+    },
+    {
+      "src": "(^/pakalpojumi/bernu\\-zobarstnieciba$)",
+      "dest": "/api/render?path=$1"
+    },
+    {
+      "src": "(^/cenas$)",
+      "dest": "/api/render?path=$1"
+    },
+    {
+      "src": "(^/par\\-mums$)",
+      "dest": "/api/render?path=$1"
+    },
+    {
+      "src": "(^/jaunumi$)",
+      "dest": "/api/render?path=$1"
+    },
+    {
+      "src": "(^/jaunumi/zobu\\-higiena\\-kas\\-pieejama\\-ikvienam$)",
+      "dest": "/api/render?path=$1"
+    },
+    {
+      "src": "(^/jaunumi/zobu\\-protezes\\-un\\-protezesana$)",
+      "dest": "/api/render?path=$1"
+    },
+    {
+      "src": "(^/jaunumi/zobu\\-higiena$)",
+      "dest": "/api/render?path=$1"
+    },
+    {
+      "src": "(^/jaunumi/aktualitates$)",
+      "dest": "/api/render?path=$1"
+    },
+    {
+      "src": "(^/kontakti$)",
+      "dest": "/api/render?path=$1"
+    },
+    {
+      "src": "(^/pieraksts$)",
+      "dest": "/index.html"
+    },
+    {
+      "src": "(^/login$)",
+      "dest": "/index.html"
+    },
+    {
+      "src": "(^/register$)",
+      "dest": "/index.html"
+    },
+    {
+      "src": "(^/forgot\\-password$)",
+      "dest": "/index.html"
+    },
+    {
+      "src": "(^/reset\\-password$)",
+      "dest": "/index.html"
+    },
+    {
+      "src": "(^/privatuma\\-politika$)",
+      "dest": "/api/render?path=$1"
+    },
+    {
+      "src": "(^/sikdatnu\\-politika$)",
+      "dest": "/api/render?path=$1"
+    },
+    {
+      "src": "^/admin(?:/.*)?$",
+      "dest": "/index.html"
+    },
+    {
+      "src": "(^/(informacija|jautajumi|jaunumi)/[a-z0-9]+(?:-[a-z0-9]+)*$)",
+      "dest": "/api/render?path=$1"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "^/.*$",
+      "dest": "/index.html",
+      "status": 404
+    }
+  ],
+  "functions": {
+    "api/render.ts": {
+      "includeFiles": "dist/{index.html,robots.txt}",
+      "maxDuration": 10
+    }
+  },
+  "git": {
+    "deploymentEnabled": {
+      "feature/final-development": false
+    }
+  }
+}
