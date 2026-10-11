@@ -1,30 +1,24 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { adminGroups, adminPath } from "../../services/admin/navigation";
-import { useCmsNavigationStore } from "../../stores/cmsNavigation";
-const navigation = useCmsNavigationStore();
 const { t } = useI18n();
 defineEmits<{ navigate: [] }>();
 </script>
 <template>
   <nav class="admin-navigation" :aria-label="t('admin.navigation')">
     <div v-for="group in adminGroups" :key="group.key" class="admin-nav-group">
-      <p v-if="group.key !== 'overview'">
-        {{ t(`admin.groups.${group.key}`) }}
-      </p>
       <RouterLink
         v-for="item in group.items"
         :key="item"
-        :to="navigation.last[item] || adminPath(item)"
+        :to="adminPath(item)"
         :class="{
           selected:
             $route.path === adminPath(item) ||
-            (item !== 'overview' &&
-              $route.path.startsWith(adminPath(item) + '/')),
+            $route.path.startsWith(adminPath(item) + '/'),
         }"
         :aria-current="
           $route.path === adminPath(item) ||
-          (item !== 'overview' && $route.path.startsWith(adminPath(item) + '/'))
+          $route.path.startsWith(adminPath(item) + '/')
             ? 'page'
             : undefined
         "

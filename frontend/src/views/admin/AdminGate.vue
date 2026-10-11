@@ -49,6 +49,8 @@ const keepEditor = computed(
     editorGrant.value.userID === auth.user?.id &&
     [
       "services",
+      "appointments",
+      "schedules",
       "doctors",
       "pages",
       "news",
@@ -88,6 +90,8 @@ async function check() {
       ready.value &&
       [
         "services",
+      "appointments",
+      "schedules",
         "doctors",
         "pages",
         "news",

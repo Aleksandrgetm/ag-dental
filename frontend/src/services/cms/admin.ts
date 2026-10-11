@@ -8,7 +8,8 @@ export async function cmsRequest(
 ) {
   const auth = useAuthStore(),
     initial = auth.session;
-  if (!API_URL || !auth.verifiedAdmin || !initial) throw Error("unavailable");
+  if (!API_URL || !auth.verifiedAdmin || !initial || !/^(?:\/[a-zA-Z0-9._-]+(?:\/(?:draft|publish|rollback|unpublish))?)?$/.test(path)) throw Error("unavailable");
+  const current=()=>!signal.aborted&&auth.user?.id===initial.user.id&&auth.session?.access_token===initial.access_token&&auth.verifiedAdmin;
   let response: Response;
   try {
     response = await fetch(`${API_URL}/admin/cms/documents${path}`, {
@@ -26,9 +27,7 @@ export async function cmsRequest(
     throw Error("unavailable");
   }
   if (
-    signal.aborted ||
-    auth.user?.id !== initial.user.id ||
-    !auth.verifiedAdmin
+    !current()
   )
     throw Error("unavailable");
   if (response.status === 401 || response.status === 403) {
@@ -46,7 +45,9 @@ export async function cmsRequest(
           : "unavailable",
     );
   try {
-    return await response.json();
+    const result=await response.json();
+    if(!current())throw Error("unavailable");
+    return result;
   } catch {
     throw Error("unavailable");
   }

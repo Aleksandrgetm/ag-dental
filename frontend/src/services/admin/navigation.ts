@@ -1,13 +1,5 @@
-export const adminGroups = [
-  { key: "overview", items: ["overview"] },
-  {
-    key: "clinic",
-    items: ["appointments", "services", "doctors", "schedules"],
-  },
-  { key: "website", items: ["pages", "news", "media", "seo"] },
-  { key: "communication", items: ["messages"] },
-  { key: "system", items: ["settings"] },
-] as const;
+// The clinic-facing interface intentionally exposes only these three sections.
+// Backend capabilities and stored CMS content remain available to trusted maintenance tools.
+export const adminGroups = [{ key: "clinic", items: ["appointments", "doctors", "news"] }] as const;
 export type AdminSection = (typeof adminGroups)[number]["items"][number];
-export const adminPath = (section: AdminSection) =>
-  section === "overview" ? "/admin" : `/admin/${section}`;
+export const adminPath = (section: AdminSection) => `/admin/${section}`;

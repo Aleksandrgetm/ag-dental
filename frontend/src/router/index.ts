@@ -64,9 +64,11 @@ const router = createRouter({
     },
     {
       path: "/jaunumi/:slug",
-      component: () => import("../views/ArticleView.vue"),
+      component: () => import("../views/ArticleRouteView.vue"),
       meta: { title: "nav.news" },
     },
+    { path: "/informacija/:slug", component: () => import("../views/CreatedContentView.vue") },
+    { path: "/jautajumi/:slug", component: () => import("../views/CreatedContentView.vue") },
     {
       path: "/pieraksts",
       component: () => import("../views/BookingView.vue"),

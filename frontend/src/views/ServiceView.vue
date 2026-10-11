@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import {visiblePriceRows} from "../services/cms/priceRows";
 import { cmsMediaAlt, cmsMediaSrcset } from "../services/cms/content";
 import { computed, watchEffect } from "vue";
 import { useRoute } from "vue-router";
@@ -15,7 +16,7 @@ const service = computed(() =>
 );
 const prices = computed(() =>
   localizedPrices.map((category) => ({
-    items: category.items.map((item) => ({ ...item, name: local(item.name) })),
+    items: visiblePriceRows(category.items).map((item) => ({ ...item, name: local(item.name) })),
   })),
 );
 watchEffect(() => {

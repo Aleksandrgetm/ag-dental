@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import {visiblePriceRows} from "../services/cms/priceRows";
 import { cmsLiteral } from "../services/cms/content";
 import { computed, ref, watch, onMounted, onBeforeUnmount } from "vue";
 import { localizedPrices } from "../services/cms/content";
@@ -24,7 +25,7 @@ const prices = computed(() =>
   localizedPrices.map((category) => ({
     ...category,
     title: local(category.title),
-    items: category.items.map((item) => ({ ...item, name: local(item.name) })),
+    items: visiblePriceRows(category.items).map((item) => ({ ...item, name: local(item.name) })),
   })),
 );
 const filtered = computed(() =>
@@ -99,7 +100,7 @@ onBeforeUnmount(() => {
       local(copy.priceSearch)
     }}</label>
     <div class="price-search-control">
-      <v-icon icon="mdi-magnify" size="20" aria-hidden="true" />
+      <v-icon icon="$search" size="20" aria-hidden="true" />
       <input
         ref="searchInput"
         id="price-search"

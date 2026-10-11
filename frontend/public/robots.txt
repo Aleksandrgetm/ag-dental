@@ -1,0 +1,10 @@
+User-agent: *
+Disallow: /admin
+Disallow: /api
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /pieraksts
+Disallow: /*?preview=
+Sitemap: https://www.zobarstnieciba-ag.lv/sitemap.xml

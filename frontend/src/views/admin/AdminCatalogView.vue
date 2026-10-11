@@ -1,0 +1,65 @@
+<script setup lang="ts">
+import {suggestSlug} from "../../services/admin/slug";
+import {trapDialogFocus} from "../../services/dialogFocus";
+import {computed,onBeforeUnmount,ref,watch} from 'vue';
+import {onBeforeRouteLeave,onBeforeRouteUpdate,useRoute} from 'vue-router';
+import {useAuthStore} from '../../stores/auth';
+import {useI18n} from 'vue-i18n';
+import {operationRequest,type OperationRow} from '../../services/admin/operations';
+import MediaLibrary from '../../components/admin/MediaLibrary.vue';
+import AdminPageHeader from '../../components/admin/AdminPageHeader.vue';
+const {t,locale}=useI18n(),route=useRoute(),auth=useAuthStore();
+const kind=computed(()=>String(route.meta.operationKind||'services'));
+const rows=ref<OperationRow[]>([]),selected=ref<OperationRow|null>(null),form=ref<Record<string,any>|null>(null),history=ref<any[]>([]),busy=ref(false),error=ref(''),status=ref(''),confirmed=ref(false);
+const manualSlug=ref(false);
+let controller=new AbortController(),original='',key='',loadedKind='';
+const dirty=computed(()=>form.value&&JSON.stringify(form.value)!==original);
+const locales=['lv','ru','en'];
+const picker=ref<HTMLDialogElement>(),picking=ref(false);
+function pickPortrait(asset:any){if(form.value){form.value.portrait_id=asset.id;}closePicker()}
+function closePicker(){picker.value?.close();picking.value=false}
+function openPicker(){picking.value=true;picker.value?.showModal()}
+const options=ref<{doctors:{id:string;name:string}[];sources:{key:string;title:Record<string,string>;price:string}[]}>({doctors:[],sources:[]});
+function nameChanged(){if(!manualSlug.value&&!selected.value&&form.value)form.value.slug=suggestSlug(form.value.name_lv||form.value.name_en||form.value.name_ru)}
+function linkedPrice(){const source=options.value.sources.find(s=>s.key===form.value?.editorial_key);for(const lang of locales)if(form.value){form.value['price_display_'+lang]=source?.price||'';if(!form.value['name_'+lang])form.value['name_'+lang]=source?.title[lang]||''}if(form.value&&!form.value.slug)form.value.slug=suggestSlug(form.value.name_lv||form.value.name_en||form.value.name_ru)}
+function discard(){return !dirty.value||window.confirm(t('operations.discard'))}
+function edit(row?:OperationRow){if(!discard())return;manualSlug.value=!!row;selected.value=row||null;history.value=[];confirmed.value=false;status.value='';error.value='';key=crypto.randomUUID();const d=row?.data||{};
+ const common={active:d.active??false,booking_enabled:d.booking_enabled??false,sort_order:d.sort_order??0,provenance:'clinic_verified'};
+ form.value=kind.value==='services'?{...common,editorial_key:d.editorial_key||'',assignments:options.value.doctors.map(doctor=>{const old=d.assignments?.find((a:any)=>a.doctor_id===doctor.id);return {doctor_id:doctor.id,booking_enabled:old?.booking_enabled??false,duration_override_minutes:old?.duration_override_minutes??null}}),slug:d.slug||'',name_lv:d.name_lv||'',name_ru:d.name_ru||'',name_en:d.name_en||'',description_lv:d.description_lv||'',description_ru:d.description_ru||'',description_en:d.description_en||'',duration_minutes:d.duration_minutes??null,price_display_lv:d.price_display_lv||'',price_display_ru:d.price_display_ru||'',price_display_en:d.price_display_en||''}:{...common,name:d.name||'',profile:JSON.parse(JSON.stringify(d.profile||{biography:{lv:'',ru:'',en:''},qualifications:{lv:'',ru:'',en:''}})),portrait_id:d.portrait_id||'',editorial_key:d.editorial_key||''};if(kind.value==='services')linkedPrice();original=JSON.stringify(form.value);
+}
+async function load(){controller.abort();controller=new AbortController();const own=controller;busy.value=true;error.value='';try{const [r,o]=await Promise.all([operationRequest('/operations/'+kind.value,own.signal),operationRequest('/operations/'+kind.value+'/options',own.signal)]);if(!own.signal.aborted){rows.value=r.items;options.value=o;loadedKind=kind.value;if(route.meta.createOperation&&!form.value)edit();if(route.params.serviceID&&!form.value){const row=rows.value.find(r=>r.id===route.params.serviceID);if(row)edit(row);else error.value='unavailable';}}}catch(e){if(!own.signal.aborted)error.value=(e as Error).message==='conflict'?'conflict':'unavailable'}finally{if(!own.signal.aborted)busy.value=false}}
+async function save(){if(!form.value||!confirmed.value||busy.value)return;busy.value=true;error.value='';try{const r=await operationRequest('/operations/'+kind.value+(selected.value?'/'+selected.value.id:''),controller.signal,{operation_id:key,expected_version:selected.value?.version||'',data:{...form.value,...(kind.value==='services'?{duration_minutes:form.value.duration_minutes===''?null:form.value.duration_minutes,assignments:form.value.assignments.map((a:any)=>({...a,duration_override_minutes:a.duration_override_minutes===''?null:a.duration_override_minutes}))}:{})}},selected.value?'PUT':'POST');original=JSON.stringify(form.value);selected.value=r;form.value=null;await load();status.value=t('operations.saved')}catch(e){error.value=['conflict','invalid'].includes((e as Error).message)?(e as Error).message:'unavailable'}finally{busy.value=false}}
+function changes(entry:any){const fields:Record<string,string>={name:'doctorName',profile:'biography',portrait_id:'portrait',slug:'slug',name_lv:'name',name_ru:'name',name_en:'name',duration_minutes:'duration',active:'active',booking_enabled:'booking',sort_order:'order',editorial_key:'source',assignments:'assignments'};return Object.entries(fields).filter(([key])=>JSON.stringify(entry.before?.[key])!==JSON.stringify(entry.after?.[key])).map(([key,label])=>({label:t('operations.'+label)+(key.startsWith('name_')?' '+key.slice(-2).toUpperCase():''),before:entry.before?.[key],after:entry.after?.[key],complex:['assignments','profile'].includes(key)}))}
+async function showHistory(){if(!selected.value)return;try{history.value=(await operationRequest('/operations/'+kind.value+'/'+selected.value.id+'/history',controller.signal)).events}catch{error.value='unavailable'}}
+onBeforeRouteLeave(()=>discard());onBeforeRouteUpdate(()=>discard());
+function unload(e:BeforeUnloadEvent){if(dirty.value){e.preventDefault();e.returnValue=''}}window.addEventListener('beforeunload',unload);
+onBeforeUnmount(()=>{controller.abort();window.removeEventListener('beforeunload',unload);form.value=null;rows.value=[]});
+watch(()=>[kind.value,route.params.serviceID,route.meta.createOperation],()=>{form.value=null;loadedKind='';if(auth.verifiedAdmin)void load()});
+watch([kind,()=>auth.verifiedAdmin],()=>{if(auth.verifiedAdmin&&loadedKind!==kind.value)void load()},{immediate:true,flush:'post'});
+</script>
+<template>
+<section class="operations"><AdminPageHeader :title="t(route.meta.createOperation?'simple.addService':'operations.'+kind)" :intro="t('operations.intro')"/>
+<RouterLink :to="'/admin/'+kind">{{t('operations.editorial')}}</RouterLink>
+<p v-if="kind==='services'">{{t('operations.note')}}</p>
+<p role="status">{{busy?t('operations.loading'):status}}</p><p v-if="error" role="alert">{{t('operations.'+error)}}</p>
+<div class="actions"><button :disabled="busy" @click="load">{{t('operations.refresh')}}</button><button :disabled="busy||!!error" @click="edit()">{{t('operations.create')}}</button></div>
+<div class="catalog-grid"><aside><p v-if="!rows.length&&!busy&&!error">{{t('operations.empty')}}</p><button v-for="row in rows" :key="row.id" :aria-pressed="selected?.id===row.id" @click="edit(row)">{{row.data.name||row.data['name_'+locale]}} <span v-if="!row.data.active">— {{t('operations.archived')}}</span></button></aside>
+<form v-if="form" :inert="busy" @submit.prevent="save">
+<template v-if="kind==='doctors'"><p>{{t('operations.profileNote')}}</p><label>{{t('operations.doctorName')}}<input v-model="form.name" required maxlength="200"/></label>
+<label>{{t('operations.editorial')}}<select v-model="form.editorial_key"><option value="">{{t('operations.unlinked')}}</option><option value="clinic.doctorBio">{{t('operations.existingBio')}}</option></select></label>
+<fieldset v-for="lang in locales" :key="lang"><legend>{{lang.toUpperCase()}}</legend><label>{{t('operations.biography')}}<textarea v-model="form.profile.biography[lang]" maxlength="4000"/></label><label>{{t('operations.qualifications')}}<textarea v-model="form.profile.qualifications[lang]" maxlength="2000"/></label></fieldset>
+<p>{{form.portrait_id?t('operations.portraitSelected'):t('operations.noPortrait')}}</p><div class="actions"><button type="button" @click="openPicker">{{t('operations.portrait')}}</button><button v-if="form.portrait_id" type="button" @click="form.portrait_id=''">{{t('operations.removePortrait')}}</button></div>
+<RouterLink to="/admin/services/booking">{{t('operations.assignments')}}</RouterLink>
+</template>
+<template v-else><label>{{t('operations.source')}}<select v-model="form.editorial_key" @change="linkedPrice"><option value="">{{t('operations.noSource')}}</option><option v-for="source in options.sources" :key="source.key" :value="source.key">{{source.title[locale]}}</option></select></label><details><summary>{{t('simple.advanced')}}</summary><label>{{t('operations.slug')}}<input v-model="form.slug" @input="manualSlug=true" required maxlength="120" pattern="[a-z0-9]+(-[a-z0-9]+)*"/></label><p>{{t('simple.slugHelp')}}</p></details>
+<fieldset v-for="lang in locales" :key="lang"><legend>{{lang.toUpperCase()}}</legend><label>{{t('operations.name')}}<input v-model="form['name_'+lang]" @input="nameChanged" required maxlength="200"/></label><details><summary>{{t('operations.description')}}</summary><label>{{t('operations.description')}}<textarea v-model="form['description_'+lang]" maxlength="10000"/></label></details><label>{{t('operations.price')}}<input v-model="form['price_display_'+lang]" readonly maxlength="200"/></label></fieldset>
+<label>{{t('operations.duration')}}<input v-model.number="form.duration_minutes" type="number" min="1" max="1440" :required="form.booking_enabled"/></label><fieldset><legend>{{t('operations.assignments')}}</legend><p v-if="!options.doctors.length">{{t('operations.noDoctors')}}</p><div v-for="(assignment,index) in form.assignments" :key="assignment.doctor_id"><label><input v-model="assignment.booking_enabled" type="checkbox"/>{{options.doctors[Number(index)]?.name}}</label><label>{{t('operations.override')}}<input v-model.number="assignment.duration_override_minutes" type="number" min="1" max="1440"/></label></div></fieldset></template>
+<label>{{t('operations.order')}}<input v-model.number="form.sort_order" type="number" min="-1000000" max="1000000" required/></label>
+<label><input v-model="form.active" type="checkbox"/>{{t('operations.active')}}</label><label><input v-model="form.booking_enabled" type="checkbox"/>{{t('operations.booking')}}</label><label><input v-model="confirmed" type="checkbox" required/>{{t('operations.verified')}}</label>
+<div class="actions"><button :disabled="busy||!confirmed" type="submit">{{t('operations.save')}}</button><button type="button" @click="()=>{if(discard())form=null}">{{t('operations.cancel')}}</button><button v-if="selected" type="button" @click="showHistory">{{t('operations.history')}}</button></div>
+<ol v-if="history.length"><li v-for="entry in history" :key="entry.operation_id"><time>{{new Date(entry.created_at).toLocaleString(locale,{timeZone:'Europe/Riga'})}}</time><ul><li v-for="change in changes(entry)" :key="change.label"><strong>{{change.label}}</strong><template v-if="!change.complex">: {{change.before??'—'}} → {{change.after??'—'}}</template></li></ul></li></ol>
+</form></div><dialog @keydown="trapDialogFocus" :aria-label="t('operations.portrait')" ref="picker" class="portrait-picker" @cancel.prevent="closePicker"><MediaLibrary v-if="picking" picker @select="pickPortrait" @close="closePicker"/></dialog></section>
+</template>
+<style scoped>
+.portrait-picker{width:min(1120px,calc(100vw - 32px));max-height:90dvh;margin:auto;padding:20px;border:1px solid var(--line);background:var(--white)}.operations{max-width:1200px}.operations p{max-width:75ch;line-height:1.65}.catalog-grid{display:grid;grid-template-columns:minmax(180px,1fr) minmax(0,2fr);gap:32px;margin-top:24px}.catalog-grid aside{display:flex;flex-direction:column;gap:8px}.operations button,.operations input,.operations textarea{font:inherit}.operations button{min-height:44px;padding:10px 16px;border:1px solid #aab3a3;background:transparent;color:inherit;text-align:left;cursor:pointer}.operations button:disabled{opacity:.5;cursor:default}.operations select,.operations input:not([type=checkbox]),.operations textarea{display:block;width:100%;border:0;border-bottom:1px solid #7d8976;min-height:44px;background:transparent;color:inherit;padding:8px}.operations textarea{min-height:90px}.operations label{display:block;margin:16px 0}.operations input[type=checkbox]{margin-right:10px}.operations fieldset{border:1px solid #c6ccbf;padding:16px;margin:16px 0}.actions{display:flex;gap:12px;flex-wrap:wrap}:focus-visible{outline:2px solid #446744;outline-offset:3px}[role=alert]{color:#8b3429;min-height:24px}@media(max-width:768px){.catalog-grid{grid-template-columns:1fr}}
+</style>

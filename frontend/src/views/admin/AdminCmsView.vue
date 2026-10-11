@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import AdminServiceList from "../../components/admin/AdminServiceList.vue";
+import AdminCreatedList from "../../components/admin/AdminCreatedList.vue";
+import AdminDoctorList from "../../components/admin/AdminDoctorList.vue";
+import PriceRowsEditor from "../../components/admin/PriceRowsEditor.vue";
 import { computed, nextTick, onBeforeUnmount, ref, watch } from "vue";
 import {
   onBeforeRouteLeave,
@@ -129,7 +133,7 @@ const canWrite = computed(
 );
 const fields = computed(() =>
   selected.value
-    ? visibleFields(selected.value, editingLanguage.value, activePart.value)
+    ? visibleFields(selected.value, editingLanguage.value, activePart.value).filter(field => !field.locked)
     : [],
 );
 const clone = (v: any) => JSON.parse(JSON.stringify(v));
@@ -207,7 +211,7 @@ async function catalog() {
   }
 }
 async function choose(doc: Doc) {
-  if (doc.system_managed) return;
+  if (doc.system_managed || !doc.key.startsWith("news.")) return;
   const current = ++serial;
   reset();
   selected.value = doc;
@@ -253,7 +257,7 @@ function update(path: string[], value: string) {
     payload.value.tel = `tel:${value.replace(/[ ()-]/g, "")}`;
 }
 async function action(
-  kind: "draft" | "publish" | "rollback",
+  kind: "draft" | "publish" | "rollback" | "unpublish",
   revision = draftID.value,
 ) {
   if (!selected.value || !canWrite.value) return;
@@ -262,7 +266,7 @@ async function action(
     (dirty.value ||
       !revision ||
       !window.confirm(
-        t(kind === "publish" ? "cms.confirmPublish" : "cms.confirmRestore") +
+        t(kind === "publish" ? "cms.confirmPublish" : kind === "unpublish" ? "created.confirm" : "cms.confirmRestore") +
           (activePart.value?.prefixes
             ? "\n\n" + t("cms.scopedPublishNote")
             : ""),
@@ -352,7 +356,7 @@ onBeforeUnmount(() => {
 async function syncRoute() {
   if (!auth.verifiedAdmin) return;
   const sequence = ++routeSerial;
-  const target = destination.value;
+  const target = destination.value?.group === "news" ? destination.value : null;
   missing.value = !target;
   if (!target) {
     serial++;
@@ -398,10 +402,22 @@ watch(
 );
 </script>
 <template>
-  <AdminPageHeader :title="t(`admin.nav.${group}`)" :intro="t('cms.intro')" />
+  <AdminPageHeader :title="t(`admin.nav.${group}`)" ><template #actions>
+    <RouterLink v-if="group==='doctors'" class="cms-action" to="/admin/doctors/new">{{t('simple.addDoctor')}}</RouterLink>
+    <RouterLink v-if="group==='services'" class="cms-action" to="/admin/services/new">{{t('simple.addService')}}</RouterLink>
+    <RouterLink v-if="group==='news'" class="cms-action" to="/admin/news/new">{{t('simple.addNews')}}</RouterLink>
+    <RouterLink v-if="group==='pages'" class="cms-action" to="/admin/pages/new">{{t('simple.addPage')}}</RouterLink>
+    <RouterLink v-if="group==='pages'" class="cms-action" to="/admin/pages/faq/new">{{t('simple.addFAQ')}}</RouterLink>
+  </template></AdminPageHeader>
+  <AdminDoctorList v-if="group==='doctors'&&!selected"/>
+  <AdminCreatedList v-if="group==='news'&&!selected" kind="news"/>
+  <template v-if="group==='pages'&&!selected"><AdminCreatedList kind="page"/><AdminCreatedList kind="faq"/></template>
+
   <p v-if="!registered.length" class="cms-notice" role="status">
     {{ t("cms.baseline") }}
   </p>
+  <RouterLink v-if="['services','doctors'].includes(group)" :to="'/admin/'+group+'/booking'">{{t("operations.open")}}</RouterLink>
+  <p v-if="group==='settings'">{{t('simple.settingsHelp')}} <RouterLink to="/admin/schedules">{{t('simple.hours')}}</RouterLink> · <RouterLink to="/admin/pages/privatuma-politika">{{t('booking.privacyLink')}}</RouterLink></p>
   <p v-if="group === 'services'" class="cms-note">{{ t("cms.catalogNote") }}</p>
   <p v-if="missing" class="cms-error" role="alert">
     {{ t("cms.editorMissing") }}
@@ -416,6 +432,7 @@ watch(
     :refresh="refresh"
     @open="openSection"
   />
+  <AdminServiceList v-if="group==='services'&&!selected"/>
   <section
     v-if="selected && !missing"
     class="cms-editor"
@@ -428,7 +445,7 @@ watch(
     <h2 ref="editorHeading" tabindex="-1">
       {{ label(activeSection?.title || selected.title) }}
     </h2>
-    <p class="cms-note">{{ t("cms.partNote") }}</p>
+
     <nav
       v-if="activeSection && activeSection.parts.length > 1"
       class="cms-parts"
@@ -505,7 +522,8 @@ watch(
       </button>
     </div>
     <form @submit.prevent="action('draft')">
-      <div v-if="!preview" class="cms-fields">
+      <PriceRowsEditor v-if="!preview && selected.key.startsWith('prices.') && !activePart?.prefixes?.some(p=>p.startsWith('items.'))" v-model="payload" :disabled="!canWrite"/>
+      <div v-else-if="!preview" class="cms-fields">
         <label
           v-for="field in fields"
           :key="field.path.join('/')"
@@ -522,15 +540,7 @@ watch(
                 .slice(0, 100)
             }}</small
           >
-          <img
-            v-if="
-              ['media', 'image-key'].includes(field.type) &&
-              imageURL(fieldValue(field), currentImages)
-            "
-            class="cms-field-image"
-            :src="imageURL(fieldValue(field), currentImages)"
-            :alt="t('cms.image')"
-          />
+          <button v-if="['media','image-key'].includes(field.type)&&imageURL(fieldValue(field),currentImages)" type="button" class="cms-image-button" :aria-label="t('cms.image')" :disabled="locked(field)||busy" @click="showPicker(field)"><img class="cms-field-image" :src="imageURL(fieldValue(field),currentImages)" alt=""/></button>
           <div
             v-if="['media', 'image-key'].includes(field.type)"
             class="cms-image-replace"
@@ -639,6 +649,7 @@ watch(
         >
           {{ t("cms.publish") }}
         </button>
+        <button v-if="publication" class="cms-link" type="button" :disabled="!canWrite || dirty" @click="action('unpublish')">{{ t('created.archive') }}</button>
       </div>
     </form>
     <dialog ref="picker" class="cms-media-picker" @cancel.prevent="closePicker">
@@ -684,6 +695,8 @@ watch(
   </section>
 </template>
 <style scoped>
+.cms-image-button{display:block;padding:0;border:0;background:transparent;cursor:pointer}.cms-image-button:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
+.cms-action{display:inline-flex;align-items:center;min-height:44px;padding:12px 18px;background:var(--olive);color:var(--white);text-decoration:none}
 .cms-media-picker {
   width: min(1120px, calc(100vw - 32px));
   max-height: 90dvh;

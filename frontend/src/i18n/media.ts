@@ -35,7 +35,7 @@ const en = {
   duplicate: "This file already exists. The existing asset was kept.",
   empty: "No matching media.",
   unavailable:
-    "Uploads are not available yet. Existing website assets remain visible.",
+    "Uploads are disabled for this website. You can choose an existing photograph.",
   reload: "Try again",
   protected: "System-managed · read only",
   protectedNote:
@@ -130,7 +130,7 @@ const lv: Record<keyof typeof en, string> = {
   duplicate: "Šis fails jau ir bibliotēkā. Saglabāts esošais fails.",
   empty: "Atbilstošu failu nav.",
   unavailable:
-    "Augšupielāde vēl nav pieejama. Esošie vietnes faili ir redzami.",
+    "Šajā vietnē augšupielāde ir izslēgta. Varat izvēlēties esošu fotogrāfiju.",
   reload: "Mēģināt vēlreiz",
   protected: "Sistēmas pārvaldīts · tikai lasāms",
   protectedNote:
@@ -225,7 +225,7 @@ const ru: Record<keyof typeof en, string> = {
   duplicate: "Этот файл уже есть в медиатеке. Существующий файл сохранён.",
   empty: "Подходящих файлов нет.",
   unavailable:
-    "Загрузка пока недоступна. Существующие файлы сайта доступны для просмотра.",
+    "Загрузка файлов для этого сайта отключена. Можно выбрать существующую фотографию.",
   reload: "Попробовать снова",
   protected: "Управляется системой · только чтение",
   protectedNote:
