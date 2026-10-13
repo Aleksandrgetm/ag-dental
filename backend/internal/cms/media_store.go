@@ -90,6 +90,9 @@ func (s *Store) Media(ctx context.Context, id string) (MediaRow, error) {
 // The revision reference graph includes ALL retained history, not merely the UI's latest 30.
 func attachMedia(tx *gorm.DB, key, revision string, payload json.RawMessage, publish bool) error {
 	d, _ := DefinitionFor(key)
+	if key == CatalogKey {
+		d.Fields = catalogMediaFields(payload, publish)
+	}
 	value, e := decode(payload)
 	if e != nil {
 		return ErrInvalid
@@ -117,7 +120,7 @@ func attachMedia(tx *gorm.DB, key, revision string, payload json.RawMessage, pub
 		var md media.Metadata
 		json.Unmarshal(row.Metadata, &md)
 		if q.RowsAffected == 0 || row.Protected || row.State != "ready" || md.Kind != "image" || !media.ValidAlt(md.Alt) {
-			return ErrInvalid
+			return invalidField("image")
 		}
 		if e := tx.Exec(`INSERT INTO public.cms_media_references(revision_id,media_id,field_path) VALUES (?::uuid,?,?) ON CONFLICT DO NOTHING`, revision, id, strings.Join(f.Path, ".")).Error; e != nil {
 			return e
@@ -348,6 +351,9 @@ func (s *Store) PublishedMedia(ctx context.Context, documents []Published) ([]Pu
 			return nil, e
 		}
 		definition, _ := DefinitionFor(d.Key)
+		if d.Key == CatalogKey {
+			definition.Fields = catalogMediaFields(d.Payload, true)
+		}
 		for _, f := range definition.Fields {
 			if f.Type == "media" || f.Type == "image-key" {
 				text, _ := at(value, f.Path).(string)

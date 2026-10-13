@@ -2,12 +2,12 @@
 import { useContent } from "../content/useContent";
 withDefaults(
   defineProps<{
-    items: { name: string; price: string; review?: boolean }[];
+    items: { name: string; price: string; display_price?: Record<string,string>; review?: boolean }[];
     language?: string;
   }>(),
   { language: "lv" },
 );
-const { t } = useContent();
+const { t,locale } = useContent();
 const price = (value: string) =>
   value
     .split("/")
@@ -25,7 +25,7 @@ const price = (value: string) =>
     <div v-for="item in items" :key="item.name">
       <dt>{{ item.name }}</dt>
       <dd :class="{ 'price-review': item.review }">
-        {{ item.review ? t("ui.verify") : price(item.price) }}
+        {{ item.review ? t("ui.verify") : item.display_price?.[locale] || price(item.price) }}
       </dd>
     </div>
   </dl>

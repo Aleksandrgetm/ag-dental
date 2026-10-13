@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"github.com/Aleksandrgetm/Dental/internal/auth"
 	"github.com/gin-gonic/gin"
 	"io"
@@ -21,6 +22,11 @@ var uuid = regexp.MustCompile(`^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-
 
 func failure(c *gin.Context, e error) {
 	code, message := SafeError(e)
+	var field *FieldError
+	if errors.As(e, &field) {
+		c.JSON(422, gin.H{"error": "invalid_content", "field": field.Field})
+		return
+	}
 	c.JSON(code, gin.H{"error": message})
 }
 func Register(r *gin.Engine, s *Store, v auth.Verifier, roles auth.Roles) {
@@ -53,6 +59,68 @@ func Register(r *gin.Engine, s *Store, v auth.Verifier, roles auth.Roles) {
 		c.Data(200, "application/json; charset=utf-8", body)
 	})
 	admin := r.Group("/api/admin/cms", auth.RequireAuth(v, roles), auth.RequireRole("admin"))
+	admin.GET("/catalog", func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store")
+		d, v, e := s.Catalog(c.Request.Context())
+		if e != nil {
+			c.JSON(503, gin.H{"error": "catalog_unavailable"})
+			return
+		}
+		c.JSON(200, gin.H{"version": d.Version, "catalog": v})
+	})
+	admin.POST("/catalog", func(c *gin.Context) {
+		var req struct {
+			Version int64           `json:"expected_version"`
+			Catalog json.RawMessage `json:"catalog"`
+		}
+		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 2*1024*1024)
+		decoder := json.NewDecoder(c.Request.Body)
+		decoder.DisallowUnknownFields()
+		if decoder.Decode(&req) != nil || decoder.Decode(new(any)) != io.EOF {
+			failure(c, ErrInvalid)
+			return
+		}
+		who, _ := auth.Current(c)
+		row, e := s.SaveCatalog(c.Request.Context(), who.ID, req.Version, req.Catalog)
+		if e != nil {
+			failure(c, e)
+			return
+		}
+		c.JSON(200, row)
+	})
+
+	admin.Use(func(c *gin.Context) { c.Header("Cache-Control", "no-store"); c.Next() })
+	admin.GET("/documents/archived-news", func(c *gin.Context) {
+		rows, e := s.ArchivedNews(c.Request.Context())
+		if e != nil {
+			failure(c, e)
+			return
+		}
+		c.JSON(200, gin.H{"documents": rows})
+	})
+	for _, action := range []string{"archive", "restore-archive"} {
+		action := action
+		admin.POST("/documents/:key/"+action, func(c *gin.Context) {
+			var req struct {
+				Version int64 `json:"expected_version"`
+			}
+			c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 1024)
+			dec := json.NewDecoder(c.Request.Body)
+			dec.DisallowUnknownFields()
+			var extra any
+			if dec.Decode(&req) != nil || dec.Decode(&extra) != io.EOF {
+				failure(c, ErrInvalid)
+				return
+			}
+			who, _ := auth.Current(c)
+			row, e := s.ArchiveNews(c.Request.Context(), c.Param("key"), who.ID, req.Version, action == "restore-archive")
+			if e != nil {
+				failure(c, e)
+				return
+			}
+			c.JSON(200, row)
+		})
+	}
 	admin.POST("/documents", func(c *gin.Context) {
 		var req struct {
 			Key     string          `json:"key"`
@@ -73,6 +141,24 @@ func Register(r *gin.Engine, s *Store, v auth.Verifier, roles auth.Roles) {
 			return
 		}
 		c.JSON(201, result)
+	})
+	admin.POST("/documents/:key/save-publish", func(c *gin.Context) {
+		var req changeRequest
+		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 600*1024)
+		decoder := json.NewDecoder(c.Request.Body)
+		decoder.DisallowUnknownFields()
+		var extra any
+		if decoder.Decode(&req) != nil || decoder.Decode(&extra) != io.EOF || req.Version < 0 || req.Revision != "" {
+			failure(c, ErrInvalid)
+			return
+		}
+		who, _ := auth.Current(c)
+		result, e := s.PublishNews(c.Request.Context(), c.Param("key"), who.ID, req.Version, req.Payload)
+		if e != nil {
+			failure(c, e)
+			return
+		}
+		c.JSON(200, result)
 	})
 	admin.GET("/documents", func(c *gin.Context) {
 		rows, e := s.List(c.Request.Context())

@@ -2,8 +2,8 @@
 import {watch,nextTick} from 'vue';
 import {useRoute,useRouter} from 'vue-router';
 import {useI18n} from 'vue-i18n';
-import {cmsSEO,createdContent,clinic,articles,localizeArticle,media} from '../../services/cms/content';
-import {canonicalURL,locales,publicPaths,resolveSEO,SITE_ORIGIN} from '../../services/seo';
+import {cmsSEO,createdContent,services,serviceCatalog,clinic,articles,localizeArticle,media} from '../../services/cms/content';
+import {canonicalURL,locales,publicPaths,resolveSEO,resolveServiceSEO,SITE_ORIGIN} from '../../services/seo';
 import {createdPath} from '../../services/cms/created';
 const route=useRoute(),router=useRouter(),{locale}=useI18n();
 const privatePath=()=>/^\/(admin|login|register|forgot-password|reset-password|pieraksts)(\/|$)/.test(route.path);
@@ -12,9 +12,10 @@ watch(locale,async lang=>{await router.isReady();if(privatePath())return;const q
 function meta(name:string,value:string,property=false){const attribute=property?'property':'name';let element=document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${name}"]`);if(!element){element=document.createElement('meta');element.setAttribute(attribute,name);document.head.append(element)}element.content=value}
 watch(()=>[route.fullPath,locale.value,cmsSEO[route.path]?.[locale.value],createdContent.value],async()=>{
  await nextTick();const language=locale.value,entry=createdContent.value.find(r=>createdPath(r.key,r.payload.slug)===route.path);
+ const service=services.find(s=>'/pakalpojumi/'+s.slug===route.path);
  const article=articles.find(a=>'/jaunumi/'+a.slug===route.path);
- const indexable=!privatePath()&&(publicPaths.includes(route.path)||!!entry)&&!('preview' in route.query);
- const content=entry?{title:entry.payload.seo_title[language as 'lv'],description:entry.payload.seo_description[language as 'lv']}:resolveSEO(route.path,language,cmsSEO[route.path]?.[language]);
+ const indexable=!privatePath()&&(publicPaths.includes(route.path)||!!entry||!!service)&&(!route.path.startsWith('/jaunumi/')||!!article||!!entry)&&(!serviceCatalog.value||!route.path.startsWith('/pakalpojumi/')||!!service)&&!('preview' in route.query);
+ const content=service?resolveServiceSEO(route.path,language,serviceCatalog.value?.services.find(s=>s.slug===service.slug)||service,cmsSEO[route.path]?.[language]):entry?{title:entry.payload.seo_title[language as 'lv'],description:entry.payload.seo_description[language as 'lv']}:resolveSEO(route.path,language,cmsSEO[route.path]?.[language]);
  document.documentElement.lang=language;
  if(content){document.title=content.title;meta('description',content.description);meta('og:title',content.title,true);meta('og:description',content.description,true)}
  meta('robots',indexable?'index, follow':'noindex, nofollow');

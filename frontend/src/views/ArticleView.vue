@@ -1,125 +1,59 @@
 <script setup lang="ts">
-import { cmsMediaAlt, cmsMediaSrcset } from "../services/cms/content";
-import { cmsLiteral } from "../services/cms/content";
-import { computed, ref, watchEffect } from "vue";
-import { useRoute } from "vue-router";
-import { localizeArticle } from "../services/cms/content";
-import { articles as baselineArticles } from "../content/articles";
-import { articles } from "../services/cms/content";
-import { media } from "../services/cms/content";
-import { useContent } from "../content/useContent";
-import ArticleProgress from "../components/common/ArticleProgress.vue";
-import ContactBand from "../components/ContactBand.vue";
-import NotFoundView from "./NotFoundView.vue";
-const route = useRoute(),
-  { t, date, locale } = useContent();
-const portrait = computed(
-  () =>
-    baselineArticles.find((a) => a.slug === route.params.slug)?.image ===
-    "doctor",
-);
-const reading = ref<HTMLElement>();
-const articleIndex = computed(() =>
-  articles.findIndex((a) => a.slug === route.params.slug),
-);
-const article = computed(() => {
-  const source = articles[articleIndex.value];
-  return source ? localizeArticle(source, locale.value) : undefined;
+import {computed,ref,onMounted} from 'vue';
+import {useRoute} from 'vue-router';
+import {articles,localizeArticle,createdContent,refreshPublished,media,cmsMediaAlt,cmsMediaSrcset,cmsLiteral} from '../services/cms/content';
+import {importedArticle,createdArticle,type ArticleLocale} from '../services/cms/article';
+import {cmsMediaDimensions} from '../services/cms/publishedMedia';
+import {useContent} from '../content/useContent';
+import ArticleProgress from '../components/common/ArticleProgress.vue';
+import ContactBand from '../components/ContactBand.vue';
+import NotFoundView from './NotFoundView.vue';
+const route=useRoute(),{t,date,locale}=useContent(),reading=ref<HTMLElement>(),loaded=ref(false);
+const articleIndex=computed(()=>articles.findIndex(a=>a.slug===route.params.slug));
+const article=computed(()=>{
+ const legacy=articles[articleIndex.value];
+ if(legacy)return importedArticle(localizeArticle(legacy,locale.value));
+ const created=createdContent.value.find(r=>r.key.startsWith('created.news.')&&r.payload.slug===route.params.slug);
+ return created?createdArticle(created.payload,locale.value as ArticleLocale):undefined;
 });
-// Lift this real closing paragraph into a quote, once, in each existing language.
-// Other articles keep their original paragraph sequence with no invented quote.
-const quoteIndex = computed(() =>
-  article.value?.slug === "zobu-higiena-kas-pieejama-ikvienam"
-    ? article.value.paragraphs.length - 1
-    : -1,
-);
-const body = computed(
-  () =>
-    article.value?.paragraphs
-      .map((text, index) => ({ text, index }))
-      .filter((p) => p.index > 0 && p.index !== quoteIndex.value) || [],
-);
-watchEffect(() => {
-  if (article.value)
-    document.title = article.value.title + " · AG Zobārstniecība";
-});
+const image=computed(()=>article.value?(media as Record<string,string>)[article.value.image]:undefined);
+const dimensions=computed(()=>cmsMediaDimensions(image.value||''));
+const portrait=computed(()=>article.value?.image==='doctor');
+onMounted(async()=>{await refreshPublished();loaded.value=true});
 </script>
 <template>
-  <template v-if="article">
-    <article class="article-editorial" :lang="locale">
-      <div class="container article-shell">
-        <div class="article-masthead">
-          <RouterLink class="eyebrow breadcrumb" to="/jaunumi"
-            >← {{ t("nav.news") }}</RouterLink
-          >
-          <div class="article-meta">
-            <time :datetime="article.date">{{ date(article.date) }}</time>
-            <span>{{ article.category }}</span>
-          </div>
-        </div>
-        <div ref="reading" class="article-reading">
-          <header class="article-head">
-            <h1 data-reveal>{{ article.title }}</h1>
-            <p class="article-lead">{{ article.paragraphs[0] }}</p>
-          </header>
-          <figure class="article-photograph" :class="{ portrait: portrait }">
-            <div class="article-image-frame" data-reveal="image">
-              <img
-                :src="media[article.image as keyof typeof media]"
-                :srcset="
-                  cmsMediaSrcset(media[article.image as keyof typeof media])
-                "
-                sizes="(max-width: 768px) 100vw, 60vw"
-                :alt="
-                  cmsMediaAlt(
-                    media[article.image as keyof typeof media],
-                    locale,
-                    portrait ? 'Dr. Anda Gutovska' : 'AG Zobārstniecība',
-                  )
-                "
-                :width="portrait ? 840 : 526"
-                :height="portrait ? 1120 : 526"
-              />
-            </div>
-            <figcaption>
-              {{ portrait ? "Dr. Anda Gutovska" : "AG Zobārstniecība" }}
-            </figcaption>
-          </figure>
-          <div
-            class="article-reading-grid"
-            :class="{ 'is-brief': !body.length && quoteIndex < 0 }"
-          >
-            <aside class="article-margin">
-              <p class="eyebrow">
-                {{ String(articleIndex + 1).padStart(2, "0") }} /
-                {{ t("nav.news") }}
-              </p>
-              <p class="article-margin-category">{{ article.category }}</p>
-              <a
-                class="text-link article-source"
-                :href="`https://www.zobarstnieciba-ag.lv/jaunumi/params/post/${article.source}`"
-                target="_blank"
-                rel="noopener noreferrer"
-                >{{ t("ui.source") }}</a
-              >
-            </aside>
-            <div v-if="body.length" class="article-prose">
-              <p v-for="paragraph in body" :key="paragraph.index">
-                {{ paragraph.text }}
-              </p>
-            </div>
-            <blockquote v-if="quoteIndex >= 0" class="article-pull-quote">
-              <p>{{ article.paragraphs[quoteIndex] }}</p>
-              <cite>{{ cmsLiteral("literal.cf6ad05d.0") }}</cite>
-            </blockquote>
-          </div>
-        </div>
-      </div>
-      <ArticleProgress v-if="reading" :target="reading" />
-    </article>
-    <ContactBand />
-  </template>
-  <NotFoundView v-else />
+ <template v-if="article">
+  <article class="article-editorial" :lang="locale">
+   <div class="container article-shell">
+    <div class="article-masthead">
+     <RouterLink class="eyebrow breadcrumb" to="/jaunumi">← {{t('nav.news')}}</RouterLink>
+     <div class="article-meta"><time :datetime="article.date">{{date(article.date)}}</time><span v-if="article.category">{{article.category}}</span></div>
+    </div>
+    <div ref="reading" class="article-reading">
+     <header class="article-head" :class="{'without-lead':!article.introduction}">
+      <h1 data-reveal>{{article.title}}</h1><p v-if="article.introduction" class="article-lead">{{article.introduction}}</p>
+     </header>
+     <figure v-if="image" class="article-photograph" :class="{portrait}">
+      <div class="article-image-frame" data-reveal="image"><img :src="image" :srcset="cmsMediaSrcset(image)" sizes="(max-width: 700px) 100vw, 60vw" :alt="cmsMediaAlt(image,locale,article.caption||article.title)" :width="dimensions.width||(portrait?840:undefined)" :height="dimensions.height||(portrait?1120:undefined)" decoding="async" fetchpriority="high"/></div>
+      <figcaption v-if="article.caption">{{article.caption}}</figcaption>
+     </figure>
+     <div class="article-reading-grid" :class="{'is-brief':!article.body.length&&!article.quote}">
+      <aside class="article-margin">
+       <p class="eyebrow"><template v-if="articleIndex>=0">{{String(articleIndex+1).padStart(2,'0')}} / </template>{{t('nav.news')}}</p>
+       <p v-if="article.category" class="article-margin-category">{{article.category}}</p>
+       <p v-if="article.author&&!image" class="article-margin-category">{{article.author}}</p>
+       <a v-if="article.source" class="text-link article-source" :href="`https://www.zobarstnieciba-ag.lv/jaunumi/params/post/${article.source}`" target="_blank" rel="noopener noreferrer">{{t('ui.source')}}</a>
+      </aside>
+      <div v-if="article.body.length" class="article-prose"><p v-for="(paragraph,index) in article.body" :key="index">{{paragraph}}</p></div>
+      <blockquote v-if="article.quote" class="article-pull-quote"><p>{{article.quote}}</p><cite>{{cmsLiteral('literal.cf6ad05d.0')}}</cite></blockquote>
+     </div>
+    </div>
+   </div>
+   <ArticleProgress v-if="reading" :target="reading"/>
+  </article>
+  <ContactBand/>
+ </template>
+ <NotFoundView v-else-if="loaded"/>
 </template>
 
 <style scoped>
@@ -142,6 +76,7 @@ watchEffect(() => {
   text-transform: uppercase;
   color: var(--editorial-caption);
 }
+.article-head.without-lead { grid-template-columns: minmax(0, 1fr); }
 .article-head {
   display: grid;
   grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
@@ -179,7 +114,7 @@ watchEffect(() => {
 .article-photograph img {
   width: 100%;
   height: auto;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center 62%;
 }
 .article-photograph.portrait .article-image-frame {
@@ -231,6 +166,8 @@ watchEffect(() => {
   min-width: 0;
 }
 .article-prose p {
+  white-space: pre-line;
+  overflow-wrap: anywhere;
   font-size: 18px;
   line-height: 1.85;
 }

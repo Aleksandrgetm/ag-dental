@@ -188,7 +188,8 @@ function choose(files: FileList | null) {
   if (uploading.value || !files?.length) return;
   error.value = "";
   notice.value = "";
-  if (files.length !== 1 || checkFile(files[0]!)) {
+  if (files.length !== 1 || checkFile(files[0]!, props.picker)) {
+    resetFile();
     error.value = "invalid_file";
     return;
   }

@@ -2,7 +2,7 @@ import { reactive } from "vue";
 import { API_URL } from "../api";
 import { publicMediaURL } from "./mediaReference";
 export const publishedMedia = reactive<
-  Record<string, { alt: Record<string, string>; srcset: string }>
+  Record<string, { alt: Record<string, string>; srcset: string; width?:number; height?:number }>
 >({});
 export function acceptMediaMetadata(rows: any[]) {
   for (const row of rows) {
@@ -24,7 +24,8 @@ export function acceptMediaMetadata(rows: any[]) {
       })
       .map((v: any) => `${publicMediaURL(API_URL, ref, v.name)} ${v.width}w`)
       .join(", ");
-    publishedMedia[ref] = publishedMedia[url] = { alt: row.alt || {}, srcset };
+    const dimensions=(row.variants||[]).find((v:any)=>v.name==='display.webp'&&Number.isSafeInteger(v.width)&&v.width>0&&Number.isSafeInteger(v.height)&&v.height>0);
+    publishedMedia[ref] = publishedMedia[url] = { alt: row.alt || {}, srcset, width:dimensions?.width, height:dimensions?.height };
   }
 }
 export function cmsMediaAlt(value: string, locale: string, fallback: string) {
@@ -33,3 +34,5 @@ export function cmsMediaAlt(value: string, locale: string, fallback: string) {
 export function cmsMediaSrcset(value: string) {
   return publishedMedia[value]?.srcset || undefined;
 }
+
+export function cmsMediaDimensions(value:string) { return {width:publishedMedia[value]?.width,height:publishedMedia[value]?.height}; }

@@ -97,7 +97,7 @@ type roles struct {
 func (r roles) Lookup(context.Context, string) (string, error) { return r.role, r.err }
 func TestCMSAuthorization(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	for _, endpoint := range []struct{ method, path string }{{"POST", "/api/admin/cms/documents"}, {"POST", "/api/admin/cms/documents/created.page.11111111-1111-4111-8111-111111111111/unpublish"}, {"GET", "/api/admin/cms/documents"}, {"GET", "/api/admin/cms/documents/clinic.about"}, {"PUT", "/api/admin/cms/documents/clinic.about/draft"}, {"POST", "/api/admin/cms/documents/clinic.about/publish"}, {"POST", "/api/admin/cms/documents/clinic.about/rollback"}} {
+	for _, endpoint := range []struct{ method, path string }{{"POST", "/api/admin/cms/documents/news.zobu-higiena/archive"}, {"POST", "/api/admin/cms/documents/news.zobu-higiena/restore-archive"}, {"GET", "/api/admin/cms/documents/archived-news"}, {"POST", "/api/admin/cms/documents/created.news.11111111-1111-4111-8111-111111111111/save-publish"}, {"POST", "/api/admin/cms/documents"}, {"POST", "/api/admin/cms/documents/created.page.11111111-1111-4111-8111-111111111111/unpublish"}, {"GET", "/api/admin/cms/documents"}, {"GET", "/api/admin/cms/documents/clinic.about"}, {"PUT", "/api/admin/cms/documents/clinic.about/draft"}, {"POST", "/api/admin/cms/documents/clinic.about/publish"}, {"POST", "/api/admin/cms/documents/clinic.about/rollback"}} {
 		for _, tc := range []struct {
 			name, token, role string
 			err               error

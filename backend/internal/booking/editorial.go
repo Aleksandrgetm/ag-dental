@@ -17,8 +17,9 @@ type ServiceAssignment struct {
 }
 type ServiceOperationInput struct {
 	ServiceInput
-	EditorialKey string              `json:"editorial_key"`
-	Assignments  []ServiceAssignment `json:"assignments"`
+	DurationApproved bool                `json:"duration_approved"`
+	EditorialKey     string              `json:"editorial_key"`
+	Assignments      []ServiceAssignment `json:"assignments"`
 }
 
 // Prices have one owner: the published editorial service. Drafts never change
@@ -55,7 +56,56 @@ func editorialPrice(tx *gorm.DB, key string) (*string, error) {
 }
 
 func (s *Store) saveServiceOperation(ctx context.Context, id string, input ServiceOperationInput) (Service, error) {
+	owned, managed, e := cms.CatalogServiceByBooking(s.DB, id)
+	if e != nil {
+		return Service{}, e
+	}
 	price, e := editorialPrice(s.DB, input.EditorialKey)
+	if managed {
+		var source struct{ DocumentKey string }
+		if e := s.DB.Table("cms_booking_service_links").Select("document_key").Where("service_id=?", id).Scan(&source).Error; e != nil {
+			return Service{}, e
+		}
+		input.EditorialKey = source.DocumentKey
+		price, _, e = cms.CatalogBookingPrice(s.DB, id)
+		if owned.Archived || !owned.Published {
+			return Service{}, ErrInvalid
+		}
+		input.NameLV = owned.Title.LV
+		input.NameRU = owned.Title.RU
+		input.NameEN = owned.Title.EN
+		input.DescriptionLV = &owned.Text.LV
+		input.DescriptionRU = &owned.Text.RU
+		input.DescriptionEN = &owned.Text.EN
+
+		var previous Service
+		if e := s.DB.Where("id=?", id).Take(&previous).Error; e != nil {
+			return Service{}, e
+		}
+		changed := input.DurationMinutes != nil && (previous.DurationMinutes == nil || *input.DurationMinutes != *previous.DurationMinutes)
+		if (changed || input.BookingEnabled && !previous.BookingEnabled) && !input.DurationApproved {
+			return Service{}, ErrInvalid
+		}
+		if input.BookingEnabled {
+			if input.DurationMinutes == nil {
+				return Service{}, ErrInvalid
+			}
+			ready := false
+			for _, a := range input.Assignments {
+				if !a.BookingEnabled {
+					continue
+				}
+				var schedule bool
+				if e := s.DB.Raw(`SELECT EXISTS(SELECT 1 FROM doctor_schedules h JOIN doctors d ON d.id=h.doctor_id WHERE d.id=? AND d.active AND h.active AND (h.effective_until IS NULL OR h.effective_until>=CURRENT_DATE) AND extract(epoch FROM(h.end_time-h.start_time))/60>=?) AND EXISTS(SELECT 1 FROM booking_settings WHERE id=1 AND privacy_notice_version IS NOT NULL AND privacy_notice_version<>'')`, a.DoctorID, *input.DurationMinutes).Scan(&schedule).Error; e != nil {
+					return Service{}, e
+				}
+				ready = ready || schedule
+			}
+			if !ready {
+				return Service{}, ErrNotConfigured
+			}
+		}
+	}
 	if e != nil {
 		return Service{}, e
 	}
@@ -128,6 +178,31 @@ func servicePrices(tx *gorm.DB, rows []Service) error {
 		byID[link.ServiceID] = p
 	}
 	for i := range rows {
+		if price, owned, e := cms.CatalogBookingPrice(tx, rows[i].ID); e != nil {
+			return e
+		} else if owned {
+			if owned, ok, e := cms.CatalogServiceByBooking(tx, rows[i].ID); e != nil {
+				return e
+			} else if ok {
+				rows[i].NameLV = owned.Title.LV
+				rows[i].NameRU = owned.Title.RU
+				rows[i].NameEN = owned.Title.EN
+				rows[i].DescriptionLV = &owned.Text.LV
+				rows[i].DescriptionRU = &owned.Text.RU
+				rows[i].DescriptionEN = &owned.Text.EN
+			}
+			rows[i].PriceDisplayLV = price
+			rows[i].PriceDisplayRU = price
+			rows[i].PriceDisplayEN = price
+			if labels, _, e := cms.CatalogBookingLabels(tx, rows[i].ID); e != nil {
+				return e
+			} else if labels.LV != "" {
+				rows[i].PriceDisplayLV = &labels.LV
+				rows[i].PriceDisplayRU = &labels.RU
+				rows[i].PriceDisplayEN = &labels.EN
+			}
+			continue
+		}
 		if p, ok := byID[rows[i].ID]; ok {
 			rows[i].PriceDisplayLV = p
 			rows[i].PriceDisplayRU = p

@@ -3,7 +3,7 @@ import { cmsMediaSrcset } from "../services/cms/content";
 import { services, media } from "../services/cms/content";
 import { useContent } from "../content/useContent";
 import ContactBand from "../components/ContactBand.vue";
-const { t, local } = useContent();
+const { t, local, locale } = useContent();
 </script>
 <template>
   <header class="page-head container">
@@ -13,7 +13,7 @@ const { t, local } = useContent();
     <RouterLink
       v-for="(s, i) in services"
       :key="s.slug"
-      :to="`/pakalpojumi/${s.slug}`"
+      :to="{path:`/pakalpojumi/${s.slug}`,query:locale==='lv'?{}:{lang:locale}}"
       class="service-row"
       ><span class="service-number">0{{ i + 1 }}</span>
       <div>
@@ -24,6 +24,7 @@ const { t, local } = useContent();
       </div>
       <span class="service-row-image"
         ><img
+        v-if="s.image"
           :src="media[s.image as keyof typeof media]"
           :srcset="cmsMediaSrcset(media[s.image as keyof typeof media])"
           sizes="(max-width: 768px) 100vw, 60vw"

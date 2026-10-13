@@ -26,15 +26,17 @@ type LocalText struct {
 	EN string `json:"en"`
 }
 type CreatedContent struct {
-	Slug           string    `json:"slug"`
-	Date           string    `json:"date"`
-	Title          LocalText `json:"title"`
-	Summary        LocalText `json:"summary"`
-	Body           LocalText `json:"body"`
-	SEOTitle       LocalText `json:"seo_title"`
-	SEODescription LocalText `json:"seo_description"`
-	Image          string    `json:"image"`
-	Order          int       `json:"order"`
+	Slug           string     `json:"slug"`
+	Date           string     `json:"date"`
+	Title          LocalText  `json:"title"`
+	Summary        LocalText  `json:"summary"`
+	Body           LocalText  `json:"body"`
+	SEOTitle       LocalText  `json:"seo_title"`
+	SEODescription LocalText  `json:"seo_description"`
+	Image          string     `json:"image"`
+	Order          int        `json:"order"`
+	Category       *LocalText `json:"category,omitempty"`
+	Author         *LocalText `json:"author,omitempty"`
 }
 
 func createdDefinition(key string) (Definition, bool) {
@@ -63,15 +65,50 @@ func validateCreated(raw json.RawMessage) error {
 		return ErrInvalid
 	}
 	if _, e := time.Parse("2006-01-02", v.Date); e != nil {
-		return ErrInvalid
+		return invalidField("date")
 	}
 	for _, field := range []struct {
-		v   LocalText
-		max int
-	}{{v.Title, 200}, {v.Summary, 1000}, {v.Body, 20000}, {v.SEOTitle, 200}, {v.SEODescription, 500}} {
-		for _, s := range []string{field.v.LV, field.v.RU, field.v.EN} {
+		v    LocalText
+		max  int
+		name string
+	}{{v.Title, 200, "title"}, {v.Body, 20000, "body"}, {v.SEOTitle, 200, "seo_title"}, {v.SEODescription, 500, "seo_description"}} {
+		for i, s := range []string{field.v.LV, field.v.RU, field.v.EN} {
 			if strings.TrimSpace(s) == "" || len(s) > field.max || markup.MatchString(s) {
+				return invalidField(field.name + "." + []string{"lv", "ru", "en"}[i])
+			}
+		}
+	}
+	// Keep optional localized metadata shape compatible with public delivery.
+	var fields map[string]json.RawMessage
+	if json.Unmarshal(raw, &fields) != nil {
+		return ErrInvalid
+	}
+	for _, key := range []string{"summary", "category", "author"} {
+		value, exists := fields[key]
+		if !exists && key != "summary" {
+			continue
+		}
+		var localized map[string]string
+		if json.Unmarshal(value, &localized) != nil || len(localized) != 3 {
+			return ErrInvalid
+		}
+		for _, lang := range []string{"lv", "ru", "en"} {
+			if _, ok := localized[lang]; !ok {
 				return ErrInvalid
+			}
+		}
+	}
+	// Introduction and attribution are optional; never fabricate missing translations.
+	for _, field := range []struct {
+		v    *LocalText
+		max  int
+		name string
+	}{{&v.Summary, 1000, "summary"}, {v.Category, 200, "category"}, {v.Author, 200, "author"}} {
+		if field.v != nil {
+			for i, s := range []string{field.v.LV, field.v.RU, field.v.EN} {
+				if len(s) > field.max || markup.MatchString(s) {
+					return invalidField(field.name + "." + []string{"lv", "ru", "en"}[i])
+				}
 			}
 		}
 	}
@@ -83,7 +120,7 @@ func validateCreated(raw json.RawMessage) error {
 			}
 		}
 		if !valid {
-			return ErrInvalid
+			return invalidField("image")
 		}
 	}
 	return nil

@@ -1,3 +1,5 @@
+import {catalogMessages} from "./i18n/catalog";
+import { newsAdminMessages } from "./i18n/newsAdmin";
 import { createApp } from "vue";
 import { createPinia } from "pinia";
 
@@ -28,6 +30,8 @@ const app = createApp(App);
 app.use(createPinia());
 for (const lang of ["lv", "ru", "en"] as const)
   i18n.global.mergeLocaleMessage(lang, {
+    newsAdmin: newsAdminMessages[lang],
+    catalog:catalogMessages[lang],
     auth: authMessages[lang],
     admin: adminMessages[lang],
     cms: cmsMessages[lang],

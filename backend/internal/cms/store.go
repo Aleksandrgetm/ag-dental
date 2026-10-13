@@ -5,11 +5,15 @@ import (
 	"encoding/json"
 	"errors"
 	"gorm.io/gorm"
+	"strings"
 	"time"
 )
 
 type Store struct{ DB *gorm.DB }
 type Document struct {
+	Archived          bool            `json:"archived"`
+	Image             string          `json:"image,omitempty"`
+	Date              string          `json:"date,omitempty"`
 	Title             json.RawMessage `json:"title,omitempty"`
 	Key               string          `json:"key"`
 	Version           int64           `json:"version"`
@@ -31,9 +35,30 @@ type Published struct {
 
 func (s *Store) Published(ctx context.Context) ([]Published, error) {
 	rows := []Published{}
-	e := s.DB.WithContext(ctx).Raw(`SELECT d.key,r.id revision,r.payload FROM public.cms_documents d JOIN public.cms_revisions r ON r.id=d.published_revision AND r.document_key=d.key ORDER BY d.key`).Scan(&rows).Error
+	e := s.DB.WithContext(ctx).Raw(`SELECT d.key,r.id revision,r.payload FROM public.cms_documents d JOIN public.cms_revisions r ON r.id=d.published_revision AND r.document_key=d.key WHERE to_jsonb(d)->>'archived_at' IS NULL ORDER BY d.key`).Scan(&rows).Error
+	unified := false
+	for _, row := range rows {
+		if row.Key == CatalogKey {
+			unified = true
+		}
+	}
 	visible := rows[:0]
 	for _, row := range rows {
+		if unified && (strings.HasPrefix(row.Key, "service.") || strings.HasPrefix(row.Key, "prices.")) {
+			continue
+		}
+		if row.Key == CatalogKey {
+			var v Catalog
+			json.Unmarshal(row.Payload, &v)
+			live := []CatalogService{}
+			for _, x := range v.Services {
+				if x.Published && !x.Archived {
+					live = append(live, x)
+				}
+			}
+			v.Services = live
+			row.Payload, _ = json.Marshal(v)
+		}
 		if AdminVisible(row.Key) {
 			visible = append(visible, row)
 		}
@@ -57,7 +82,7 @@ func (s *Store) WithdrawnNews(ctx context.Context) ([]string, error) {
 }
 func (s *Store) List(ctx context.Context) ([]Document, error) {
 	rows := []Document{}
-	e := s.DB.WithContext(ctx).Raw(`SELECT d.key,d.version,d.draft_revision,d.published_revision,d.source_hash,r.payload->'title' AS title FROM public.cms_documents d LEFT JOIN public.cms_revisions r ON r.id=d.draft_revision ORDER BY d.key`).Scan(&rows).Error
+	e := s.DB.WithContext(ctx).Raw(`SELECT d.key,d.version,d.draft_revision,d.published_revision,d.source_hash,COALESCE(r.payload->'title',jsonb_build_object('lv',r.payload#>>'{lv,title}','ru',r.payload#>>'{ru,title}','en',r.payload#>>'{en,title}')) AS title, COALESCE(r.payload->>'image',r.payload#>>'{lv,image}') AS image, COALESCE(r.payload->>'date',r.payload#>>'{lv,date}') AS date FROM public.cms_documents d LEFT JOIN public.cms_revisions r ON r.id=d.draft_revision WHERE to_jsonb(d)->>'archived_at' IS NULL ORDER BY d.key`).Scan(&rows).Error
 	visible := rows[:0]
 	for _, row := range rows {
 		if AdminVisible(row.Key) {
@@ -72,7 +97,7 @@ func (s *Store) Detail(ctx context.Context, key string) (Document, []Revision, e
 		return d, nil, ErrMissing
 	}
 	db := s.DB.WithContext(ctx)
-	q := db.Raw(`SELECT key,version,draft_revision,published_revision,source_hash FROM public.cms_documents WHERE key=?`, key).Scan(&d)
+	q := db.Raw(`SELECT key,version,draft_revision,published_revision,source_hash,(to_jsonb(cms_documents)->>'archived_at' IS NOT NULL) archived FROM public.cms_documents WHERE key=?`, key).Scan(&d)
 	if q.Error != nil {
 		return d, nil, q.Error
 	}
@@ -84,6 +109,18 @@ func (s *Store) Detail(ctx context.Context, key string) (Document, []Revision, e
 	return d, history, e
 }
 func (s *Store) Change(ctx context.Context, key, actor, operation, revision string, version int64, payload json.RawMessage) (Document, error) {
+	if key == CatalogKey {
+		return Document{}, ErrProtected
+	}
+	if strings.HasPrefix(key, "service.") || strings.HasPrefix(key, "prices.") {
+		var count int64
+		if e := s.DB.WithContext(ctx).Table("cms_documents").Where("key=?", CatalogKey).Count(&count).Error; e != nil {
+			return Document{}, e
+		}
+		if count > 0 {
+			return Document{}, ErrProtected
+		}
+	}
 	var result Document
 	d, ok := DefinitionFor(key)
 	if !ok || d.Locked || d.SystemManaged {
@@ -98,12 +135,15 @@ func (s *Store) Change(ctx context.Context, key, actor, operation, revision stri
 		if e := cmsAdmin(tx, actor); e != nil {
 			return e
 		}
-		q := tx.Raw(`SELECT key,version,draft_revision,published_revision,source_hash FROM public.cms_documents WHERE key=? FOR UPDATE`, key).Scan(&result)
+		q := tx.Raw(`SELECT key,version,draft_revision,published_revision,source_hash,(to_jsonb(cms_documents)->>'archived_at' IS NOT NULL) archived FROM public.cms_documents WHERE key=? FOR UPDATE`, key).Scan(&result)
 		if q.Error != nil {
 			return q.Error
 		}
 		if q.RowsAffected == 0 {
 			return ErrMissing
+		}
+		if result.Archived {
+			return ErrConflict
 		}
 		if result.Version != version {
 			return ErrConflict
@@ -254,6 +294,8 @@ func (s *Store) Import(ctx context.Context, apply bool) (int, error) {
 }
 func SafeError(e error) (int, string) {
 	switch {
+	case errors.Is(e, ErrArchiveUnavailable):
+		return 503, "news_archive_unavailable"
 	case errors.Is(e, ErrInvalid):
 		return 422, "invalid_content"
 	case errors.Is(e, ErrConflict):

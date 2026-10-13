@@ -89,6 +89,8 @@ func TestCMSPostgres(t *testing.T) {
 	const actor = "11111111-1111-4111-8111-111111111111"
 	exec("INSERT INTO auth.users(id) VALUES (?::uuid)", actor)
 	exec("UPDATE public.user_roles SET role='admin' WHERE user_id=?::uuid", actor)
+	t.Run("unified_catalog", func(t *testing.T) { testUnifiedCatalog(t, db, actor) })
+	t.Run("atomic_news_publication", func(t *testing.T) { testNewsPublication(t, db, actor) })
 	t.Run("imported news withdrawal preserves revisions and can be restored", func(t *testing.T) {
 		key := ""
 		for _, definition := range Baseline.Documents {
