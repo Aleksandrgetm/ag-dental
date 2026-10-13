@@ -1,3 +1,6 @@
+import {validServiceCatalog,catalogPriceText,type ServiceCatalog} from "./serviceCatalog";
+import { createdKey, validCreated, type CreatedPayload } from "./created";
+import {validPricePayload} from "./priceRows";
 import { mediaID, publicMediaURL } from "./mediaReference";
 import { acceptMediaMetadata } from "./publishedMedia";
 export { cmsMediaAlt, cmsMediaSrcset } from "./publishedMedia";
@@ -38,6 +41,7 @@ export const { clinic, media, philosophy, about, doctorBio, services } =
   clinicState;
 export const refinement = reactive(copy(originalRefinement));
 export const localizedPrices = reactive(copy(originalPrices));
+const articleRecords = reactive(copy(originalArticles));
 export const articles = reactive(copy(originalArticles));
 const translations = reactive(
   originalArticles.map((a) =>
@@ -63,6 +67,8 @@ const literalState = reactive<Record<string, any>>({});
 export const cmsSEO = reactive<
   Record<string, Record<string, { title: string; description: string }>>
 >({});
+export const serviceCatalog=ref<ServiceCatalog|null>(null);
+export const createdContent = ref<{key:string;payload:CreatedPayload;revision:string}[]>([]);
 export const cmsState = ref<"fallback" | "published" | "stale">("fallback");
 const snapshots = new Map<string, Tree>();
 export function valueAt(v: Tree, path: string[]): Tree {
@@ -74,7 +80,8 @@ export function writeAt(v: Tree, path: string[], value: Tree) {
 }
 function patch(target: Tree, next: Tree) {
   for (const [key, value] of Object.entries(next)) {
-    if (value !== null && typeof value === "object") patch(target[key], value);
+    if (Array.isArray(value)) target[key] = copy(value);
+    else if (value !== null && typeof value === "object") patch(target[key], value);
     else target[key] = value;
   }
 }
@@ -136,20 +143,32 @@ export function cmsLiteral(key: string) {
 export function acceptPublished(response: unknown): boolean {
   const body = response as {
     schema_version?: number;
+    withdrawn_news?: string[];
     documents?: { key: string; payload: Tree; revision: string }[];
     media?: { id: string; alt: Record<string, string>; variants: any[] }[];
   };
   if (body?.schema_version !== 1 || !Array.isArray(body.documents))
     return false;
+  const withdrawn = body.withdrawn_news || [];
+  if (!Array.isArray(withdrawn) || withdrawn.some(key => !bindings.some(b => b.key === key && b.target === "articles"))) return false;
+  if (withdrawn.some(key => body.documents!.some(row => row.key === key))) return false;
+  let catalog:ServiceCatalog|null=null;
+  const created: {key:string;payload:CreatedPayload;revision:string}[] = [];
   const seen = new Set<string>();
   const updates: { binding: Binding; data: Tree }[] = [];
   for (const row of body.documents) {
     if (!row || typeof row.key !== "string" || seen.has(row.key)) return false;
     seen.add(row.key);
+    if(row.key==="catalog.services"){if(!validServiceCatalog(row.payload))return false;catalog=copy(row.payload);continue;}
+    if(createdKey.test(row.key)){if(!validCreated(row.payload))return false;created.push(copy(row));continue;}
     const binding = bindings.find((b) => b.key === row.key);
     if (!binding || !snapshots.has(row.key)) continue;
     const baseline = snapshots.get(row.key);
-    if (!sameShape(baseline, row.payload)) return false;
+    if(binding.target==="articles") {
+      for(const lang of ['lv','ru','en']) {const paragraphs=row.payload?.[lang]?.paragraphs;if(!Array.isArray(paragraphs)||(!paragraphs.length&&!row.payload[lang].introduction)||paragraphs.length>100||paragraphs.some((p:unknown)=>typeof p!=='string'||!p.trim()))return false;}
+    }
+    const shapeBaseline=binding.target==='articles'?Object.fromEntries(['lv','ru','en'].map(lang=>[lang,{...baseline[lang],paragraphs:row.payload[lang].paragraphs,...Object.fromEntries(['introduction','author'].filter(k=>Object.hasOwn(row.payload[lang],k)).map(k=>[k,'']))}])):baseline;
+    if (binding.target === "prices" ? !validPricePayload(baseline,row.payload) : !sameShape(shapeBaseline, row.payload)) return false;
     if (binding.locked && !equal(baseline, row.payload)) return false;
     for (const path of binding.locks)
       if (!equal(valueAt(baseline, path), valueAt(row.payload, path)))
@@ -157,7 +176,7 @@ export function acceptPublished(response: unknown): boolean {
     updates.push({ binding, data: row.payload });
   }
   const available = new Set((body.media || []).map((a) => "cms-media:" + a.id));
-  for (const { data } of updates) {
+  for (const { data } of [...updates,...created.map(row=>({data:row.payload}))]) {
     const refs =
       JSON.stringify(data).match(/cms-media:upload\.[a-f0-9]{32}/g) || [];
     if (
@@ -165,6 +184,7 @@ export function acceptPublished(response: unknown): boolean {
     )
       return false;
   }
+  createdContent.value=created;
   acceptMediaMetadata(body.media || []);
   const mapping = media as Record<string, string>;
   for (const ref of available) {
@@ -181,6 +201,7 @@ export function acceptPublished(response: unknown): boolean {
     )
       mapping[url] = url;
   for (const { binding: b, data } of updates) {
+    if(catalog&&(b.key.startsWith("service.")||b.key.startsWith("prices.")))continue;
     if (b.target === "messages") {
       for (const l of ["lv", "ru", "en"] as const)
         i18n.global.mergeLocaleMessage(l, {
@@ -199,10 +220,12 @@ export function acceptPublished(response: unknown): boolean {
               ]),
             )
           : data;
-      patch(valueAt(roots[b.target], b.path), rendered);
-      if (b.target === "articles") patch(articles[Number(b.path[0])], data.lv);
+      if(b.target==="prices"){const target=valueAt(roots[b.target],b.path);for(const key of Object.keys(target))delete target[key];Object.assign(target,copy(rendered));}else patch(valueAt(roots[b.target], b.path), rendered);
+      if (b.target === "articles") patch(articleRecords[Number(b.path[0])], data.lv);
     }
   }
+  const hiddenIndices = new Set(withdrawn.map(key => Number(bindings.find(b => b.key === key)!.path[0])));
+  articles.splice(0, articles.length, ...articleRecords.filter((_, index) => !hiddenIndices.has(index)));
   const hours = literalState["settings.hours"]?.text;
   if (seen.has("settings.hours") && hours) {
     for (const b of bindings.filter(
@@ -217,12 +240,18 @@ export function acceptPublished(response: unknown): boolean {
   for (const b of bindings.filter((b) => b.price_reference)) {
     const [category, item] = b.price_reference!;
     if (!seen.has(`prices.${category}`)) continue;
-    const amount = localizedPrices[category!]?.items[item!]?.price;
+    const priceRow = localizedPrices[category!]?.items[item!];
+    const amount = (priceRow as any)?.archived ? null : priceRow?.price;
     const service = services[Number(b.path[1])];
-    if (service && amount !== null && amount !== undefined)
-      service.price = String(amount).replace(/\.00(?=\/|$)/g, "");
+    if(service)service.price=amount==null?null:String(amount).replace(/\.00(?=\/|$)/g, "");
   }
-  if (updates.length) cmsState.value = "published";
+  if(catalog){
+    serviceCatalog.value=catalog;
+    localizedPrices.splice(0,localizedPrices.length,...catalog.categories.map(c=>({...c,items:c.items.map(p=>({...p,display_price:Object.fromEntries(['lv','ru','en'].map(l=>[l,catalogPriceText(p,l)]))}))})) as any);
+    services.splice(0,services.length,...catalog.services.filter(s=>s.published&&!s.archived).map(s=>({...s,category:catalog!.categories.findIndex(c=>c.id===s.category),price:catalog!.categories.flatMap(c=>c.items).find(p=>p.id===s.price_id&&!p.archived)?.price||null})) as any);
+    for(const s of catalog.services){if(mediaID(s.image)){const url=publicMediaURL(API_URL,s.image);if(url)mapping[s.image]=url}}
+  }
+  if (updates.length||catalog) cmsState.value = "published";
   return true;
 }
 function escapeMessages(v: Tree): Tree {
@@ -236,9 +265,9 @@ function escapeMessages(v: Tree): Tree {
 }
 let pending: Promise<void> | undefined,
   etag = "";
-export function refreshPublished() {
+export function refreshPublished(force = false): Promise<void> {
   if (!API_URL) return Promise.resolve();
-  if (pending) return pending;
+  if (pending) return force ? pending.then(() => refreshPublished()) : pending;
   pending = (async () => {
     try {
       const response = await fetch(`${API_URL}/cms/published`, {

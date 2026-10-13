@@ -38,6 +38,16 @@ onBeforeUnmount(() => dashboard.clear());
         </button></template
       ></AdminPageHeader
     >
+    <nav class="daily-actions" :aria-label="t('simple.tasks')">
+      <RouterLink to="/admin/appointments">{{t('simple.viewAppointments')}}</RouterLink>
+      <RouterLink to="/admin/appointments/new">{{t('operations.manual')}}</RouterLink>
+      <RouterLink to="/admin/schedules">{{t('simple.editHours')}}</RouterLink>
+      <RouterLink to="/admin/services">{{t('simple.changePrices')}}</RouterLink>
+      <RouterLink to="/admin/doctors/new">{{t('simple.addDoctor')}}</RouterLink>
+      <RouterLink to="/admin/pages">{{t('simple.editWebsite')}}</RouterLink>
+      <RouterLink to="/admin/news/new">{{t('simple.addNews')}}</RouterLink>
+      <RouterLink to="/admin/messages">{{t('simple.readMessages')}}</RouterLink>
+    </nav>
     <AdminLoadingState
       v-if="dashboard.loading"
       :label="t('admin.loadingData')"
@@ -197,6 +207,7 @@ onBeforeUnmount(() => dashboard.clear());
   </section>
 </template>
 <style scoped>
+.daily-actions{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:28px}.daily-actions a{padding:12px 16px;border:1px solid var(--line);text-decoration:underline;text-underline-offset:3px;min-height:44px}
 .admin-refresh {
   min-height: 44px;
   padding: 10px 18px;

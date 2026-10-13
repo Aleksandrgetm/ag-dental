@@ -21,15 +21,10 @@ const BASE = process.env.TEST_BASE_URL || "http://127.0.0.1:5196";
     await editable(f).waitFor();
   }
   try {
-    for (const width of [390, 1440]) {
+    for (const width of [320, 375, 390, 430, 768, 1024, 1440, 1920]) {
       const f = await createCMSFixture(browser, "en", width, errors);
       const p = f.page;
-      await p.goto(BASE + "/admin/doctors");
-      await p
-        .locator(".cms-card")
-        .filter({ hasText: "Dr. Anda Gutovska" })
-        .getByRole("button", { name: f.t.edit, exact: true })
-        .click();
+      await p.goto(BASE + doctor);
       await ready(f, "clinic.doctorBio");
       assert.equal(new URL(p.url()).pathname, doctor);
       checks++;
@@ -156,11 +151,11 @@ const BASE = process.env.TEST_BASE_URL || "http://127.0.0.1:5196";
       );
       checks++;
       await p.getByRole("button", { name: f.t.back, exact: true }).click();
-      await p.locator(".cms-search:visible").waitFor();
+      await p.locator("input[type=search]:visible").waitFor();
       await p.goBack();
       await ready(f, "clinic.doctorBio");
       await p.goForward();
-      await p.locator(".cms-search:visible").waitFor();
+      await p.locator("input[type=search]:visible").waitFor();
       checks++;
       // Back from a different admin module returns to the exact editor URL.
       await p.goBack();
@@ -170,12 +165,14 @@ const BASE = process.env.TEST_BASE_URL || "http://127.0.0.1:5196";
         .locator(width < 1100 ? ".admin-drawer" : ".admin-sidebar")
         .getByRole("link", { name: "News", exact: true })
         .click();
-      await p.locator(".cms-search:visible").waitFor();
+      await p.locator("input[type=search]:visible").waitFor();
       if (width < 1100) await p.locator(".admin-menu-button").click();
       await p
         .locator(width < 1100 ? ".admin-drawer" : ".admin-sidebar")
-        .locator('a[href="' + doctor + '"]')
+        .locator('a[href="/admin/doctors"]')
         .click();
+      await p.locator('.doctor-card').waitFor();
+      await p.goto(BASE + doctor); // Legacy deep link remains supported.
       await ready(f, "clinic.doctorBio");
       checks++;
       // Unavailable identity check hides/inerts the editor without discarding content; verified retry restores it.
@@ -285,8 +282,8 @@ const BASE = process.env.TEST_BASE_URL || "http://127.0.0.1:5196";
     await q.evaluate(() => window.dispatchEvent(new Event("focus")));
     await q.locator('.admin-access a[href^="/login?"]').waitFor();
     assert.equal(await q.locator(".cms-editor").count(), 0);
-    g.state.identityStatus = 200;
     await q.locator('.admin-access a[href^="/login?"]').click();
+    g.state.identityStatus = 200;
     await login();
     assert.notEqual(
       await editable(g).inputValue(),

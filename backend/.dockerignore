@@ -1,0 +1,12 @@
+.env
+.env.*
+.tls
+.git
+*.dump
+*.backup
+*.sql.gz
+coverage*
+migrations
+storage
+scripts
+**/*_test.go

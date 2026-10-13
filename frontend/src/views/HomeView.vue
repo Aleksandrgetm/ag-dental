@@ -197,7 +197,7 @@ const preview = services.filter((s) =>
         <p v-if="locale !== 'lv'" class="source-note">
           {{ t("ui.sourceLanguage") }}
         </p>
-        <div class="journal-home">
+        <div v-if="articles.length" class="journal-home">
           <RouterLink
             :to="`/jaunumi/${articles[0]!.slug}`"
             class="journal-feature"

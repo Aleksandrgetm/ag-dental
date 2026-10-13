@@ -49,6 +49,8 @@ const keepEditor = computed(
     editorGrant.value.userID === auth.user?.id &&
     [
       "services",
+      "appointments",
+      "schedules",
       "doctors",
       "pages",
       "news",
@@ -65,7 +67,7 @@ const checking = computed(
 );
 async function check() {
   const previousFocus = document.activeElement as HTMLElement | null;
-  ready.value = false;
+  if (!auth.verifiedAdmin) ready.value = false;
   const current = ++attempt;
   await auth.initialize();
   if (!alive || current !== attempt) return;
@@ -88,6 +90,8 @@ async function check() {
       ready.value &&
       [
         "services",
+      "appointments",
+      "schedules",
         "doctors",
         "pages",
         "news",
@@ -139,12 +143,12 @@ onBeforeUnmount(() => {
 <template>
   <AdminLayout
     v-if="(auth.verifiedAdmin && ready) || keepEditor"
-    v-show="auth.verifiedAdmin && ready"
+    v-show="(auth.verifiedAdmin && ready) || (keepEditor && checking)"
     :inert="!(auth.verifiedAdmin && ready)"
     ><RouterView
   /></AdminLayout>
   <main
-    v-if="!auth.verifiedAdmin || !ready"
+    v-if="(!auth.verifiedAdmin || !ready) && !(keepEditor && checking)"
     id="admin-main"
     class="admin-access"
     tabindex="-1"

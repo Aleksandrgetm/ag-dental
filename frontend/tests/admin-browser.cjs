@@ -136,6 +136,7 @@ const session = {
           status: 503,
           json: { error: "media_unavailable" },
         });
+      if(path === "/api/admin/cms/documents/clinic.media")return route.fulfill({json:{document:{published_revision:"synthetic"},revisions:[{id:"synthetic",payload:{}}]}});
       if (path === "/api/admin/cms/documents")
         return route.fulfill({ json: { documents: [] } });
       if (path === "/api/health")
@@ -164,6 +165,10 @@ const session = {
           req.headers().authorization,
           `Bearer ${session.access_token}`,
         );
+        if(path==="/api/admin/booking/appointments/search") {
+          assert.equal(req.method(),"POST");
+          return route.fulfill({status:control.role==='admin'?200:403,json:control.role==='admin'?{appointments:[]}:{error:'forbidden'}});
+        }
         assert.equal(req.method(), "GET");
         if (control.role !== "admin")
           return route.fulfill({
@@ -175,6 +180,7 @@ const session = {
             status: 503,
             json: { error: "private error details" },
           });
+        if(path.startsWith('/api/admin/operations/'))return route.fulfill({json:path.endsWith('/options')?{doctors:[],services:[],sources:[]}:{items:[]}});
         if (path.endsWith("/settings"))
           return route.fulfill({
             json: {
@@ -349,6 +355,7 @@ const session = {
       await guest.context.close();
     }
     if (process.argv.includes("--layout") || process.argv.includes("--all")) {
+      const {operationMessages}=await import("../src/i18n/operations.ts");
       const { adminGroups, adminPath } =
         await import("../src/services/admin/navigation.ts");
       const widths = process.argv.includes("--all")
@@ -365,7 +372,7 @@ const session = {
               await f.page.goto(BASE + adminPath(section));
             await f.page
               .getByRole("heading", {
-                name: f.t.nav[section],
+                name: section==='schedules'?operationMessages[locale].schedule:section==='appointments'?operationMessages[locale].appointments:f.t.nav[section],
                 exact: true,
                 level: 1,
               })
@@ -398,6 +405,8 @@ const session = {
             if (
               ![
                 "overview",
+                "appointments",
+                "schedules",
                 "services",
                 "doctors",
                 "pages",
@@ -405,6 +414,7 @@ const session = {
                 "media",
                 "seo",
                 "settings",
+                "history",
               ].includes(section)
             )
               assert.ok(

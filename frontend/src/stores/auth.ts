@@ -1,3 +1,4 @@
+import {newsTrace} from '../services/admin/newsTrace';
 import { computed, ref, shallowRef } from "vue";
 import { defineStore } from "pinia";
 import type { Session } from "@supabase/supabase-js";
@@ -28,6 +29,7 @@ export const useAuthStore = defineStore("auth", () => {
     (identity, signal) =>
       readIdentity(API_URL || "", identity, signal),
     (state) => {
+      newsTrace('authority.state',{verified:state==='admin',checking:state==='checking'});
       adminStatus.value = state;
       role.value = state === "admin" || state === "user" ? state : null;
     },
@@ -36,7 +38,9 @@ export const useAuthStore = defineStore("auth", () => {
     () => adminStatus.value === "admin" && authority.isAdmin(),
   );
   function accept(next: Session | null) {
+    const identical = !!next && session.value?.user.id === next.user.id && session.value?.access_token === next.access_token;
     session.value = next;
+    if (identical) return;
     role.value = null;
     authority.invalidate();
     if (!next) recovery.value = false;
@@ -79,6 +83,14 @@ export const useAuthStore = defineStore("auth", () => {
         return;
       }
       supabase.auth.onAuthStateChange((event, next) => {
+        newsTrace('auth.event',{signedIn:event==='SIGNED_IN',tokenRefresh:event==='TOKEN_REFRESHED',signedOut:event==='SIGNED_OUT',sameUser:!!next&&session.value?.user.id===next.user.id,sameToken:!!next&&session.value?.access_token===next.access_token,verified:authority.isAdmin()});
+        // Supabase repeats SIGNED_IN on tab recovery with unchanged credentials.
+        // Do not unmount admin editors and abort their pending mutations for this
+        // notification. New tokens/users, sign-out and failed authority still
+        // invalidate normally; every API mutation rechecks JWT and database role.
+        if (event === "SIGNED_IN" && next && authority.isAdmin() &&
+            session.value?.user.id === next.user.id &&
+            session.value?.access_token === next.access_token) return;
         accept(next);
         if (event === "PASSWORD_RECOVERY") recovery.value = true;
         // Keep the callback synchronous to avoid the Supabase auth lock deadlocking.

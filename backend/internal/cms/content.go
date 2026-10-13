@@ -25,27 +25,27 @@ type Field struct {
 	Locked        bool     `json:"locked"`
 }
 type Definition struct {
-	SystemManaged bool              `json:"system_managed"`
-	Key           string            `json:"key"`
-	Group         string            `json:"group"`
-	Title         map[string]string `json:"title"`
-	Routes        []string          `json:"routes"`
-	Target        string            `json:"target"`
-	Path          []string          `json:"path"`
-	SourceHash    string            `json:"source_hash"`
-	Locked        bool              `json:"locked"`
-	Fields        []Field           `json:"fields"`
-	Data          json.RawMessage   `json:"data"`
+	PriceReference []int             `json:"price_reference"`
+	SystemManaged  bool              `json:"system_managed"`
+	Key            string            `json:"key"`
+	Group          string            `json:"group"`
+	Title          map[string]string `json:"title"`
+	Routes         []string          `json:"routes"`
+	Target         string            `json:"target"`
+	Path           []string          `json:"path"`
+	SourceHash     string            `json:"source_hash"`
+	Locked         bool              `json:"locked"`
+	Fields         []Field           `json:"fields"`
+	Data           json.RawMessage   `json:"data"`
 }
 type Asset struct {
-	ID        string `json:"id"`
-	URL       string `json:"url"`
-	SHA       string `json:"sha256"`
-	Protected bool   `json:"protected"`
-	Filename  string `json:"filename"`
-	Kind      string `json:"kind"`
-	Bytes     int64  `json:"bytes"
- "github.com/Aleksandrgetm/Dental/internal/media"`
+	ID          string   `json:"id"`
+	URL         string   `json:"url"`
+	SHA         string   `json:"sha256"`
+	Protected   bool     `json:"protected"`
+	Filename    string   `json:"filename"`
+	Kind        string   `json:"kind"`
+	Bytes       int64    `json:"bytes"`
 	Usages      []string `json:"usages"`
 	UsageGroups []string `json:"usage_groups"`
 	Legacy      bool     `json:"legacy"`
@@ -75,8 +75,16 @@ func init() {
 		definitions[d.Key] = d
 	}
 }
-func ManifestBytes() []byte                       { return append([]byte(nil), content...) }
-func DefinitionFor(key string) (Definition, bool) { d, ok := definitions[key]; return d, ok }
+func ManifestBytes() []byte { return append([]byte(nil), content...) }
+func DefinitionFor(key string) (Definition, bool) {
+	if key == CatalogKey {
+		return catalogDefinition(), true
+	}
+	if d, ok := definitions[key]; ok {
+		return d, true
+	}
+	return createdDefinition(key)
+}
 func decode(raw []byte) (any, error) {
 	var v any
 	d := json.NewDecoder(bytes.NewReader(raw))
@@ -144,6 +152,13 @@ var phone = regexp.MustCompile(`^(tel:)?\+?[0-9 ()-]{5,30}$`)
 var placeholders = regexp.MustCompile(`\{[^{}]*\}`)
 
 func Validate(key string, raw json.RawMessage) error {
+	if key == CatalogKey {
+		_, e := catalogDecode(raw)
+		return e
+	}
+	if _, ok := createdDefinition(key); ok {
+		return validateCreated(raw)
+	}
 	d, ok := definitions[key]
 	if !ok || len(raw) > 512*1024 {
 		return ErrInvalid
@@ -153,6 +168,53 @@ func Validate(key string, raw json.RawMessage) error {
 		return ErrInvalid
 	}
 	value, e := decode(raw)
+	if e == nil && strings.HasPrefix(key, "prices.") {
+		return validatePrices(original, value)
+	}
+	if e == nil && d.Target == "articles" {
+		// Paragraph count is editorial content, not document identity.
+		root, valid := value.(map[string]any)
+		if !valid {
+			return ErrInvalid
+		}
+		var fields []Field
+		for _, f := range d.Fields {
+			if (f.Locked || f.SystemManaged || d.Locked || d.SystemManaged) && !same(at(original, f.Path), at(value, f.Path)) {
+				return ErrInvalid
+			}
+			if len(f.Path) < 2 || f.Path[1] != "paragraphs" {
+				fields = append(fields, f)
+			}
+		}
+		for _, lang := range []string{"lv", "ru", "en"} {
+			base, _ := original.(map[string]any)[lang].(map[string]any)
+			next, _ := root[lang].(map[string]any)
+			if base == nil || next == nil {
+				return ErrInvalid
+			}
+			paragraphs, ok := next["paragraphs"].([]any)
+			if !ok || (len(paragraphs) == 0 && (next["introduction"] == nil || next["introduction"] == "")) || len(paragraphs) > 100 {
+				return ErrInvalid
+			}
+			for _, p := range paragraphs {
+				v, ok := p.(string)
+				if !ok || strings.TrimSpace(v) == "" || len(v) > 12000 || markup.MatchString(v) {
+					return ErrInvalid
+				}
+			}
+			base["paragraphs"] = paragraphs
+			for field, max := range map[string]int{"introduction": 1000, "author": 200} {
+				if raw, exists := next[field]; exists {
+					text, ok := raw.(string)
+					if !ok || len(text) > max || markup.MatchString(text) {
+						return ErrInvalid
+					}
+					base[field] = text
+				}
+			}
+		}
+		d.Fields = fields
+	}
 	if e != nil || !shape(original, value) {
 		return ErrInvalid
 	}
@@ -168,7 +230,7 @@ func Validate(key string, raw json.RawMessage) error {
 			continue
 		}
 		s, ok := b.(string)
-		if !ok || len(s) > 12000 || strings.TrimSpace(s) == "" || markup.MatchString(s) {
+		if !ok || len(s) > 12000 || (strings.TrimSpace(s) == "" && !(d.Target == "articles" && len(f.Path) == 2 && f.Path[1] == "category")) || markup.MatchString(s) {
 			return ErrInvalid
 		}
 		if d.Target == "messages" {
@@ -234,6 +296,6 @@ func Validate(key string, raw json.RawMessage) error {
 
 // System-managed references stay in the technical inventory, outside CMS editing/publication.
 func AdminVisible(key string) bool {
-	d, ok := definitions[key]
+	d, ok := DefinitionFor(key)
 	return ok && !d.SystemManaged
 }

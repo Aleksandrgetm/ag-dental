@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import {visiblePriceRows} from "../../services/cms/priceRows";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import {
@@ -25,7 +26,8 @@ const heading = (field: any) =>
 </script>
 <template>
   <div class="cms-content-preview" :lang="language">
-    <template v-for="field in fields" :key="field.path.join('/')">
+    <template v-if="doc.key.startsWith('prices.') && !part?.prefixes?.some(p=>p.startsWith('items.'))"><h3>{{data.title[language]}}</h3><div v-for="(row,index) in visiblePriceRows(data.items)" :key="index"><p>{{(row as any).name[language]}}</p><p>{{(row as any).price}} €</p></div></template>
+    <template v-for="field in doc.key.startsWith('prices.') && !part?.prefixes?.some(p=>p.startsWith('items.')) ? [] : fields" :key="field.path.join('/')">
       <figure
         v-if="
           ['media', 'image-key'].includes(field.type) &&

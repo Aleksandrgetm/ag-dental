@@ -1,5 +1,5 @@
 import type { RouteRecordRaw } from "vue-router";
-import { adminGroups } from "../services/admin/navigation";
+import { newsDocs } from "../services/cms/catalog";
 export const adminRoutes: RouteRecordRaw[] = [
   {
     path: "/admin",
@@ -10,39 +10,22 @@ export const adminRoutes: RouteRecordRaw[] = [
       title: "admin.nav.overview",
     },
     children: [
-      {
-        path: "",
-        component: () => import("../views/admin/AdminDashboard.vue"),
-      },
-      ...adminGroups
-        .flatMap((group) => group.items)
-        .filter((item) => item !== "overview")
-        .map((item) => ({
-          path: [
-            "services",
-            "doctors",
-            "pages",
-            "news",
-            "media",
-            "seo",
-            "settings",
-          ].includes(item)
-            ? `${item}/:cmsPath(.*)*`
-            : item,
-          component: [
-            "services",
-            "doctors",
-            "pages",
-            "news",
-            "media",
-            "seo",
-            "settings",
-          ].includes(item)
-            ? () => import("../views/admin/AdminCmsView.vue")
-            : () => import("../views/admin/AdminPlaceholder.vue"),
-          meta: { title: `admin.nav.${item}`, adminSection: item },
-        })),
-      { path: ":pathMatch(.*)*", redirect: "/admin" },
+      { path: "", redirect: {path: "/admin/appointments", query: {}, hash: ""} },
+      {path:"appointments/new",component:()=>import("../views/admin/AdminAppointmentsView.vue"),meta:{title:"operations.manual",adminSection:"appointments",createAppointment:true}},
+      {path:"appointments",component:()=>import("../views/admin/AdminAppointmentsView.vue"),meta:{title:"operations.appointments",adminSection:"appointments"}},
+      {path:"doctors",component:()=>import("../views/admin/AdminDoctorsView.vue"),meta:{adminSection:"doctors",title:"admin.nav.doctors"}},
+      {path:"doctors/profile/:editorialKey(clinic\\.doctorBio)",component:()=>import("../views/admin/AdminDoctorSetup.vue"),meta:{adminSection:"doctors",title:"doctors.information"}},
+      {path:"doctors/new",component:()=>import("../views/admin/AdminDoctorSetup.vue"),meta:{adminSection:"doctors",title:"simple.addDoctor"}},
+      {path:"doctors/manage/:doctorID",component:()=>import("../views/admin/AdminDoctorSetup.vue"),meta:{adminSection:"doctors",title:"operations.doctorName"}},
+      {path:"services",component:()=>import("../views/admin/AdminCatalogView.vue"),meta:{adminSection:"services",title:"admin.nav.services"}},
+      {path:"news/new",component:()=>import("../views/admin/AdminNewsView.vue"),meta:{adminSection:"news",contentKind:"news",title:"simple.addNews"}},
+      {path:"news/edit/:key",component:()=>import("../views/admin/AdminNewsView.vue"),meta:{adminSection:"news",contentKind:"news",title:"created.news"}},
+      // Explicit approved news identities: no generic CMS route or arbitrary document editor.
+      {path:"news",component:()=>import("../views/admin/AdminNewsView.vue"),meta:{adminSection:"news",title:"admin.nav.news"}},
+      ...newsDocs.map(doc=>({path:"news/"+encodeURIComponent(doc.key),redirect:"/admin/news/edit/"+doc.key})),
+      {path:"doctors/:legacy(.*)*",redirect:{path:"/admin/doctors",query:{},hash:""}},
+      {path:"news/:legacy(.*)*",redirect:{path:"/admin/news",query:{},hash:""}},
+      { path: ":pathMatch(.*)*", redirect: {path: "/admin/appointments", query: {}, hash: ""} },
     ],
   },
 ];

@@ -323,7 +323,7 @@ fs.mkdirSync(OUT, { recursive: true });
           saved,
           /question-test|Contact Browser Test|Browser-only test/,
         );
-        assert.equal(new URL(page.url()).search, "");
+        assert.ok([...new URL(page.url()).searchParams].every(([key, value]) => key === "lang" && value === locale));
         assert.deepEqual(
           requests,
           [],

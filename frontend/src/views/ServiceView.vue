@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import {visiblePriceRows} from "../services/cms/priceRows";
 import { cmsMediaAlt, cmsMediaSrcset } from "../services/cms/content";
 import { computed, watchEffect } from "vue";
 import { useRoute } from "vue-router";
@@ -15,7 +16,7 @@ const service = computed(() =>
 );
 const prices = computed(() =>
   localizedPrices.map((category) => ({
-    items: category.items.map((item) => ({ ...item, name: local(item.name) })),
+    items: visiblePriceRows(category.items).map((item) => ({ ...item, name: local(item.name) })),
   })),
 );
 watchEffect(() => {
@@ -34,6 +35,7 @@ watchEffect(() => {
     </div>
     <section class="container service-detail-grid">
       <img
+        v-if="service.image"
         class="service-detail-image"
         data-reveal="image"
         :src="media[service.image as keyof typeof media]"
@@ -77,7 +79,7 @@ watchEffect(() => {
           .filter((s) => s.slug !== service!.slug)
           .slice(0, 3)"
         :key="s.slug"
-        :to="`/pakalpojumi/${s.slug}`"
+        :to="{path:`/pakalpojumi/${s.slug}`,query:locale==='lv'?{}:{lang:locale}}"
         >{{ local(s.title) }}
       </RouterLink>
     </div>

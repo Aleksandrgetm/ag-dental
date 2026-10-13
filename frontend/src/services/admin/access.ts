@@ -1,55 +1,9 @@
-export const adminPaths = [
-  "/admin",
-  "/admin/appointments",
-  "/admin/services",
-  "/admin/doctors",
-  "/admin/schedules",
-  "/admin/pages",
-  "/admin/news",
-  "/admin/media",
-  "/admin/seo",
-  "/admin/messages",
-  "/admin/settings",
-] as const;
+export const adminPaths = ["/admin", "/admin/appointments", "/admin/doctors", "/admin/services", "/admin/news"] as const;
 export function safeAdminReturn(value: unknown): string | null {
-  if (typeof value !== "string" || value.length > 1800 || /[\\\s#]/.test(value))
-    return null;
-  const [path, query] = value.split("?");
-  if (!path || value.split("?").length > 2) return null;
-  if ((adminPaths as readonly string[]).includes(path))
-    return query ? null : path;
-  if (
-    !/^\/admin\/(pages|services|doctors|news|media|seo|settings)\/[A-Za-z0-9_.~%/-]+$/.test(
-      path,
-    )
-  )
-    return null;
-  try {
-    if (
-      path
-        .split("/")
-        .slice(3)
-        .some(
-          (segment) =>
-            !segment ||
-            [".", ".."].includes(decodeURIComponent(segment)) ||
-            /[\\/\s?#%\u0000-\u001f\u007f]/.test(decodeURIComponent(segment)),
-        )
-    )
-      return null;
-  } catch {
-    return null;
-  }
-  if (query) {
-    const params = new URLSearchParams(query);
-    if (
-      [...params.keys()].some((key) => key !== "part") ||
-      params.getAll("part").length !== 1 ||
-      !/^[a-zA-Z0-9_.-]+$/.test(params.get("part") || "")
-    )
-      return null;
-  }
-  return value;
+  if (typeof value !== "string" || value.length > 1800 || /[\\\s#?%]/.test(value)) return null;
+  if ((adminPaths as readonly string[]).includes(value)) return value;
+  if (/^\/admin\/(appointments\/new|doctors\/(new|profile\/clinic\.doctorBio|manage\/[0-9a-f-]{36})|news\/(new|edit\/(?:created\.news\.[0-9a-f-]{36}|news\.[a-z0-9.-]+)|news\.[a-z0-9.-]+))$/.test(value)) return value;
+  return null;
 }
 export type AccessState =
   | "idle"
@@ -138,7 +92,13 @@ export function createAuthority(
       return "guest";
     }
     if (pending && same(identity, pending.identity)) return pending.promise;
-    invalidate("checking");
+    // Recheck the server without discarding an existing proof for identical
+    // credentials. A changed token still requires verification before API use.
+    const retain = state === "admin" && same(proof, identity);
+    version++;
+    controller?.abort();
+    pending = undefined;
+    if (!retain) { proof = null; publish("checking"); }
     const current = version;
     controller = new AbortController();
     const signal = controller.signal;

@@ -209,7 +209,8 @@ const session = {
         row.document.version++;
         return route.fulfill({ json: row.document });
       }
-      throw Error("Unexpected API " + u.pathname);
+      if (req.method() === "GET" && /^\/api\/admin\/operations\/(doctors|services)(\/options)?$/.test(u.pathname)) return route.fulfill({json:u.pathname.endsWith('/options')?{doctors:[],services:[],sources:[],privacy_ready:false}:{items:[]}});
+    throw Error("Unexpected API " + u.pathname);
     });
     const page = await context.newPage();
     page.on("pageerror", (e) => errors.push(e.message));
@@ -228,7 +229,6 @@ const session = {
         for (const group of [
           "pages",
           "services",
-          "doctors",
           "news",
           "media",
           "seo",

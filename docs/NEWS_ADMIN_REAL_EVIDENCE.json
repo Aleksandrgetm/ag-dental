@@ -1,0 +1,38 @@
+{
+  "media": {
+    "id": "upload.a58f4d5f8c71b0522b40489dc252caf7",
+    "unreferencedDeletion": "PASS actual Storage objects removed; private preview authorized; unpublished public delivery denied"
+  },
+  "publicationValidation": "PASS 422 exact field title.lv/body.ru/date/image; atomic rejection without leaked draft; valid multilingual direct publication",
+  "archiveUnavailable": "PASS actual browser POST /archive: 503 news_archive_unavailable; unchanged document/version and useful localized error",
+  "archiveRequests": [
+    {
+      "scenario": "published",
+      "method": "POST",
+      "endpoint": "/api/admin/cms/documents/:key/archive",
+      "status": 200,
+      "response": {
+        "archived": true,
+        "published_revision": null
+      },
+      "immediateRemoval": true
+    },
+    {
+      "scenario": "unpublished",
+      "method": "POST",
+      "endpoint": "/api/admin/cms/documents/:key/archive",
+      "status": 200,
+      "response": {
+        "archived": true,
+        "published_revision": null
+      },
+      "immediateRemoval": true
+    }
+  ],
+  "deletion": "PASS published and never-published UI deletion, persistent normal-list exclusion, retry without duplicate audit, archive view and unpublished restoration",
+  "news": {
+    "key": "created.news.edf31969-ead5-4f81-bbc8-fad26b6fb181",
+    "result": "PASS create/direct publish/list/detail/LV-RU-EN/refresh/edit/image replacement/archive/restore/retry/role revocation"
+  },
+  "security": "PASS real JWT tampering, database roles/RLS, anonymous/user denials, private originals, historical references, direct Storage object denial, file/size rejection"
+}

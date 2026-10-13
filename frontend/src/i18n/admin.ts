@@ -72,6 +72,7 @@ const workspaceMessages = {
     nav: {
       overview: "Pārskats",
       appointments: "Vizītes",
+      history: "Versiju vēsture",
       services: "Pakalpojumi un cenas",
       doctors: "Speciālisti",
       schedules: "Darba grafiki",
@@ -120,6 +121,7 @@ const workspaceMessages = {
     nav: {
       overview: "Обзор",
       appointments: "Записи на приём",
+      history: "История версий",
       services: "Услуги и цены",
       doctors: "Специалисты",
       schedules: "Расписание",
@@ -169,6 +171,7 @@ const workspaceMessages = {
     nav: {
       overview: "Overview",
       appointments: "Appointments",
+      history: "Revision history",
       services: "Services & prices",
       doctors: "Specialists",
       schedules: "Schedules",
@@ -226,7 +229,7 @@ const dashboardMessages = {
     noVisits: "Šodien vizīšu nav",
     noVisitsText: "Pārbaudītajā šodienas sarakstā nav ierakstu.",
     visitListNote:
-      "Pārskats rāda pirmās {limit} šodienas vizītes visos statusos. Pilnais kalendārs un vizīšu pārvaldība vēl nav pieejama.",
+      "Pārskats rāda pirmās {limit} šodienas vizītes visos statusos. Visas vizītes varat apskatīt un pārvaldīt sadaļā “Vizītes”.",
     bookingSetup: "Tiešsaistes pieraksts",
     settingsUnavailable: "Pieraksta iestatījumus pašlaik nevar pārbaudīt.",
     confirmation: "Vizīšu apstiprināšana",
@@ -278,7 +281,7 @@ const dashboardMessages = {
     noVisits: "Сегодня записей нет",
     noVisitsText: "В проверенном списке на сегодня нет записей.",
     visitListNote:
-      "Показаны первые {limit} записей на сегодня во всех статусах. Полный календарь и управление приёмами пока недоступны.",
+      "Показаны первые {limit} записей на сегодня во всех статусах. Все приёмы можно просматривать и изменять в разделе «Записи на приём».",
     bookingSetup: "Онлайн-запись",
     settingsUnavailable: "Не удалось проверить настройки записи.",
     confirmation: "Подтверждение приёмов",
@@ -332,7 +335,7 @@ const dashboardMessages = {
     noVisits: "No appointments today",
     noVisitsText: "The verified list for today contains no appointments.",
     visitListNote:
-      "Showing the first {limit} appointments today in all statuses. The full calendar and appointment management are not yet available.",
+      "Showing the first {limit} appointments today in all statuses. View and manage all appointments in the Appointments section.",
     bookingSetup: "Online booking",
     settingsUnavailable: "Booking settings could not be checked.",
     confirmation: "Appointment confirmation",

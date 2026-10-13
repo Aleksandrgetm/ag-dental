@@ -1,0 +1,427 @@
+{
+  "/": {
+    "lv": {
+      "title": "Sākums · AG Zobārstniecība",
+      "description": "No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925.",
+      "imported_description": "No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925."
+    },
+    "ru": {
+      "title": "Главная · AG Zobārstniecība",
+      "description": "От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925.",
+      "imported_description": "От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925."
+    },
+    "en": {
+      "title": "Home · AG Zobārstniecība",
+      "description": "From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925.",
+      "imported_description": "From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925."
+    }
+  },
+  "/pakalpojumi": {
+    "lv": {
+      "title": "Pakalpojumi · AG Zobārstniecība",
+      "description": "Pakalpojumi. No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925.",
+      "imported_description": "No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925."
+    },
+    "ru": {
+      "title": "Услуги · AG Zobārstniecība",
+      "description": "Услуги. От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925.",
+      "imported_description": "От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925."
+    },
+    "en": {
+      "title": "Treatments · AG Zobārstniecība",
+      "description": "Treatments. From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925.",
+      "imported_description": "From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925."
+    }
+  },
+  "/pakalpojumi/konsultacija": {
+    "lv": {
+      "title": "Konsultācija un diagnostika · AG Zobārstniecība",
+      "description": "Konsultācijas laikā tiek veikta diagnostika, izskaidrota diagnoze un sastādīts ārstēšanas plāns. Kopā izrunājam jūsu situāciju un iespējamos ārstēšanas risinājumus.",
+      "imported_description": "No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925."
+    },
+    "ru": {
+      "title": "Консультация и диагностика · AG Zobārstniecība",
+      "description": "Во время консультации проводится диагностика, объясняется диагноз и составляется план лечения. Вместе обсуждаем вашу ситуацию и возможные решения.",
+      "imported_description": "От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925."
+    },
+    "en": {
+      "title": "Consultation & diagnosis · AG Zobārstniecība",
+      "description": "During your consultation, we carry out diagnostics, explain the diagnosis and prepare a treatment plan. We discuss your situation and the available treatment options together.",
+      "imported_description": "From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925."
+    }
+  },
+  "/pakalpojumi/zobu-arstesana": {
+    "lv": {
+      "title": "Zobu ārstēšana · AG Zobārstniecība",
+      "description": "Trūkstošos zoba audus aizvietojam ar plombējamo materiālu. Piedāvājam plombēšanu ar kompozītmateriālu, zoba kroņa atjaunošanu un estētisku zoba pārklāšanu. Ārstēšanu pielāgojam katrai situācijai.",
+      "imported_description": "No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925."
+    },
+    "ru": {
+      "title": "Лечение зубов · AG Zobārstniecība",
+      "description": "Восстанавливаем утраченные ткани зуба пломбировочным материалом. Предлагаем композитные пломбы, восстановление коронки зуба и эстетическое покрытие. Лечение подбирается индивидуально.",
+      "imported_description": "От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925."
+    },
+    "en": {
+      "title": "Restorative dentistry · AG Zobārstniecība",
+      "description": "We replace missing tooth tissue with filling material. Treatments include composite fillings, rebuilding a tooth crown and aesthetic composite covering, tailored to each situation.",
+      "imported_description": "From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925."
+    }
+  },
+  "/pakalpojumi/saknu-kanalu-arstesana": {
+    "lv": {
+      "title": "Sakņu kanālu ārstēšana · AG Zobārstniecība",
+      "description": "Klīnikā veicam viena, divu un trīs kanālu zobu sakņu ārstēšanu. Cenrādī norādīta ārstēšana 1. un 2. seansā, iekļaujot anestēziju, tīrīšanu un pildīšanu. Vizītē precizējam nepieciešamo ārstēšanas apjomu.",
+      "imported_description": "No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925."
+    },
+    "ru": {
+      "title": "Лечение корневых каналов · AG Zobārstniecība",
+      "description": "В клинике лечат зубы с одним, двумя и тремя корневыми каналами. В прейскуранте указаны первый и второй сеансы с анестезией, очисткой и пломбированием. Объём лечения уточняется на приёме.",
+      "imported_description": "От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925."
+    },
+    "en": {
+      "title": "Root canal treatment · AG Zobārstniecība",
+      "description": "We treat teeth with one, two or three root canals. The source price list describes the first and second sessions, including anaesthesia, cleaning and filling. The treatment scope is clarified at your visit.",
+      "imported_description": "From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925."
+    }
+  },
+  "/pakalpojumi/zobu-higiena": {
+    "lv": {
+      "title": "Zobu higiēna · AG Zobārstniecība",
+      "description": "Pilna mutes dobuma higiēna ar sodas strūklu pieejama par 80 €. Piedāvājam arī higiēnu bērniem un pacientiem ar ortodontisko aparatūru, kā arī instruktāžu pareizai ikdienas mutes dobuma kopšanai.",
+      "imported_description": "No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925."
+    },
+    "ru": {
+      "title": "Гигиена полости рта · AG Zobārstniecība",
+      "description": "Полная гигиена полости рта с содоструйной обработкой стоит 80 €. Также предлагаем гигиену детям и пациентам с ортодонтическими аппаратами и инструктаж по ежедневному уходу.",
+      "imported_description": "От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925."
+    },
+    "en": {
+      "title": "Dental hygiene · AG Zobārstniecība",
+      "description": "Full dental hygiene including air polishing is available for €80. We also offer hygiene for children and patients with orthodontic appliances, and guidance on daily oral care.",
+      "imported_description": "From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925."
+    }
+  },
+  "/pakalpojumi/zobu-balinasana": {
+    "lv": {
+      "title": "Zobu balināšana · AG Zobārstniecība",
+      "description": "Piedāvājam zobu balināšanu kabinetā ar Philips ZOOM. Cenrādī pieejama arī balināšanas kapes izgatavošana. Par piemērotāko risinājumu konsultējieties ar zobārstu.",
+      "imported_description": "No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925."
+    },
+    "ru": {
+      "title": "Отбеливание зубов · AG Zobārstniecība",
+      "description": "Предлагаем кабинетное отбеливание Philips ZOOM. В прейскуранте также есть изготовление капы для отбеливания. Подходящий вариант обсудите со стоматологом.",
+      "imported_description": "От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925."
+    },
+    "en": {
+      "title": "Teeth whitening · AG Zobārstniecība",
+      "description": "We offer in-clinic Philips ZOOM whitening. Whitening trays are also listed in our price list. Discuss the most suitable option with your dentist.",
+      "imported_description": "From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925."
+    }
+  },
+  "/pakalpojumi/zobu-kirurgija": {
+    "lv": {
+      "title": "Zobu ķirurģija · AG Zobārstniecība",
+      "description": "Piedāvājam zobu ekstrakciju, tostarp viensakņu, daudzsakņu un astotā zoba ekstrakciju. Cenrādī ekstrakcijai norādīta iekļauta anestēzija un medikamentoza apstrāde. Nepieciešamo procedūru nosaka konsultācijā.",
+      "imported_description": "No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925."
+    },
+    "ru": {
+      "title": "Хирургическая стоматология · AG Zobārstniecība",
+      "description": "Предлагаем удаление однокорневых, многокорневых зубов и зубов мудрости. В прейскуранте указано, что анестезия и медикаментозная обработка включены. Необходимая процедура определяется на консультации.",
+      "imported_description": "От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925."
+    },
+    "en": {
+      "title": "Dental surgery · AG Zobārstniecība",
+      "description": "We offer tooth extraction, including single-rooted, multi-rooted and wisdom teeth. The price list includes anaesthesia and medication treatment for extractions. The required procedure is determined at consultation.",
+      "imported_description": "From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925."
+    }
+  },
+  "/pakalpojumi/zobu-protezesana": {
+    "lv": {
+      "title": "Zobu protezēšana · AG Zobārstniecība",
+      "description": "Sadarbojoties ar laboratoriju, tiek izgatavoti venīri, kroņi, onlejas, inlejas un zobu protēzes. Katram pacientam piemeklējam piemērotāko risinājumu. Cenrādī pieejami gan izņemamu protēžu, gan kroņu un kapju varianti.",
+      "imported_description": "No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925."
+    },
+    "ru": {
+      "title": "Протезирование зубов · AG Zobārstniecība",
+      "description": "В сотрудничестве с лабораторией изготавливаем виниры, коронки, накладки, вкладки и зубные протезы. Подбираем решение для каждого пациента. В прейскуранте представлены съёмные протезы, коронки и капы.",
+      "imported_description": "От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925."
+    },
+    "en": {
+      "title": "Prosthodontics · AG Zobārstniecība",
+      "description": "Working with a laboratory, we provide veneers, crowns, onlays, inlays and dentures. We find an appropriate solution for each patient. Our price list includes removable dentures, crowns and trays.",
+      "imported_description": "From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925."
+    }
+  },
+  "/pakalpojumi/bernu-zobarstnieciba": {
+    "lv": {
+      "title": "Bērnu zobārstniecība · AG Zobārstniecība",
+      "description": "Konsultācijas, zobu ārstēšana un ķirurģija bērniem. Katram bērnam ir individuāla pieeja, un pēc apmeklējuma mazais pacients saņem pārsteiguma balvu par drosmi un izturību. Piedāvājam arī piena un pastāvīgo zobu higiēnu.",
+      "imported_description": "No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925."
+    },
+    "ru": {
+      "title": "Детская стоматология · AG Zobārstniecība",
+      "description": "Консультации, лечение и хирургия для детей. Каждому ребёнку — индивидуальный подход, а после посещения — небольшой сюрприз за смелость. Также предлагаем гигиену молочных и постоянных зубов.",
+      "imported_description": "От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925."
+    },
+    "en": {
+      "title": "Children’s dentistry · AG Zobārstniecība",
+      "description": "Consultations, treatment and dental surgery for children. Each child receives individual care and a surprise reward for their bravery after the visit. Hygiene is available for both baby and permanent teeth.",
+      "imported_description": "From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925."
+    }
+  },
+  "/cenas": {
+    "lv": {
+      "title": "Cenas · AG Zobārstniecība",
+      "description": "Cenas. No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925.",
+      "imported_description": "No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925."
+    },
+    "ru": {
+      "title": "Цены · AG Zobārstniecība",
+      "description": "Цены. От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925.",
+      "imported_description": "От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925."
+    },
+    "en": {
+      "title": "Prices · AG Zobārstniecība",
+      "description": "Prices. From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925.",
+      "imported_description": "From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925."
+    }
+  },
+  "/par-mums": {
+    "lv": {
+      "title": "Par mums · AG Zobārstniecība",
+      "description": "Par mums. No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925.",
+      "imported_description": "No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925."
+    },
+    "ru": {
+      "title": "О нас · AG Zobārstniecība",
+      "description": "О нас. От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925.",
+      "imported_description": "От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925."
+    },
+    "en": {
+      "title": "About us · AG Zobārstniecība",
+      "description": "About us. From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925.",
+      "imported_description": "From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925."
+    }
+  },
+  "/jaunumi": {
+    "lv": {
+      "title": "Jaunumi · AG Zobārstniecība",
+      "description": "Jaunumi. No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925.",
+      "imported_description": "No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925."
+    },
+    "ru": {
+      "title": "Новости · AG Zobārstniecība",
+      "description": "Новости. От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925.",
+      "imported_description": "От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925."
+    },
+    "en": {
+      "title": "Journal · AG Zobārstniecība",
+      "description": "Journal. From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925.",
+      "imported_description": "From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925."
+    }
+  },
+  "/jaunumi/zobu-higiena-kas-pieejama-ikvienam": {
+    "lv": {
+      "title": "Zobu higiēna, kas pieejama ikvienam · AG Zobārstniecība",
+      "description": "Pilna mutes dobuma higiēna par 80 € — cenā jau iekļauta arī sodas strūkla.",
+      "imported_description": "No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925."
+    },
+    "ru": {
+      "title": "Профессиональная гигиена зубов, доступная каждому · AG Zobārstniecība",
+      "description": "Полная профессиональная гигиена полости рта за 80 € — обработка содовой струёй уже включена в стоимость.",
+      "imported_description": "От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925."
+    },
+    "en": {
+      "title": "Professional dental hygiene for everyone · AG Zobārstniecība",
+      "description": "Complete professional oral hygiene for €80 — bicarbonate air polishing is already included in the price.",
+      "imported_description": "From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925."
+    }
+  },
+  "/jaunumi/zobu-protezes-un-protezesana": {
+    "lv": {
+      "title": "Zobu protēzes un protezēšana · AG Zobārstniecība",
+      "description": "Individuāli risinājumi smaida, košļāšanas funkcijas un ikdienas komforta atjaunošanai.",
+      "imported_description": "No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925."
+    },
+    "ru": {
+      "title": "Зубные протезы и протезирование · AG Zobārstniecība",
+      "description": "Индивидуальные решения для восстановления улыбки, жевательной функции и повседневного комфорта.",
+      "imported_description": "От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925."
+    },
+    "en": {
+      "title": "Dental prostheses and prosthodontics · AG Zobārstniecība",
+      "description": "Individual solutions to restore your smile, chewing function and everyday comfort.",
+      "imported_description": "From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925."
+    }
+  },
+  "/jaunumi/zobu-higiena": {
+    "lv": {
+      "title": "Zobu higiēna · AG Zobārstniecība",
+      "description": "Kāpēc profesionāla mutes dobuma higiēna ir nozīmīga ikdienas rūpju daļa?",
+      "imported_description": "No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925."
+    },
+    "ru": {
+      "title": "Гигиена зубов · AG Zobārstniecība",
+      "description": "Почему профессиональная гигиена полости рта — важная часть повседневной заботы о себе?",
+      "imported_description": "От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925."
+    },
+    "en": {
+      "title": "Dental hygiene · AG Zobārstniecība",
+      "description": "Why is professional oral hygiene an important part of everyday care?",
+      "imported_description": "From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925."
+    }
+  },
+  "/jaunumi/aktualitates": {
+    "lv": {
+      "title": "Aktualitātes · AG Zobārstniecība",
+      "description": "Klīnikas ziņas, jaunumi un piedāvājumi vienuviet.",
+      "imported_description": "No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925."
+    },
+    "ru": {
+      "title": "Новости · AG Zobārstniecība",
+      "description": "Новости клиники, актуальная информация и предложения в одном месте.",
+      "imported_description": "От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925."
+    },
+    "en": {
+      "title": "News and updates · AG Zobārstniecība",
+      "description": "Clinic news, updates and offers in one place.",
+      "imported_description": "From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925."
+    }
+  },
+  "/kontakti": {
+    "lv": {
+      "title": "Kontakti · AG Zobārstniecība",
+      "description": "Kontakti. No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925.",
+      "imported_description": "No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925."
+    },
+    "ru": {
+      "title": "Контакты · AG Zobārstniecība",
+      "description": "Контакты. От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925.",
+      "imported_description": "От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925."
+    },
+    "en": {
+      "title": "Contact · AG Zobārstniecība",
+      "description": "Contact. From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925.",
+      "imported_description": "From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925."
+    }
+  },
+  "/pieraksts": {
+    "lv": {
+      "title": "Laiks jūsu smaidam. · AG Zobārstniecība",
+      "description": "Laiks jūsu smaidam.. No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925.",
+      "imported_description": "No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925."
+    },
+    "ru": {
+      "title": "Время для вашей улыбки. · AG Zobārstniecība",
+      "description": "Время для вашей улыбки.. От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925.",
+      "imported_description": "От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925."
+    },
+    "en": {
+      "title": "Time for your smile. · AG Zobārstniecība",
+      "description": "Time for your smile.. From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925.",
+      "imported_description": "From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925."
+    }
+  },
+  "/login": {
+    "lv": {
+      "title": "Pieteikties · AG Zobārstniecība",
+      "description": "Pieteikties. No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925.",
+      "imported_description": "No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925."
+    },
+    "ru": {
+      "title": "Войти · AG Zobārstniecība",
+      "description": "Войти. От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925.",
+      "imported_description": "От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925."
+    },
+    "en": {
+      "title": "Sign in · AG Zobārstniecība",
+      "description": "Sign in. From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925.",
+      "imported_description": "From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925."
+    }
+  },
+  "/register": {
+    "lv": {
+      "title": "Reģistrēties · AG Zobārstniecība",
+      "description": "Reģistrēties. No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925.",
+      "imported_description": "No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925."
+    },
+    "ru": {
+      "title": "Зарегистрироваться · AG Zobārstniecība",
+      "description": "Зарегистрироваться. От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925.",
+      "imported_description": "От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925."
+    },
+    "en": {
+      "title": "Register · AG Zobārstniecība",
+      "description": "Register. From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925.",
+      "imported_description": "From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925."
+    }
+  },
+  "/forgot-password": {
+    "lv": {
+      "title": "Atjaunot paroli · AG Zobārstniecība",
+      "description": "Atjaunot paroli. No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925.",
+      "imported_description": "No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925."
+    },
+    "ru": {
+      "title": "Восстановить пароль · AG Zobārstniecība",
+      "description": "Восстановить пароль. От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925.",
+      "imported_description": "От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925."
+    },
+    "en": {
+      "title": "Forgot password · AG Zobārstniecība",
+      "description": "Forgot password. From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925.",
+      "imported_description": "From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925."
+    }
+  },
+  "/reset-password": {
+    "lv": {
+      "title": "Jauna parole · AG Zobārstniecība",
+      "description": "Jauna parole. No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925.",
+      "imported_description": "No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925."
+    },
+    "ru": {
+      "title": "Новый пароль · AG Zobārstniecība",
+      "description": "Новый пароль. От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925.",
+      "imported_description": "От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925."
+    },
+    "en": {
+      "title": "New password · AG Zobārstniecība",
+      "description": "New password. From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925.",
+      "imported_description": "From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925."
+    }
+  },
+  "/privatuma-politika": {
+    "lv": {
+      "title": "Privātuma politika · AG Zobārstniecība",
+      "description": "Privātuma politika. No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925.",
+      "imported_description": "No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925."
+    },
+    "ru": {
+      "title": "Политика конфиденциальности · AG Zobārstniecība",
+      "description": "Политика конфиденциальности. От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925.",
+      "imported_description": "От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925."
+    },
+    "en": {
+      "title": "Privacy Policy · AG Zobārstniecība",
+      "description": "Privacy Policy. From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925.",
+      "imported_description": "From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925."
+    }
+  },
+  "/sikdatnu-politika": {
+    "lv": {
+      "title": "Sīkdatņu politika · AG Zobārstniecība",
+      "description": "Sīkdatņu politika. No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925.",
+      "imported_description": "No pirmās sarunas līdz individuālam ārstēšanas risinājumam. Zobārstniecība pieaugušajiem un bērniem vienuviet. Ūnijas iela 25, Rīga. +371 28229925."
+    },
+    "ru": {
+      "title": "Политика файлов cookie · AG Zobārstniecība",
+      "description": "Политика файлов cookie. От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925.",
+      "imported_description": "От первой беседы до индивидуального лечения. Стоматология для взрослых и детей в одном месте. Ūnijas iela 25, Рига. +371 28229925."
+    },
+    "en": {
+      "title": "Cookie Policy · AG Zobārstniecība",
+      "description": "Cookie Policy. From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925.",
+      "imported_description": "From your first conversation to an individual treatment plan. Dentistry for adults and children in one place. Ūnijas iela 25, Riga. +371 28229925."
+    }
+  }
+}

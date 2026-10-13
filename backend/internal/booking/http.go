@@ -85,12 +85,61 @@ func Register(r *gin.Engine, s *Store, v auth.Verifier, roles auth.Roles) {
 				return
 			}
 		}
-		rows, e := s.List(c.Request.Context(), Filter{c.Query("date"), c.Query("doctor_id"), c.Query("service_id"), c.Query("status"), limit, offset})
+		rows, e := s.List(c.Request.Context(), Filter{Date: c.Query("date"), DoctorID: c.Query("doctor_id"), ServiceID: c.Query("service_id"), Status: c.Query("status"), Limit: limit, Offset: offset, DateFrom: c.Query("date_from"), DateTo: c.Query("date_to")})
 		if e != nil {
 			respondError(c, e)
 			return
 		}
 		c.JSON(200, gin.H{"appointments": rows})
+	})
+	admin.POST("/appointments/search", func(c *gin.Context) {
+		var body struct {
+			DateFrom  string `json:"date_from"`
+			DateTo    string `json:"date_to"`
+			DoctorID  string `json:"doctor_id"`
+			ServiceID string `json:"service_id"`
+			Status    string `json:"status"`
+			Search    string `json:"search"`
+			Offset    int    `json:"offset"`
+		}
+		if !decode(c, &body) {
+			return
+		}
+		if body.DateFrom == "" || body.DateTo == "" {
+			respondError(c, ErrInvalid)
+			return
+		}
+		rows, e := s.List(c.Request.Context(), Filter{DateFrom: body.DateFrom, DateTo: body.DateTo, DoctorID: body.DoctorID, ServiceID: body.ServiceID, Status: body.Status, Search: body.Search, Limit: 100, Offset: body.Offset})
+		if e != nil {
+			respondError(c, e)
+			return
+		}
+		c.JSON(200, gin.H{"appointments": rows, "has_more": len(rows) == 100})
+	})
+	admin.GET("/appointments/:id/availability", func(c *gin.Context) {
+		slots, e := s.RescheduleAvailability(c.Request.Context(), c.Param("id"), c.Query("service_id"), c.Query("doctor_id"), c.Query("date"))
+		if e != nil {
+			respondError(c, e)
+			return
+		}
+		c.JSON(200, gin.H{"slots": slots, "timezone": "Europe/Riga"})
+	})
+	admin.GET("/appointments/:id/history", func(c *gin.Context) {
+		if !ValidID(c.Param("id")) {
+			respondError(c, ErrInvalid)
+			return
+		}
+		rows := []struct {
+			ID        string          `json:"id"`
+			EventType string          `json:"event_type"`
+			CreatedAt time.Time       `json:"created_at"`
+			Metadata  json.RawMessage `json:"metadata"`
+		}{}
+		if e := s.DB.WithContext(c.Request.Context()).Table("appointment_events").Select("id,event_type,created_at,metadata").Where("appointment_id=?", c.Param("id")).Order("created_at,id").Limit(500).Scan(&rows).Error; e != nil {
+			respondError(c, e)
+			return
+		}
+		c.JSON(200, gin.H{"events": rows})
 	})
 	admin.GET("/appointments/:id", func(c *gin.Context) {
 		a, e := s.Get(c.Request.Context(), c.Param("id"))
@@ -120,13 +169,18 @@ func Register(r *gin.Engine, s *Store, v auth.Verifier, roles auth.Roles) {
 	})
 	admin.PATCH("/appointments/:id/status", func(c *gin.Context) {
 		var req struct {
-			Status string `json:"status"`
+			Status          string `json:"status"`
+			ExpectedVersion string `json:"expected_version"`
 		}
 		if !decode(c, &req) {
 			return
 		}
 		id, _ := auth.Current(c)
-		a, e := s.Transition(c.Request.Context(), c.Param("id"), req.Status, id.ID)
+		if len(req.ExpectedVersion) != 64 {
+			respondError(c, ErrInvalid)
+			return
+		}
+		a, e := s.TransitionChecked(c.Request.Context(), c.Param("id"), req.Status, id.ID, req.ExpectedVersion)
 		if e != nil {
 			respondError(c, e)
 			return
@@ -139,6 +193,10 @@ func Register(r *gin.Engine, s *Store, v auth.Verifier, roles auth.Roles) {
 			return
 		}
 		id, _ := auth.Current(c)
+		if len(req.ExpectedVersion) != 64 {
+			respondError(c, ErrInvalid)
+			return
+		}
 		a, e := s.Reschedule(c.Request.Context(), c.Param("id"), id.ID, req)
 		if e != nil {
 			respondError(c, e)
@@ -170,12 +228,13 @@ func Register(r *gin.Engine, s *Store, v auth.Verifier, roles auth.Roles) {
 func noStore() gin.HandlerFunc {
 	return func(c *gin.Context) { c.Header("Cache-Control", "no-store"); c.Next() }
 }
-func decode(c *gin.Context, v any) bool {
+func decode(c *gin.Context, v any) bool { return decodeLimited(c, v, 16*1024) }
+func decodeLimited(c *gin.Context, v any, limit int64) bool {
 	if c.ContentType() != "application/json" {
 		c.AbortWithStatusJSON(415, gin.H{"error": "json_required"})
 		return false
 	}
-	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 16*1024)
+	c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, limit)
 	decoder := json.NewDecoder(c.Request.Body)
 	decoder.DisallowUnknownFields()
 	if decoder.Decode(v) != nil {

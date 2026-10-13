@@ -12,6 +12,7 @@ import (
 )
 
 func main() {
+	catalog := flag.Bool("catalog", false, "separately approved unified catalog activation; combine with dry-run or apply/confirm-import")
 	dry := flag.Bool("dry-run", false, "read-only comparison against the explicitly supplied DATABASE_URL")
 	apply := flag.Bool("apply", false, "import after approved migration; never overwrites existing content")
 	confirm := flag.Bool("confirm-import", false, "confirm that this database import was explicitly approved")
@@ -39,6 +40,15 @@ func main() {
 	defer raw.Close()
 	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
 	defer cancel()
+	if *catalog {
+		e = (&cms.Store{DB: db}).ActivateCatalog(ctx, *apply)
+		if e != nil {
+			fmt.Fprintln(os.Stderr, "Catalog activation blocked; no partial changes")
+			os.Exit(1)
+		}
+		fmt.Println("Catalog validation/activation completed; existing source records preserved")
+		return
+	}
 	n, e := (&cms.Store{DB: db}).Import(ctx, *apply)
 	if e != nil {
 		_, code := cms.SafeError(e)

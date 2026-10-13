@@ -70,3 +70,8 @@ for (const locale of ["lv", "ru", "en"])
     for (const value of Object.values(mediaMessages[locale]))
       assert.ok(value.trim());
   });
+
+test("inline photo pickers reject videos even when dragged past the file input accept filter", () => {
+  for (const name of ["clip.mp4", "clip.WEBM"]) assert.equal(checkFile({name, size:1024}, true), "invalid_file");
+  for (const name of ["photo.jpg", "photo.png", "photo.webp", "photo.avif"]) assert.equal(checkFile({name,size:1024}, true), null);
+});

@@ -1,11 +1,11 @@
 <script setup lang="ts">
-defineProps<{ title: string; intro?: string; eyebrow?: string }>();
+defineProps<{ title: string; intro?: string; eyebrow?: string; level?: "h1" | "h2" }>();
 </script>
 <template>
   <header class="admin-page-heading">
     <div>
       <p v-if="eyebrow" class="admin-eyebrow">{{ eyebrow }}</p>
-      <h1>{{ title }}</h1>
+      <component :is="level || 'h1'">{{ title }}</component>
       <p v-if="intro" class="admin-intro">{{ intro }}</p>
     </div>
     <div v-if="$slots.actions" class="admin-heading-actions">
@@ -32,7 +32,7 @@ defineProps<{ title: string; intro?: string; eyebrow?: string }>();
   color: #646e60;
   margin-bottom: 10px;
 }
-.admin-page-heading h1 {
+.admin-page-heading h1, .admin-page-heading h2 {
   font: 400 clamp(36px, 4vw, 52px)/1.12 var(--serif);
   overflow-wrap: anywhere;
 }
@@ -44,7 +44,11 @@ defineProps<{ title: string; intro?: string; eyebrow?: string }>();
   color: #646e60;
 }
 .admin-heading-actions {
+  flex-wrap: wrap;
+  max-width: 100%;
   display: flex;
   gap: 12px;
 }
 </style>
+
+<style scoped>.admin-page-heading h2{font-size:1.6rem}</style>

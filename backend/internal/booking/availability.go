@@ -14,10 +14,13 @@ var ErrInvalidAvailabilityInput = errors.New("invalid availability input")
 // AvailabilitySettings contains only the rules needed to calculate slots.
 // BookingHorizonDays includes today through today + BookingHorizonDays, in Riga.
 type AvailabilitySettings struct {
-	Timezone              string
-	BookingHorizonDays    int
-	MinimumAdvanceMinutes int
-	SlotIntervalMinutes   int
+	Timezone             string
+	BookingHorizonMonths int
+	BookingHorizonDays   int
+	// MinimumAdvanceReference is an engine-only review option; persisted settings always use appointment time.
+	MinimumAdvanceReference string
+	MinimumAdvanceMinutes   int
+	SlotIntervalMinutes     int
 }
 
 // WorkingInterval is a same-day local wall-clock interval. EndMinute may be
@@ -65,8 +68,8 @@ type Slot struct {
 // working interval; adjacent intervals are not implicitly combined.
 func GenerateSlots(now time.Time, date string, settings AvailabilitySettings, doctors []DoctorAvailability) ([]Slot, error) {
 	slots := make([]Slot, 0)
-	if now.IsZero() || settings.Timezone != "Europe/Riga" ||
-		settings.BookingHorizonDays < 0 || settings.BookingHorizonDays > 730 ||
+	if (settings.MinimumAdvanceReference != "" && settings.MinimumAdvanceReference != "appointment" && settings.MinimumAdvanceReference != "working_day_start_preview") || now.IsZero() || settings.Timezone != "Europe/Riga" ||
+		settings.BookingHorizonMonths < 0 || settings.BookingHorizonMonths > 12 || settings.BookingHorizonDays < 0 || settings.BookingHorizonDays > 730 ||
 		settings.MinimumAdvanceMinutes < 0 || settings.MinimumAdvanceMinutes > 525600 ||
 		settings.SlotIntervalMinutes < 1 || settings.SlotIntervalMinutes > 120 {
 		return nil, fmt.Errorf("%w: scheduling settings", ErrInvalidAvailabilityInput)
@@ -84,7 +87,17 @@ func GenerateSlots(now time.Time, date string, settings AvailabilitySettings, do
 	}
 	localNow := now.In(location)
 	today := time.Date(localNow.Year(), localNow.Month(), localNow.Day(), 0, 0, 0, 0, location)
-	if day.Before(today) || day.After(today.AddDate(0, 0, settings.BookingHorizonDays)) {
+	limit := today.AddDate(0, 0, settings.BookingHorizonDays)
+	if settings.BookingHorizonMonths > 0 {
+		target := time.Date(today.Year(), today.Month()+time.Month(settings.BookingHorizonMonths), 1, 0, 0, 0, 0, location)
+		last := target.AddDate(0, 1, -1).Day()
+		d := today.Day()
+		if d > last {
+			d = last
+		}
+		limit = time.Date(target.Year(), target.Month(), d, 0, 0, 0, 0, location)
+	}
+	if day.Before(today) || day.After(limit) {
 		return slots, nil
 	}
 	nextDay := day.AddDate(0, 0, 1)
@@ -95,6 +108,27 @@ func GenerateSlots(now time.Time, date string, settings AvailabilitySettings, do
 	}
 	seen := make(map[slotKey]bool)
 	for _, doctor := range doctors {
+		if settings.MinimumAdvanceReference == "working_day_start_preview" {
+			first := time.Time{}
+			// First real instant in any effective interval, before subtracting time off
+			// or bookings: those must not move the working-day cutoff later.
+			for instant := day.UTC(); instant.Before(nextDay); instant = instant.Add(time.Minute) {
+				local := instant.In(location)
+				minute := local.Hour()*60 + local.Minute()
+				for _, h := range doctor.Schedules {
+					if h.Weekday == day.Weekday() && (h.EffectiveFrom == "" || date >= h.EffectiveFrom) && (h.EffectiveUntil == "" || date <= h.EffectiveUntil) && minute >= h.StartMinute && minute < h.EndMinute {
+						first = instant
+						break
+					}
+				}
+				if !first.IsZero() {
+					break
+				}
+			}
+			if first.IsZero() || first.Before(earliest) {
+				continue
+			}
+		}
 		duration := time.Duration(doctor.DurationMinutes) * time.Minute
 		for _, schedule := range doctor.Schedules {
 			if schedule.Weekday != day.Weekday() ||

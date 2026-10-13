@@ -5,16 +5,16 @@ import { computed, ref } from "vue";
 import { services, media } from "../../services/cms/content";
 import { useContent } from "../../content/useContent";
 import { refinement as copy } from "../../services/cms/content";
-const { t, local } = useContent();
+const { t, local, locale } = useContent();
 const selected = ref(1);
 function selectPreview(index: number) {
   if (matchMedia("(hover: hover) and (pointer: fine)").matches)
     selected.value = index;
 }
-const current = computed(() => services[selected.value]!);
+const current = computed(() => services[selected.value]||services[0]);
 </script>
 <template>
-  <section class="section service-index">
+  <section v-if="current" class="section service-index">
     <div class="container">
       <div class="section-heading" data-reveal>
         <div>
@@ -32,9 +32,7 @@ const current = computed(() => services[selected.value]!);
           aria-hidden="true"
         >
           <div class="service-index-images">
-            <img
-              v-for="(s, i) in services"
-              :key="s.slug"
+            <template v-for="(s, i) in services" :key="s.slug"><img v-if="s.image"
               :src="media[s.image as keyof typeof media]"
               :srcset="cmsMediaSrcset(media[s.image as keyof typeof media])"
               sizes="(max-width: 768px) 100vw, 60vw"
@@ -43,7 +41,7 @@ const current = computed(() => services[selected.value]!);
               :class="{ 'is-selected': selected === i }"
               width="840"
               height="900"
-            />
+            /></template>
           </div>
           <div class="service-index-caption">
             <span
@@ -57,7 +55,7 @@ const current = computed(() => services[selected.value]!);
           <RouterLink
             v-for="(s, i) in services"
             :key="s.slug"
-            :to="`/pakalpojumi/${s.slug}`"
+            :to="{path:`/pakalpojumi/${s.slug}`,query:locale==='lv'?{}:{lang:locale}}"
             class="index-entry"
             :class="{ 'is-selected': selected === i }"
             @mouseenter="selectPreview(i)"

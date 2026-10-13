@@ -126,7 +126,7 @@ const en = {
   confirmedText: "We look forward to welcoming you at the clinic.",
   pendingTitle: "Your request is reserved.",
   pendingText:
-    "The clinic still needs to approve this appointment. Your selected time is reserved while it is pending.",
+    "The clinic still needs to approve this appointment. Your selected time is reserved while it is pending. Automatic email and WhatsApp notifications are not available. Keep your booking reference.",
   otherTitle: "Your booking details.",
   otherText:
     "This is the current status returned by the clinic. Contact us if you need help.",
@@ -279,7 +279,7 @@ const lv: Record<keyof typeof en, string> = {
   confirmedText: "Gaidīsim jūs klīnikā.",
   pendingTitle: "Jūsu pieprasījums ir rezervēts.",
   pendingText:
-    "Vizīte vēl jāapstiprina klīnikai. Izvēlētais laiks gaidīšanas laikā ir rezervēts.",
+    "Vizīte vēl jāapstiprina klīnikai. Izvēlētais laiks gaidīšanas laikā ir rezervēts. Automātiski e-pasta un WhatsApp paziņojumi nav pieejami. Saglabājiet pieraksta numuru.",
   otherTitle: "Jūsu pieraksta informācija.",
   otherText:
     "Šis ir klīnikas atgrieztais pašreizējais statuss. Ja nepieciešama palīdzība, sazinieties ar mums.",
@@ -432,7 +432,7 @@ const ru: Record<keyof typeof en, string> = {
   confirmedText: "Будем рады видеть вас в клинике.",
   pendingTitle: "Ваш запрос зарезервирован.",
   pendingText:
-    "Клинике ещё нужно одобрить визит. На время ожидания выбранное время зарезервировано.",
+    "Клинике ещё нужно одобрить визит. На время ожидания выбранное время зарезервировано. Автоматические уведомления по электронной почте и WhatsApp недоступны. Сохраните номер записи.",
   otherTitle: "Информация о вашей записи.",
   otherText:
     "Это текущий статус, полученный от клиники. Если нужна помощь, свяжитесь с нами.",

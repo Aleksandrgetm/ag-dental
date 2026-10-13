@@ -32,13 +32,39 @@ func (s *Store) WithConfigurationLock(ctx context.Context, fn func(*gorm.DB) err
 func (s *Store) Services(ctx context.Context) ([]Service, error) {
 	rows := []Service{}
 	err := s.DB.WithContext(ctx).Where("active AND booking_enabled AND duration_minutes IS NOT NULL").Order("sort_order,id").Find(&rows).Error
+	if err == nil {
+		err = servicePrices(s.DB.WithContext(ctx), rows)
+	}
 	return rows, err
 }
 func (s *Store) Doctors(ctx context.Context, serviceID string) ([]Doctor, error) {
 	if !ValidID(serviceID) {
 		return nil, ErrInvalid
 	}
-	return eligible(s.DB.WithContext(ctx), serviceID, "")
+	tx := s.DB.WithContext(ctx)
+	cfg, err := settings(tx)
+	if err != nil {
+		return nil, err
+	}
+	if cfg.PrivacyNoticeVersion == nil || *cfg.PrivacyNoticeVersion == "" {
+		return []Doctor{}, nil
+	}
+	rows, err := eligible(tx, serviceID, "")
+	if err != nil {
+		return nil, err
+	}
+	result := []Doctor{}
+	for _, row := range rows {
+		var ready bool
+		err = tx.Raw(`SELECT EXISTS(SELECT 1 FROM doctor_schedules h JOIN doctor_services ds ON ds.doctor_id=h.doctor_id JOIN services v ON v.id=ds.service_id WHERE h.doctor_id=? AND ds.service_id=? AND COALESCE((to_jsonb(h)->>'active')::boolean,true) AND (h.effective_until IS NULL OR h.effective_until >= (? AT TIME ZONE 'Europe/Riga')::date) AND extract(epoch FROM(h.end_time-h.start_time))/60>=COALESCE(ds.duration_override_minutes,v.duration_minutes))`, row.ID, serviceID, s.now()).Scan(&ready).Error
+		if err != nil {
+			return nil, err
+		}
+		if ready {
+			result = append(result, row)
+		}
+	}
+	return result, nil
 }
 func bookableService(tx *gorm.DB, id string) (Service, error) {
 	var v Service
@@ -52,7 +78,7 @@ func eligible(tx *gorm.DB, serviceID, doctorID string) ([]Doctor, error) {
 	if _, e := bookableService(tx, serviceID); e != nil {
 		return nil, e
 	}
-	q := tx.Table("doctors AS d").Select("d.*").Joins("JOIN doctor_services ds ON ds.doctor_id=d.id").Where("ds.service_id=? AND d.active AND d.booking_enabled", serviceID)
+	q := tx.Table("doctors AS d").Select("d.*").Joins("JOIN doctor_services ds ON ds.doctor_id=d.id").Where("ds.service_id=? AND d.active AND d.booking_enabled AND COALESCE((to_jsonb(ds)->>'booking_enabled')::boolean,true)", serviceID)
 	if doctorID != "" {
 		q = q.Where("d.id=?", doctorID)
 	}
@@ -111,14 +137,14 @@ func loadAvailability(tx *gorm.DB, serviceID, doctorID, date string, now time.Ti
 		e = tx.Raw(`SELECT weekday,(EXTRACT(HOUR FROM start_time)*60+EXTRACT(MINUTE FROM start_time))::int AS start_minute,
    (EXTRACT(HOUR FROM end_time)*60+EXTRACT(MINUTE FROM end_time))::int AS end_minute,
    COALESCE(effective_from::text,'') AS effective_from,COALESCE(effective_until::text,'') AS effective_until
-   FROM doctor_schedules WHERE doctor_id=?`, d.ID).Scan(&scheduleRows).Error
+   FROM doctor_schedules s WHERE doctor_id=? AND COALESCE((to_jsonb(s)->>'active')::boolean,true)`, d.ID).Scan(&scheduleRows).Error
 		if e != nil {
 			return nil, cfg, e
 		}
 		for _, v := range scheduleRows {
 			item.Schedules = append(item.Schedules, WorkingInterval{time.Weekday(v.Weekday), v.StartMinute, v.EndMinute, v.EffectiveFrom, v.EffectiveUntil})
 		}
-		e = tx.Table("doctor_time_off").Select("starts_at,ends_at").Where("doctor_id=? AND starts_at < ? AND ends_at > ?", d.ID, end, day).Scan(&item.TimeOff).Error
+		e = tx.Table("doctor_time_off").Select("starts_at,ends_at").Where("doctor_id=? AND starts_at < ? AND ends_at > ? AND COALESCE((to_jsonb(doctor_time_off)->>'active')::boolean,true)", d.ID, end, day).Scan(&item.TimeOff).Error
 		if e != nil {
 			return nil, cfg, e
 		}
@@ -179,6 +205,14 @@ func (s *Store) Create(ctx context.Context, r CreateRequest, key, userID, actorI
 		if e := tx.Exec("SELECT pg_advisory_xact_lock(hashtextextended(?, 731))", key).Error; e != nil {
 			return e
 		}
+		if e := tx.Exec("SELECT pg_advisory_xact_lock_shared(?)", configurationLock).Error; e != nil {
+			return e
+		}
+		if trustedManual {
+			if e := operationAdmin(tx, actorID); e != nil {
+				return e
+			}
+		}
 		var existing Appointment
 		e := tx.Where("idempotency_key=?", key).Take(&existing).Error
 		if e == nil {
@@ -190,9 +224,6 @@ func (s *Store) Create(ctx context.Context, r CreateRequest, key, userID, actorI
 			return nil
 		}
 		if !errors.Is(e, gorm.ErrRecordNotFound) {
-			return e
-		}
-		if e = tx.Exec("SELECT pg_advisory_xact_lock_shared(?)", configurationLock).Error; e != nil {
 			return e
 		}
 		cfg, e := settings(tx)

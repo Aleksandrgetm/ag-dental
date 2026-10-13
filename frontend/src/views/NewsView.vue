@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { createdContent } from "../services/cms/content";
 import { localizeArticle } from "../services/cms/content";
 import { articles } from "../services/cms/content";
 import { useContent } from "../content/useContent";
 import ContactBand from "../components/ContactBand.vue";
 const { t, date, locale } = useContent();
 const localizedArticles = computed(() =>
-  articles.map((article) => localizeArticle(article, locale.value)),
+  [...articles.map((article) => localizeArticle(article, locale.value)),...createdContent.value.filter(r=>r.key.startsWith("created.news.")).sort((a,b)=>a.payload.order-b.payload.order).map(({payload:p})=>({slug:p.slug,date:p.date,category:p.category?.[locale.value as "lv"|"ru"|"en"]||t("nav.news"),title:p.title[locale.value as "lv"|"ru"|"en"],excerpt:p.summary[locale.value as "lv"|"ru"|"en"]}))].sort((a,b)=>b.date.localeCompare(a.date)),
 );
 </script>
 <template>
@@ -35,3 +36,10 @@ const localizedArticles = computed(() =>
   </section>
   <ContactBand />
 </template>
+<style scoped>
+@media (max-width: 600px) {
+  .journal-list .journal-row { grid-template-columns: minmax(0, 1fr) 27px; }
+  .journal-row > div { min-width: 0; }
+  .journal-row h2 { overflow-wrap: anywhere; }
+}
+</style>

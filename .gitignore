@@ -27,3 +27,22 @@ frontend/dist/
 # Tracked configuration templates
 !frontend/.env.example
 !backend/.env.example
+
+# Private credentials, database backups and local diagnostics
+*.key
+*.pem
+*.p12
+*.pfx
+.pgpass
+*.dump
+*.backup
+*.sql.gz
+*.sparsebundle/
+*.log
+__pycache__/
+*.pyc
+
+# Historical local QA captures; retain only reviewed synthetic final evidence
+/docs/screenshots/*/
+!/docs/screenshots/final-e2e/
+/docs/seo-browser-evidence.json

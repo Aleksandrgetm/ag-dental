@@ -62,10 +62,11 @@ export function filterMedia(
           : !(a.usages.length || a.metadata.usages?.length))),
   );
 }
-export function checkFile(file: { name: string; size: number }) {
+export function checkFile(file: { name: string; size: number }, imagesOnly = false) {
   const ext = file.name.split(".").pop()?.toLowerCase() || "";
   if (
     !["jpg", "jpeg", "png", "webp", "avif", "mp4", "webm"].includes(ext) ||
+    (imagesOnly && ["mp4", "webm"].includes(ext)) ||
     file.size <= 0 ||
     file.size > (["mp4", "webm"].includes(ext) ? 32 : 12) * 1024 * 1024
   )

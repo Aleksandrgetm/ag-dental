@@ -14,12 +14,12 @@ test("CMS identities round-trip through unique internal editor URLs and part sco
   );
   for (const entry of cmsDestinations) {
     assert.equal(cmsDestination(entry.path), entry);
-    assert.equal(safeAdminReturn(entry.path), entry.path);
+    assert.equal(safeAdminReturn(entry.path), entry.group === "news" || ["/admin/doctors","/admin/services"].includes(entry.path) ? entry.path : null);
     for (const part of entry.section?.parts || []) {
       assert.ok(findDoc(part.key));
       assert.deepEqual(cmsSelection(entry.path, part.key).part, part);
       const url = entry.path + "?part=" + encodeURIComponent(part.key);
-      assert.equal(safeAdminReturn(url), url);
+      assert.equal(safeAdminReturn(url), null);
       assert.equal(findDoc(part.key).system_managed, false);
     }
   }

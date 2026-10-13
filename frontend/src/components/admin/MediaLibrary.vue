@@ -47,7 +47,7 @@ const search = ref(""),
   origin = ref(""),
   selected = ref<string | null>(null);
 const filtered = computed(() =>
-  filterMedia(assets.value, search.value, kind.value, use.value, origin.value),
+  filterMedia(assets.value, search.value, kind.value, use.value, origin.value).filter(a=>!props.picker||selectableMedia(a)),
 );
 const limit = ref(24);
 const visible = computed(() => filtered.value.slice(0, limit.value));
@@ -110,6 +110,7 @@ function title(value: any) {
   return value?.[locale.value] || value?.lv || "";
 }
 function usageTitle(key: string) {
+  if(key==="Specialist profile history")return t("operations.doctors");
   return title(documents.find((d) => d.key === key)?.title) || key;
 }
 function groupTitle(group: string) {
@@ -187,7 +188,8 @@ function choose(files: FileList | null) {
   if (uploading.value || !files?.length) return;
   error.value = "";
   notice.value = "";
-  if (files.length !== 1 || checkFile(files[0]!)) {
+  if (files.length !== 1 || checkFile(files[0]!, props.picker)) {
+    resetFile();
     error.value = "invalid_file";
     return;
   }
@@ -301,15 +303,15 @@ onBeforeUnmount(() => {
   <div class="media-library" :aria-busy="loading">
     <div class="media-heading">
       <div>
-        <h2>{{ t("media.title") }}</h2>
-        <p>{{ t("media.intro") }}</p>
+        <h2>{{ t(picker ? "created.image" : "media.title") }}</h2>
+        <p v-if="!picker">{{ t("media.intro") }}</p>
       </div>
       <button v-if="picker" type="button" @click="emit('close')">
         {{ t("media.close") }}
       </button>
     </div>
     <p v-if="!enabled && !loading" class="media-notice">
-      {{ t("media.unavailable") }}
+      <button type="button" disabled>{{t("media.upload")}}</button> {{ t("media.unavailable") }}
     </p>
     <p v-if="error" class="media-error" role="alert">
       {{ t("media." + error) }}
@@ -333,7 +335,7 @@ onBeforeUnmount(() => {
         :id="inputID"
         ref="fileInput"
         type="file"
-        accept=".jpg,.jpeg,.png,.webp,.avif,.mp4,.webm"
+        :accept="picker ? '.jpg,.jpeg,.png,.webp,.avif' : '.jpg,.jpeg,.png,.webp,.avif,.mp4,.webm'"
         :disabled="uploading"
         @change="choose(($event.target as HTMLInputElement).files)"
       />
@@ -408,7 +410,7 @@ onBeforeUnmount(() => {
           :src="imageSrc(detail, true)"
           :alt="description(detail)"
       /></template>
-      <dl>
+      <dl v-if="!picker">
         <div>
           <dt>{{ t("media.type") }}</dt>
           <dd>
@@ -470,7 +472,7 @@ onBeforeUnmount(() => {
         <strong>{{ t("media.alt") }} · {{ lang.toUpperCase() }}</strong>
         {{ detail.metadata.alt?.[lang] }}
       </p>
-      <ul>
+      <ul v-if="!picker">
         <li
           v-for="u in detail.usages"
           :key="u.document + u.path + u.published + u.draft"
@@ -500,7 +502,7 @@ onBeforeUnmount(() => {
           {{ t("media.select") }}</button
         ><button
           v-if="
-            !detail.protected &&
+            !picker && !detail.protected &&
             (detail.published_at ||
               (detail.origin === 'registered' &&
                 detail.url.startsWith('/media/')))
@@ -510,14 +512,14 @@ onBeforeUnmount(() => {
         >
           {{ t("media.copy") }}</button
         ><button
-          v-if="enabled && canArchive(detail)"
+          v-if="!picker && enabled && canArchive(detail)"
           type="button"
           @click="archive(detail)"
         >
           {{ t("media.archive") }}</button
         ><button
           v-if="
-            enabled &&
+            !picker && enabled &&
             !detail.protected &&
             detail.origin === 'upload' &&
             detail.state === 'archived'
@@ -598,14 +600,14 @@ onBeforeUnmount(() => {
               : asset.metadata.filename.split(".").at(-1)?.toUpperCase()
         }}</span
         ><strong>{{ asset.metadata.filename }}</strong
-        ><span
+        ><span v-if="!picker"
           >{{ asset.metadata.filename.split(".").at(-1)?.toUpperCase() }} ·
           {{ Math.ceil(asset.metadata.bytes / 1024) }} KB<span
             v-if="asset.metadata.width"
           >
             · {{ asset.metadata.width }} × {{ asset.metadata.height }}</span
           ></span
-        ><small>{{
+        ><small v-if="!picker">{{
           t(
             asset.protected
               ? "media.protected"
@@ -618,13 +620,13 @@ onBeforeUnmount(() => {
                     : "media.private",
           )
         }}</small
-        ><small>{{
+        ><small v-if="!picker">{{
           asset.usages.length || asset.metadata.usages?.length
             ? t("media.used")
             : t("media.unused")
         }}</small>
-        <small v-if="usageLocations(asset)">{{ usageLocations(asset) }}</small>
-        <small v-if="asset.origin === 'upload' && asset.created_at"
+        <small v-if="!picker && usageLocations(asset)">{{ usageLocations(asset) }}</small>
+        <small v-if="!picker && asset.origin === 'upload' && asset.created_at"
           >{{ t("media.date") }} ·
           {{
             new Intl.DateTimeFormat(locale).format(new Date(asset.created_at))

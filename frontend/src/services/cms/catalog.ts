@@ -422,7 +422,7 @@ export const settingsSections = [
       ]),
     ],
   ),
-  section("hours", L("Darba laiks", "Часы работы", "Opening hours"), [
+  section("hours", L("Klīnikas kopējais darba laiks", "Общие часы работы клиники", "General clinic opening hours"), [
     part("settings.hours"),
     part("messages.ui", ["hours"]),
   ]),
