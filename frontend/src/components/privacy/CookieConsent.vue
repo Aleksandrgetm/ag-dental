@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ArrowIcon from "../common/ArrowIcon.vue";
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useContent } from "../../content/useContent";
@@ -174,7 +175,7 @@ onBeforeUnmount(() => {
             :href="`https://policies.google.com/privacy?hl=${locale}`"
             target="_blank"
             rel="noopener noreferrer"
-            >{{ t("contact.googlePrivacy") }} ↗</a
+            >{{ t("contact.googlePrivacy") }} <ArrowIcon direction="external" /></a
           >
         </div>
         <div

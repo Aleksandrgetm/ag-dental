@@ -210,7 +210,8 @@
   },
   "git": {
     "deploymentEnabled": {
-      "feature/final-development": false
+      "feature/final-development": false,
+      "feature/hero-mobile-fix": false
     }
   }
 }

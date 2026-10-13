@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import ArrowIcon from "../components/common/ArrowIcon.vue";
+import { publicMedia as media, publicImageAlt as cmsMediaAlt } from "../services/hero/publicMedia";
 import {visiblePriceRows} from "../services/cms/priceRows";
-import { cmsMediaAlt, cmsMediaSrcset } from "../services/cms/content";
+import { cmsMediaSrcset } from "../services/cms/content";
 import { computed, watchEffect } from "vue";
 import { useRoute } from "vue-router";
-import { services, media } from "../services/cms/content";
+import { services } from "../services/cms/content";
 import { localizedPrices } from "../services/cms/content";
 import { useContent } from "../content/useContent";
 import ContactBand from "../components/ContactBand.vue";
@@ -28,7 +30,7 @@ watchEffect(() => {
   <template v-if="service"
     ><div class="container page-head service-head">
       <RouterLink class="eyebrow breadcrumb" to="/pakalpojumi"
-        >← {{ t("nav.services") }}</RouterLink
+        ><ArrowIcon direction="left" /> {{ t("nav.services") }}</RouterLink
       >
       <h1>{{ local(service.title) }}</h1>
       <p class="lead">{{ local(service.short) }}</p>

@@ -1,0 +1,17 @@
+{
+  "frontend/src/components/home/ScrollClinicHero.vue": "5310a66b1e00b548336b404b1fdb198770d03d298ddd7defdeb7a6d1a413d76a",
+  "frontend/src/style.css": "d7ea8f1c36eae8c03c53a032aa2c7319303b1fcdef215ea08949aae0048034d2",
+  "frontend/src/fonts.css": "6f9273ecbfbbfbc562a6c2c742f346467f26e0ae081a849db5c4896639ab1619",
+  "frontend/src/content/clinic.ts": "39306e53ccdf4e72ad31b44f7d102ed5564071ab36d1cf65bda2fd51f4840a1e",
+  "frontend/src/content/useContent.ts": "1c230c671eede93c1135c6eccefefd1ae68b71f2f5ee68492d0af831fc887790",
+  "frontend/src/i18n/index.ts": "c8041022ce0eb1827eacfb0ed59b65cc0b337f6d79e0f8ac6b6a6cf149d53595",
+  "frontend/public/media/clinic/clinic-tour.mp4": "14b98679fe39c9715d61719fbb56c3adca8ae8354ff0fc4df5a0f0070d5c719b",
+  "frontend/public/media/clinic/tour-poster.jpg": "12d0dcedfdfd5b9597dbd9256f3cfc35563a71092340b5f4932f6bc45761a9d3",
+  "frontend/public/fonts/Manrope-OFL.txt": "58172e0c0fac2cda8a37b348164bb55e44b0e69051e557e92b1d3f6910141f7b",
+  "frontend/public/fonts/cormorant-garamond-normal-400.ttf": "6d37a86241a25d63f8fe6018b4c083449886b7165c1acb15edd0f574f690ecf7",
+  "frontend/public/fonts/manrope-normal-400.ttf": "a13d9b41b0a471ce58f0e46d377fa3cc76615e4632c3b15eb397caadf7a13f0a",
+  "frontend/public/fonts/manrope-normal-600.ttf": "6bad1a774228464cc88b8b0271555b266f7a3c64a7bedf15e165fdab4f6ac0ce",
+  "frontend/public/fonts/manrope-normal-500.ttf": "f433e5d333be1128d8ec8a28b8aadd0314d10e14e4105406076666bc830fc15d",
+  "frontend/public/fonts/cormorant-garamond-italic-400.ttf": "0b9a8a33cfaa624d30f70f9b6686da769b319b8c37a55af16e29fef690108bbf",
+  "frontend/public/fonts/Cormorant-Garamond-OFL.txt": "60700d351cac4650c51f3f9db318d2a420f8b45052dba2715eb5fec41f0f6956"
+}

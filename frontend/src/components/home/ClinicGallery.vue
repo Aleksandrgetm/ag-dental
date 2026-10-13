@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { cmsMediaAlt, cmsMediaSrcset } from "../../services/cms/content";
+import { publicMedia as media, publicImageAlt as cmsMediaAlt } from "../../services/hero/publicMedia";
+import { cmsMediaSrcset } from "../../services/cms/content";
 import { cmsLiteral } from "../../services/cms/content";
 import { useI18n } from "vue-i18n";
 const { locale } = useI18n();
-import { media } from "../../services/cms/content";
 </script>
 
 <template>

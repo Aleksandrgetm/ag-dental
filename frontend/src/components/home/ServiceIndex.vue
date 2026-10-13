@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import { publicMedia as media } from "../../services/hero/publicMedia";
 import { cmsMediaSrcset } from "../../services/cms/content";
 import { cmsLiteral } from "../../services/cms/content";
 import { computed, ref } from "vue";
-import { services, media } from "../../services/cms/content";
+import { services } from "../../services/cms/content";
 import { useContent } from "../../content/useContent";
 import { refinement as copy } from "../../services/cms/content";
 const { t, local, locale } = useContent();

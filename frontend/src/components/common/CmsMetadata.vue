@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import { publicMedia as media } from "../../services/hero/publicMedia";
 import {watch,nextTick} from 'vue';
 import {useRoute,useRouter} from 'vue-router';
 import {useI18n} from 'vue-i18n';
-import {cmsSEO,createdContent,services,serviceCatalog,clinic,articles,localizeArticle,media} from '../../services/cms/content';
+import {cmsSEO,createdContent,services,serviceCatalog,clinic,articles,localizeArticle} from '../../services/cms/content';
 import {canonicalURL,locales,publicPaths,resolveSEO,resolveServiceSEO,SITE_ORIGIN} from '../../services/seo';
 import {createdPath} from '../../services/cms/created';
 const route=useRoute(),router=useRouter(),{locale}=useI18n();

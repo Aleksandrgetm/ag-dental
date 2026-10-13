@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { cmsMediaAlt, cmsMediaSrcset } from "../services/cms/content";
+import { publicMedia as media, publicImageAlt as cmsMediaAlt } from "../services/hero/publicMedia";
+import { cmsMediaSrcset } from "../services/cms/content";
 import { cmsLiteral } from "../services/cms/content";
-import { media, about, philosophy, doctorBio } from "../services/cms/content";
+import { about, philosophy, doctorBio } from "../services/cms/content";
 import { useContent } from "../content/useContent";
 import ContactBand from "../components/ContactBand.vue";
 const { t, local, locale } = useContent();

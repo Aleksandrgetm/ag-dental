@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ArrowIcon from "../components/common/ArrowIcon.vue";
 import { cmsLiteral } from "../services/cms/content";
 import ContactQuestionForm from "../components/ContactQuestionForm.vue";
 import VisitQuestions from "../components/VisitQuestions.vue";
@@ -58,7 +59,7 @@ const mapSource = computed(() => `https://www.google.com/maps?q=${encodeURICompo
             :href="clinic.map"
             target="_blank"
             rel="noopener noreferrer"
-            >{{ t("contact.openMap") }} ↗</a
+            >{{ t("contact.openMap") }} <ArrowIcon direction="external" /></a
           >
         </div>
       </div>

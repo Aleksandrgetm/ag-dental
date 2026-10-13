@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import ArrowIcon from "../components/common/ArrowIcon.vue";
+import { publicMedia as media, publicImageAlt as cmsMediaAlt } from "../services/hero/publicMedia";
 import {computed,ref,onMounted} from 'vue';
 import {useRoute} from 'vue-router';
-import {articles,localizeArticle,createdContent,refreshPublished,media,cmsMediaAlt,cmsMediaSrcset,cmsLiteral} from '../services/cms/content';
+import {articles,localizeArticle,createdContent,refreshPublished,cmsMediaSrcset,cmsLiteral} from '../services/cms/content';
 import {importedArticle,createdArticle,type ArticleLocale} from '../services/cms/article';
 import {cmsMediaDimensions} from '../services/cms/publishedMedia';
 import {useContent} from '../content/useContent';
@@ -26,7 +28,7 @@ onMounted(async()=>{await refreshPublished();loaded.value=true});
   <article class="article-editorial" :lang="locale">
    <div class="container article-shell">
     <div class="article-masthead">
-     <RouterLink class="eyebrow breadcrumb" to="/jaunumi">← {{t('nav.news')}}</RouterLink>
+     <RouterLink class="eyebrow breadcrumb" to="/jaunumi"><ArrowIcon direction="left" /> {{t('nav.news')}}</RouterLink>
      <div class="article-meta"><time :datetime="article.date">{{date(article.date)}}</time><span v-if="article.category">{{article.category}}</span></div>
     </div>
     <div ref="reading" class="article-reading">

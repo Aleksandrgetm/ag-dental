@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import { publicMedia as media } from "../services/hero/publicMedia";
 import { cmsMediaSrcset } from "../services/cms/content";
-import { services, media } from "../services/cms/content";
+import { services } from "../services/cms/content";
 import { useContent } from "../content/useContent";
 import ContactBand from "../components/ContactBand.vue";
 const { t, local, locale } = useContent();

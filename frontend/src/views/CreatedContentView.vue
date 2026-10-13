@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import { publicMedia as media, publicImageAlt as cmsMediaAlt } from "../services/hero/publicMedia";
 import {computed,onMounted,ref,watchEffect} from 'vue';
 import {useRoute} from 'vue-router';
 import {useContent} from '../content/useContent';
-import {createdContent,refreshPublished,media,cmsMediaAlt,cmsMediaSrcset} from '../services/cms/content';
+import {createdContent,refreshPublished,cmsMediaSrcset} from '../services/cms/content';
 import NotFoundView from './NotFoundView.vue';
 import ContactBand from '../components/ContactBand.vue';
 const route=useRoute(),{locale,t,date}=useContent(),loaded=ref(false);

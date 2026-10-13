@@ -32,5 +32,5 @@ if (changed.length) {
   process.exitCode = 1;
 } else
   console.log(
-    `Hero lock verified: ${Object.keys(baseline).length} files match the approved baseline (Hero CTA destination exception only), including shared CSS, copy, fonts, video and poster.`,
+    `Hero lock verified: ${Object.keys(baseline).length} files match the approved baseline (authorized mobile/mode component baseline; Hero CTA destination exception retained), including shared CSS, copy, fonts, video and poster.`,
   );

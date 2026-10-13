@@ -1,5 +1,7 @@
 <script setup lang="ts">
-import { cmsMediaAlt, cmsMediaSrcset } from "../services/cms/content";
+import ArrowIcon from "../components/common/ArrowIcon.vue";
+import { publicMedia as media, publicImageAlt as cmsMediaAlt } from "../services/hero/publicMedia";
+import { cmsMediaSrcset } from "../services/cms/content";
 import { cmsLiteral, cmsInline } from "../services/cms/content";
 import ScrollClinicHero from "../components/home/ScrollClinicHero.vue";
 import ServiceIndex from "../components/home/ServiceIndex.vue";
@@ -9,7 +11,6 @@ import ContactBand from "../components/ContactBand.vue";
 import { vPhotoParallax } from "../directives/photoParallax";
 import { vEditorialMotion } from "../directives/editorialMotion";
 import {
-  media,
   philosophy,
   about,
   doctorBio,
@@ -242,7 +243,7 @@ const preview = services.filter((s) =>
               </h3>
               <p lang="lv">{{ article.excerpt }}</p>
               <span class="text-link"
-                >{{ t("common.read") }} <span aria-hidden="true">→</span></span
+                >{{ t("common.read") }} <span aria-hidden="true"><ArrowIcon direction="right" /></span></span
               ></RouterLink
             >
           </div>

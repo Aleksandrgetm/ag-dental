@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ArrowIcon from "../components/common/ArrowIcon.vue";
 import { computed } from "vue";
 import { createdContent } from "../services/cms/content";
 import { localizeArticle } from "../services/cms/content";
@@ -31,7 +32,7 @@ const localizedArticles = computed(() =>
         </h2>
         <p>{{ a.excerpt }}</p>
       </div>
-      <span class="row-arrow" aria-hidden="true">→</span></RouterLink
+      <span class="row-arrow" aria-hidden="true"><ArrowIcon direction="right" /></span></RouterLink
     >
   </section>
   <ContactBand />
