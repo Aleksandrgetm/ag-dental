@@ -1,19 +1,20 @@
 {
   "auth": "PASS real Supabase Auth login/JWT verification + database role",
   "booking": {
-    "id": "a9b56d45-437e-4fd4-9392-55bf0946936e",
-    "booking_reference": "AG-28435500C2605D0E9DBA",
+    "id": "d628a253-5589-4074-8f30-800506ff6050",
+    "booking_reference": "AG-5B5E1C0D758816C23A28",
     "status": "pending",
-    "starts_at": "2026-10-12T06:00:00+00:00",
-    "ends_at": "2026-10-12T06:30:00+00:00",
+    "starts_at": "2026-10-14T06:00:00+00:00",
+    "ends_at": "2026-10-14T06:30:00+00:00",
     "realBrowser": true,
     "events": "created,confirmed,rescheduled,cancelled",
     "finalStatus": "cancelled",
     "concurrency": "201/409; exactly one active row"
   },
   "adminAppointments": "PASS day/week/month, details, confirm/reschedule/cancel/history, manual creation",
+  "inlinePortrait": "PASS real file chooser, local preview, upload, save, replacement, persisted portrait and historical-reference archive denial",
   "specialists": {
-    "id": "e3529cfc-b8e4-4c35-80aa-e90108fd34c0",
+    "id": "35ca0d23-37dc-461b-ac21-152f2d0366dc",
     "profileEdit": true,
     "incompleteHidden": true,
     "status": "PASS",
@@ -22,29 +23,39 @@
     "publicVisibilityVerified": true
   },
   "media": {
-    "uploadStatus": 200,
-    "id": "upload.43638ad4137124e8ec90880b8a14fe14",
-    "responseKeys": [
-      "id",
-      "url",
-      "metadata",
-      "protected",
-      "origin",
-      "state",
-      "created_at",
-      "published_at",
-      "usages",
-      "references"
-    ],
-    "replacement": "PASS browser replacement, new publication delivery, old historical reference retained",
-    "optimizedFiles": 8,
+    "id": "upload.642073b1d6f62ce1abdd418bf6956492",
     "unreferencedDeletion": "PASS actual Storage objects removed; private preview authorized; unpublished public delivery denied"
   },
+  "publicationValidation": "PASS 422 exact field title.lv/body.ru/date/image; atomic rejection without leaked draft; valid multilingual direct publication",
+  "archiveUnavailable": "PASS actual browser POST /archive: 503 news_archive_unavailable; unchanged document/version and useful localized error",
+  "archiveRequests": [
+    {
+      "scenario": "published",
+      "method": "POST",
+      "endpoint": "/api/admin/cms/documents/:key/archive",
+      "status": 200,
+      "response": {
+        "archived": true,
+        "published_revision": null
+      },
+      "immediateRemoval": true
+    },
+    {
+      "scenario": "unpublished",
+      "method": "POST",
+      "endpoint": "/api/admin/cms/documents/:key/archive",
+      "status": 200,
+      "response": {
+        "archived": true,
+        "published_revision": null
+      },
+      "immediateRemoval": true
+    }
+  ],
+  "deletion": "PASS published and never-published UI deletion, persistent normal-list exclusion, retry without duplicate audit, archive view and unpublished restoration",
   "news": {
-    "key": "created.news.4d310f51-307a-4e0b-98ea-c1405706a57c",
-    "publicPath": "/jaunumi/synthetic-acceptance-title-lv",
-    "status": "PASS",
-    "unpublished": true
+    "key": "created.news.f201c1ea-f9e0-47e8-b507-f9d9165109d4",
+    "result": "PASS direct publish/list/detail/LV-RU-EN/refresh/edit/image replacement/archive/restore/retry"
   },
   "security": "PASS real JWT tampering, database roles/RLS, anonymous/user denials, private originals, historical references, direct Storage object denial, file/size rejection",
   "public": [

@@ -28,6 +28,16 @@ for name in media cms booking auth migration operations; do
  fi
  if [ "$name" = operations ] || [ "$name" = cms ]; then
   sql "ag_${name}_test" < migrations/proposed/006_admin_operations.sql >/dev/null
+  sql "ag_${name}_test" < migrations/proposed/007_news_archive.sql >/dev/null
+  # Raw 007 is intentionally not idempotent: a repeat must fail atomically.
+  # This checks SQL safety only; production still needs a ledger-aware runner.
+  if sql "ag_${name}_test" < migrations/proposed/007_news_archive.sql >"$TASK_ROOT/repeat-007-$name.log" 2>&1; then
+   echo 'Unexpected repeat migration success'; exit 1
+  fi
+  if ! rg -q 'column "archived_at" of relation "cms_documents" already exists' "$TASK_ROOT/repeat-007-$name.log"; then
+   echo 'Unexpected repeat migration failure'; exit 1
+  fi
+  printf "SELECT 1 / CASE WHEN count(*)=1 THEN 1 ELSE 0 END FROM information_schema.columns WHERE table_schema='public' AND table_name='cms_documents' AND column_name='archived_at';" | sql "ag_${name}_test" >/dev/null
  fi
 done
 # Plain loopback-only local test connections; never a substitute for production verify-full.

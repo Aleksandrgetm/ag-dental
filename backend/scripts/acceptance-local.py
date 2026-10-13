@@ -48,8 +48,19 @@ try:
  container('auth',AUTH,55902,9999,{'GOTRUE_API_HOST':'0.0.0.0','GOTRUE_API_PORT':9999,'API_EXTERNAL_URL':'https://localhost:5190/auth/v1','GOTRUE_DB_DRIVER':'postgres','GOTRUE_DB_DATABASE_URL':db+'&search_path=auth','GOTRUE_SITE_URL':'https://localhost:5190','GOTRUE_JWT_SECRET':secret,'GOTRUE_JWT_AUD':'authenticated','GOTRUE_JWT_ADMIN_ROLES':'service_role','GOTRUE_EXTERNAL_EMAIL_ENABLED':'true','GOTRUE_MAILER_AUTOCONFIRM':'true','GOTRUE_DISABLE_SIGNUP':'false','GOTRUE_RATE_LIMIT_EMAIL_SENT':0})
  wait('http://127.0.0.1:55902/health')
  assert sql("SELECT to_regclass('auth.users')")=='auth.users'
- for migration in ['001_user_roles','002_booking_foundation','003_automatic_confirmation','004_website_cms','005_cms_media','proposed/006_admin_operations']:
+ for migration in ['001_user_roles','002_booking_foundation','003_automatic_confirmation','004_website_cms','005_cms_media','proposed/006_admin_operations','proposed/007_news_archive']:
   sql((ROOT/'backend/migrations'/f'{migration}.sql').read_text());print('Applied only to disposable database: '+migration,flush=True)
+ if os.environ.get('QA_REAL_BOOKING')=='1':
+  horizon_up=(ROOT/'backend/migrations/proposed/008_calendar_month_horizon.sql').read_text()
+  sql(horizon_up)
+  assert sql('SELECT booking_horizon_months FROM booking_settings')=='0'
+  sql((ROOT/'backend/migrations/proposed/008_calendar_month_horizon.down.sql').read_text())
+  sql(horizon_up)
+  try:sql(horizon_up)
+  except subprocess.CalledProcessError:pass
+  else:raise RuntimeError('Repeated raw migration unexpectedly succeeded')
+  assert sql('SELECT booking_horizon_months FROM booking_settings')=='0'
+  print('Proposed 008 apply/default/rollback/reapply/repeated failure safety PASS (disposable only)',flush=True)
  # Auth users are created through the real Auth API, never auth table inserts.
  admin=request('http://127.0.0.1:55902/signup',{'email':'admin@acceptance.invalid','password':password})
  user=request('http://127.0.0.1:55902/signup',{'email':'user@acceptance.invalid','password':password,'data':{'role':'admin'}})
@@ -68,9 +79,23 @@ try:
  der=subprocess.run(['openssl','pkey','-pubin','-outform','DER'],input=pub.encode(),stdout=subprocess.PIPE,check=True).stdout
  spki=base64.b64encode(hashlib.sha256(der).digest()).decode()
  qa={**env,'DATABASE_URL':'postgres://qa@127.0.0.1:55901/ag_acceptance_test?sslmode=disable','SUPABASE_URL':'https://localhost:5190','SUPABASE_PUBLISHABLE_KEY':anon,'SUPABASE_STORAGE_SECRET_KEY':service,'SSL_CERT_FILE':str(TMP/'cert.pem'),'PORT':'55904','MEDIA_UPLOADS_ENABLED':'true','CORS_ALLOWED_ORIGINS':'https://localhost:5190'}
- for name in ['api','cms']:run(['go','build','-o',str(TMP/name),'./cmd/'+name],cwd=ROOT/'backend')
+ build_args=[]
+ if os.environ.get('QA_ADVANCE_REVIEW')=='working_day_start':
+  assert os.environ.get('QA_REAL_BOOKING')=='1', 'Policy preview requires synthetic Booking mode'
+  source=ROOT/'backend/internal/booking/store.go'
+  original=source.read_text()
+  needle='slots, e := GenerateSlots(now, date, cfg.availability(), inputs)'
+  assert original.count(needle)==1
+  preview=TMP/'store-preview.go'
+  preview.write_text(original.replace(needle,'previewCfg := cfg.availability(); previewCfg.MinimumAdvanceReference = "working_day_start_preview"; slots, e := GenerateSlots(now, date, previewCfg, inputs)'))
+  overlay=TMP/'overlay.json';overlay.write_text(json.dumps({'Replace':{str(source):str(preview)}}))
+  build_args=['-overlay',str(overlay)]
+  print('ISOLATED REVIEW ONLY: workday cutoff injected into temporary Go build; production source mapping unchanged',flush=True)
+ for name in ['api','cms']:run(['go','build',*build_args,'-o',str(TMP/name),'./cmd/'+name],cwd=ROOT/'backend')
  run([str(TMP/'cms'),'--apply','--confirm-import'],env=qa,cwd=TMP)
  sql((ROOT/'backend/testdata/acceptance.sql').read_text())
+ if os.environ.get('QA_REAL_BOOKING')=='1':sql((ROOT/'backend/testdata/real_booking_staging.sql').read_text())
+ if os.environ.get('QA_CATALOG_ONLY')=='1':run([str(TMP/'cms'),'--catalog','--apply','--confirm-import'],env=qa,cwd=TMP)
  children.append(subprocess.Popen([str(TMP/'api')],env=qa,cwd=TMP,stdout=log,stderr=log))
  fe={**env,'AG_ACCEPTANCE':'disposable','QA_TLS_KEY':str(TMP/'key.pem'),'QA_TLS_CERT':str(TMP/'cert.pem'),'VITE_API_URL':'/api','VITE_SUPABASE_URL':'https://localhost:5190','VITE_SUPABASE_PUBLISHABLE_KEY':anon,'VITE_BOOKING_DEMO':'false'}
  children.append(subprocess.Popen(['node','scripts/acceptance-server.mjs'],cwd=ROOT/'frontend',env=fe,stdout=log,stderr=log))
@@ -79,8 +104,9 @@ try:
  run(['ffmpeg','-v','error','-f','lavfi','-i','color=c=blue:s=800x800','-frames:v','1','-y',str(TMP/'synthetic.png')])
  run(['ffmpeg','-v','error','-f','lavfi','-i','color=c=red:s=800x800','-frames:v','1','-y',str(TMP/'replacement.png')])
  run(['ffmpeg','-v','error','-f','lavfi','-i','color=c=green:s=800x800','-frames:v','1','-y',str(TMP/'deletable.png')])
- testenv={**env,'QA_IMAGE_DELETABLE':str(TMP/'deletable.png'),'QA_IMAGE_REPLACEMENT':str(TMP/'replacement.png'),'QA_IMAGE':str(TMP/'synthetic.png'),'AG_ACCEPTANCE':'disposable','QA_PASSWORD':password,'QA_SPki':spki,'NODE_EXTRA_CA_CERTS':str(TMP/'cert.pem'),'QA_CA':str(TMP/'cert.pem'),'QA_PG_CONTAINER':NAME+'-pg','QA_USER_TOKEN':user['access_token'],'QA_ANON_KEY':anon,'PLAYWRIGHT_MODULE':os.environ.get('PLAYWRIGHT_MODULE','playwright')}
- result=subprocess.run(['node','tests/acceptance-real-browser.cjs'],cwd=ROOT/'frontend',env=testenv)
+ testenv={**env,'QA_ADVANCE_REVIEW':os.environ.get('QA_ADVANCE_REVIEW','appointment'),'QA_IMAGE_DELETABLE':str(TMP/'deletable.png'),'QA_IMAGE_REPLACEMENT':str(TMP/'replacement.png'),'QA_IMAGE':str(TMP/'synthetic.png'),'AG_ACCEPTANCE':'disposable','QA_PASSWORD':password,'QA_SPki':spki,'NODE_EXTRA_CA_CERTS':str(TMP/'cert.pem'),'QA_CA':str(TMP/'cert.pem'),'QA_PG_CONTAINER':NAME+'-pg','QA_USER_TOKEN':user['access_token'],'QA_ANON_KEY':anon,'PLAYWRIGHT_MODULE':os.environ.get('PLAYWRIGHT_MODULE','playwright')}
+ script='tests/real-booking-staging.cjs' if os.environ.get('QA_REAL_BOOKING')=='1' else 'tests/catalog-real-browser.cjs' if os.environ.get('QA_CATALOG_ONLY')=='1' else 'tests/news-real-browser.cjs' if os.environ.get('QA_NEWS_ONLY')=='1' else 'tests/acceptance-real-browser.cjs'
+ result=subprocess.run(['node',script],cwd=ROOT/'frontend',env=testenv)
  if result.returncode:raise RuntimeError('Browser acceptance failed; see sanitized test output')
 finally:
  for child in reversed(children):

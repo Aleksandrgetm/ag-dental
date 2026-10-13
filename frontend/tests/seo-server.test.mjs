@@ -14,3 +14,23 @@ test('prepared public renderer returns initial localized metadata and safe statu
  process.env.VERCEL_ENV='preview';const preview=await fetch(base+'/?path=/cenas');assert.equal(preview.headers.get('x-robots-tag'),'noindex, nofollow');assert.equal(await (await fetch(base+'/?path=/robots.txt')).text(),'User-agent: *\nDisallow: /\n');
  }finally{await new Promise(r=>server.close(r));process.chdir(cwd);if(prior===undefined)delete process.env.CMS_PUBLIC_API_URL;else process.env.CMS_PUBLIC_API_URL=prior;if(env===undefined)delete process.env.VERCEL_ENV;else process.env.VERCEL_ENV=env}
 });
+
+test('withdrawn imported news is 404 and published created news resolves without rebuild',async()=>{
+ const {resolvePublic}=await import('../api/render.ts');
+ const docs=[];docs.withdrawnNews=['news.zobu-higiena'];
+ assert.equal(resolvePublic('/jaunumi/zobu-higiena','en',docs).status,404);
+ const {emptyCreated}=await import('../src/services/cms/created.ts');const p=emptyCreated();p.slug='synthetic-new';for(const f of ['title','body','summary','seo_title','seo_description'])p[f]={lv:'LV',ru:'RU',en:'EN'};
+ docs.push({key:'created.news.11111111-1111-4111-8111-111111111111',payload:p});
+ assert.equal(resolvePublic('/jaunumi/synthetic-new','ru',docs).content.title,'RU');
+ docs.length=0;assert.equal(resolvePublic('/jaunumi/synthetic-new','en',docs).status,404);
+});
+
+test('live sitemap omits withdrawn legacy news and includes published dynamic news',async()=>{
+ const oldURL=process.env.CMS_PUBLIC_API_URL,prior=globalThis.fetch;
+ process.env.CMS_PUBLIC_API_URL='https://cms.example.invalid/api';
+ const {emptyCreated}=await import('../src/services/cms/created.ts');const p=emptyCreated();p.slug='synthetic-news';for(const field of ['title','body','summary','seo_title','seo_description'])p[field]={lv:'LV',ru:'RU',en:'EN'};
+ globalThis.fetch=(url,options)=>String(url).startsWith('https://cms.example.invalid/')?Promise.resolve(new Response(JSON.stringify({schema_version:1,withdrawn_news:['news.zobu-higiena'],documents:[{key:'created.news.11111111-1111-4111-8111-111111111111',payload:p}]}),{status:200})):prior(url,options);
+ const server=http.createServer((req,res)=>{handler(req,res).catch(()=>{res.statusCode=500;res.end()})});await new Promise(r=>server.listen(0,'127.0.0.1',r));
+ try{const response=await fetch('http://127.0.0.1:'+server.address().port+'/?path=/sitemap.xml');assert.equal(response.status,200);const xml=await response.text();assert.ok(xml.includes('/jaunumi/synthetic-news'));assert.ok(!xml.includes('/jaunumi/zobu-higiena<'));assert.ok(!xml.includes('/jaunumi/zobu-higiena?'));}
+ finally{await new Promise(r=>server.close(r));globalThis.fetch=prior;if(oldURL===undefined)delete process.env.CMS_PUBLIC_API_URL;else process.env.CMS_PUBLIC_API_URL=oldURL}
+});
