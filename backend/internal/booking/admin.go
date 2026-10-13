@@ -245,7 +245,7 @@ func (s *Store) UpdateSettings(ctx context.Context, cfg Settings, actor string) 
 	if !ValidID(actor) {
 		return ErrInvalid
 	}
-	if (cfg.ConfirmationMode != "manual" && cfg.ConfirmationMode != "automatic") || cfg.BookingHorizonDays < 1 || cfg.BookingHorizonDays > 730 || cfg.MinimumAdvanceMinutes < 0 || cfg.MinimumAdvanceMinutes > 525600 || cfg.SlotIntervalMinutes < 1 || cfg.SlotIntervalMinutes > 120 || cfg.Timezone != "Europe/Riga" {
+	if (cfg.ConfirmationMode != "manual" && cfg.ConfirmationMode != "automatic") || cfg.BookingHorizonMonths < 0 || cfg.BookingHorizonMonths > 12 || cfg.BookingHorizonDays < 1 || cfg.BookingHorizonDays > 730 || cfg.MinimumAdvanceMinutes < 0 || cfg.MinimumAdvanceMinutes > 525600 || cfg.SlotIntervalMinutes < 1 || cfg.SlotIntervalMinutes > 120 || cfg.Timezone != "Europe/Riga" {
 		return ErrInvalid
 	}
 	if cfg.PrivacyNoticeVersion != nil && !cleanText(*cfg.PrivacyNoticeVersion, 1, 100) {
@@ -277,7 +277,13 @@ func (s *Store) UpdateSettings(ctx context.Context, cfg Settings, actor string) 
 		if bytes.Equal(before, after) {
 			return nil
 		}
-		if err = tx.Model(&Settings{}).Where("id=1").Updates(map[string]any{"confirmation_mode": cfg.ConfirmationMode, "booking_horizon_days": cfg.BookingHorizonDays, "minimum_advance_minutes": cfg.MinimumAdvanceMinutes, "slot_interval_minutes": cfg.SlotIntervalMinutes, "timezone": cfg.Timezone, "privacy_notice_version": cfg.PrivacyNoticeVersion, "cancellation_policy": string(cfg.CancellationPolicy), "updated_at": s.now()}).Error; err != nil {
+		updates := map[string]any{"confirmation_mode": cfg.ConfirmationMode, "booking_horizon_days": cfg.BookingHorizonDays, "minimum_advance_minutes": cfg.MinimumAdvanceMinutes, "slot_interval_minutes": cfg.SlotIntervalMinutes, "timezone": cfg.Timezone, "privacy_notice_version": cfg.PrivacyNoticeVersion, "cancellation_policy": string(cfg.CancellationPolicy), "updated_at": s.now()}
+		if tx.Migrator().HasColumn(&Settings{}, "booking_horizon_months") {
+			updates["booking_horizon_months"] = cfg.BookingHorizonMonths
+		} else if cfg.BookingHorizonMonths != 0 {
+			return ErrNotConfigured
+		}
+		if err = tx.Model(&Settings{}).Where("id=1").Updates(updates).Error; err != nil {
 			return err
 		}
 		return tx.Exec(`INSERT INTO booking_settings_events(actor_user_id,source,previous_settings,new_settings) VALUES (?,'admin',?::jsonb,?::jsonb)`, actor, string(before), string(after)).Error
@@ -295,7 +301,7 @@ func settingsSnapshot(cfg Settings) ([]byte, error) {
 		return nil, err
 	}
 	return json.Marshal(map[string]any{
-		"confirmation_mode": cfg.ConfirmationMode, "booking_horizon_days": cfg.BookingHorizonDays,
+		"booking_horizon_months": cfg.BookingHorizonMonths, "confirmation_mode": cfg.ConfirmationMode, "booking_horizon_days": cfg.BookingHorizonDays,
 		"minimum_advance_minutes": cfg.MinimumAdvanceMinutes, "slot_interval_minutes": cfg.SlotIntervalMinutes,
 		"timezone": cfg.Timezone, "privacy_notice_version": cfg.PrivacyNoticeVersion, "cancellation_policy": policy,
 	})

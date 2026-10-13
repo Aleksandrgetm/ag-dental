@@ -18,20 +18,22 @@ import (
 var versions = []string{"001_user_roles", "002_booking_foundation", "003_automatic_confirmation", "004_website_cms", "005_cms_media"}
 
 func main() {
+	horizon := flag.Bool("apply-booking-horizon", false, "apply only reviewed migration 008 after complete 001–007 baseline")
+	archive := flag.Bool("apply-news-archive", false, "apply only reviewed migration 007 after the complete 001–006 baseline")
 	operations := flag.Bool("apply-admin-operations", false, "apply only reviewed migration 006 after the complete 001–005 baseline")
 	adopt := flag.Bool("adopt-auth-baseline", false, "validate an existing, unrecorded auth schema and record migration 001 only")
 	down := flag.Bool("down-booking", false, "roll back migration 002 only if it contains no real catalog or appointment data")
 	downConfirmation := flag.Bool("down-confirmation-default", false, "roll back migration 003, restoring manual mode for future bookings without changing appointments")
 	dir := flag.String("dir", "migrations", "directory containing reviewed migration SQL")
 	flag.Parse()
-	if (*adopt && (*down || *downConfirmation)) || (*down && *downConfirmation) || (*operations && (*adopt || *down || *downConfirmation)) {
+	if (*horizon && (*archive || *operations || *adopt || *down || *downConfirmation)) || (*archive && (*operations || *adopt || *down || *downConfirmation)) || (*adopt && (*down || *downConfirmation)) || (*down && *downConfirmation) || (*operations && (*adopt || *down || *downConfirmation)) {
 		fmt.Fprintln(os.Stderr, "Choose only one migration operation")
 		os.Exit(1)
 	}
 	_ = godotenv.Load()
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
 	defer cancel()
-	if err := runWithOperations(ctx, os.Getenv("DATABASE_URL"), *dir, *adopt, *down, *downConfirmation, *operations); err != nil {
+	if err := runWithOperations(ctx, os.Getenv("DATABASE_URL"), *dir, *adopt, *down, *downConfirmation, *operations, *archive, *horizon); err != nil {
 		// Never print connection strings, SQL arguments, role contents or server errors.
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -42,7 +44,15 @@ func run(ctx context.Context, dsn, dir string, adopt, down, downConfirmation boo
 	return runWithOperations(ctx, dsn, dir, adopt, down, downConfirmation, false)
 }
 
-func runWithOperations(ctx context.Context, dsn, dir string, adopt, down, downConfirmation, operations bool) error {
+func runWithOperations(ctx context.Context, dsn, dir string, adopt, down, downConfirmation, operations bool, archiveOption ...bool) error {
+	archive := len(archiveOption) > 0 && archiveOption[0]
+	horizon := len(archiveOption) > 1 && archiveOption[1]
+	if horizon && (archive || operations || adopt || down || downConfirmation) {
+		return errors.New("Choose only one migration operation")
+	}
+	if archive && (operations || adopt || down || downConfirmation) {
+		return errors.New("Choose only one migration operation")
+	}
 	if operations && (adopt || down || downConfirmation) {
 		return errors.New("Choose only one migration operation")
 	}
@@ -67,6 +77,18 @@ func runWithOperations(ctx context.Context, dsn, dir string, adopt, down, downCo
 		if err = validateLedger(ctx, conn); err != nil {
 			return err
 		}
+	}
+	if horizon {
+		if !ledgerExists || !rolesExist {
+			return errors.New("008 requires complete 001–007 baseline")
+		}
+		return applyBookingHorizon(ctx, conn, dir)
+	}
+	if archive {
+		if !ledgerExists || !rolesExist {
+			return errors.New("007 requires complete 001–006 baseline")
+		}
+		return applyNewsArchive(ctx, conn, dir)
 	}
 	if operations {
 		if !ledgerExists || !rolesExist {
@@ -164,12 +186,14 @@ func validateLedger(ctx context.Context, db queryer) error {
 			AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='schema_migrations' AND column_name='applied_at' AND udt_name='timestamptz' AND is_nullable='NO' AND column_default='now()')
 			AND EXISTS (SELECT 1 FROM pg_constraint WHERE conrelid='public.schema_migrations'::regclass AND contype='p' AND pg_get_constraintdef(oid)='PRIMARY KEY (version)')`},
 		{"unknown or out-of-order migration history", `SELECT
-			NOT EXISTS (SELECT 1 FROM public.schema_migrations WHERE version NOT IN ('001_user_roles','002_booking_foundation','003_automatic_confirmation','004_website_cms','005_cms_media','006_admin_operations'))
+			NOT EXISTS (SELECT 1 FROM public.schema_migrations WHERE version NOT IN ('001_user_roles','002_booking_foundation','003_automatic_confirmation','004_website_cms','005_cms_media','006_admin_operations','007_news_archive','008_calendar_month_horizon'))
 			AND (NOT EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='002_booking_foundation') OR EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='001_user_roles'))
 			AND (NOT EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='003_automatic_confirmation') OR EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='002_booking_foundation'))
 			AND (NOT EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='004_website_cms') OR EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='003_automatic_confirmation'))
  AND (NOT EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='005_cms_media') OR EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='004_website_cms'))
- AND (NOT EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='006_admin_operations') OR EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='005_cms_media'))`},
+ AND (NOT EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='006_admin_operations') OR EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='005_cms_media'))
+ AND (NOT EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='007_news_archive') OR EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='006_admin_operations'))
+ AND (NOT EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='008_calendar_month_horizon') OR EXISTS (SELECT 1 FROM public.schema_migrations WHERE version='007_news_archive'))`},
 		{"migration ledger grants/policies", `SELECT
 			NOT EXISTS (SELECT 1 FROM pg_policies WHERE schemaname='public' AND tablename='schema_migrations')
 			AND NOT has_table_privilege('anon','public.schema_migrations','SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER')

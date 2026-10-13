@@ -21,7 +21,7 @@ type DoctorHours struct {
 }
 
 func (s *Store) saveDoctorSetup(ctx context.Context, doctor string, setup *DoctorSetup) error {
-	if len(setup.ServiceIDs) > 100 || len(setup.Hours) > 56 {
+	if len(setup.ServiceIDs) > 100 || len(setup.Hours) > 124 {
 		return ErrInvalid
 	}
 	for _, h := range setup.Hours {

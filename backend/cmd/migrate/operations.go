@@ -70,13 +70,17 @@ func applyOperations(ctx context.Context, conn *pgx.Conn, dir string) error {
 }
 
 func verifyOperations(ctx context.Context, conn *pgx.Conn) error {
+	eventConstraint := `CHECK ((event_type = ANY (ARRAY['imported'::text, 'draft_saved'::text, 'published'::text, 'rolled_back'::text, 'unpublished'::text])))`
+	if isApplied(ctx, conn, archiveVersion) {
+		eventConstraint = archiveEvents
+	}
 	checks := []string{
 		`SELECT count(*)=3 AND bool_and(relkind='r' AND relrowsecurity AND NOT has_table_privilege('anon',oid,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER') AND NOT has_table_privilege('authenticated',oid,'SELECT,INSERT,UPDATE,DELETE,TRUNCATE,REFERENCES,TRIGGER') AND NOT EXISTS(SELECT FROM aclexplode(COALESCE(relacl,acldefault('r',relowner))) a WHERE a.grantee=0)) FROM pg_class WHERE relnamespace='public'::regnamespace AND relname IN ('admin_operation_events','doctor_profiles','admin_profile_media_references')`,
 		`SELECT NOT EXISTS(SELECT FROM pg_policies WHERE schemaname='public' AND tablename IN ('admin_operation_events','doctor_profiles','admin_profile_media_references'))`,
 		`SELECT count(*)=3 AND bool_and(is_nullable='NO' AND udt_name='bool' AND column_default='true') FROM information_schema.columns WHERE table_schema='public' AND ((table_name='doctor_services' AND column_name='booking_enabled') OR (table_name IN ('doctor_schedules','doctor_time_off') AND column_name='active'))`,
 		`SELECT count(*)=8 AND bool_and(i.indisvalid AND i.indisready) FROM pg_class c JOIN pg_index i ON i.indexrelid=c.oid WHERE c.relnamespace='public'::regnamespace AND c.relname IN ('doctor_working_intervals_no_overlap','cms_booking_single_editorial_source','admin_operation_events_pkey','admin_operation_history','doctor_profiles_pkey','doctor_profiles_editorial_key_key','admin_profile_media_references_pkey','admin_profile_media_asset')`,
 		`SELECT EXISTS(SELECT FROM pg_constraint WHERE conrelid='public.doctor_schedules'::regclass AND conname='doctor_working_intervals_no_overlap' AND contype='x' AND convalidated) AND (SELECT count(*)=7 AND bool_and(convalidated) FROM pg_constraint WHERE conrelid IN ('public.admin_operation_events'::regclass,'public.doctor_profiles'::regclass,'public.admin_profile_media_references'::regclass) AND contype='f')`,
-		`SELECT count(*)=1 AND bool_and(convalidated AND pg_get_constraintdef(oid)=$$CHECK ((event_type = ANY (ARRAY['imported'::text, 'draft_saved'::text, 'published'::text, 'rolled_back'::text, 'unpublished'::text])))$$) FROM pg_constraint WHERE conrelid='public.cms_events'::regclass AND conname='cms_events_event_type_check'`,
+		`SELECT count(*)=1 AND bool_and(convalidated AND pg_get_constraintdef(oid)=$$` + eventConstraint + `$$) FROM pg_constraint WHERE conrelid='public.cms_events'::regclass AND conname='cms_events_event_type_check'`,
 	}
 	for i, q := range checks {
 		var ok bool

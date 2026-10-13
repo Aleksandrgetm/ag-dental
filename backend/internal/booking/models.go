@@ -44,6 +44,7 @@ type Doctor struct {
 type Settings struct {
 	ID                    int             `json:"-"`
 	ConfirmationMode      string          `json:"confirmation_mode"`
+	BookingHorizonMonths  int             `json:"booking_horizon_months"`
 	BookingHorizonDays    int             `json:"booking_horizon_days"`
 	MinimumAdvanceMinutes int             `json:"minimum_advance_minutes"`
 	SlotIntervalMinutes   int             `json:"slot_interval_minutes"`
@@ -55,7 +56,7 @@ type Settings struct {
 
 func (Settings) TableName() string { return "booking_settings" }
 func (s Settings) availability() AvailabilitySettings {
-	return AvailabilitySettings{s.Timezone, s.BookingHorizonDays, s.MinimumAdvanceMinutes, s.SlotIntervalMinutes}
+	return AvailabilitySettings{Timezone: s.Timezone, BookingHorizonMonths: s.BookingHorizonMonths, BookingHorizonDays: s.BookingHorizonDays, MinimumAdvanceMinutes: s.MinimumAdvanceMinutes, SlotIntervalMinutes: s.SlotIntervalMinutes}
 }
 
 type CreateRequest struct {
