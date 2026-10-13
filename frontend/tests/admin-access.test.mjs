@@ -114,3 +114,15 @@ test("late verification cannot restore access after logout, token change or reje
   await pending;
   assert.equal(auth.isAdmin(), false);
 });
+
+test('routine revalidation retains identical proof until server result; refresh tokens do not inherit it', async()=>{
+ let session={...identity},resolve,states=[];
+ let verify=async()=> 'admin';
+ const auth=createAuthority(()=>session,(...args)=>verify(...args),s=>states.push(s));
+ await auth.verify();states=[];
+ verify=()=>new Promise(r=>resolve=r);
+ const first=auth.verify(),second=auth.verify();assert.equal(auth.isAdmin(),true);assert.deepEqual(states,[]);
+ resolve('admin');await Promise.all([first,second]);assert.equal(auth.isAdmin(),true);
+ session={...identity,token:'new-token'};const next=auth.verify();assert.equal(auth.isAdmin(),false);resolve('admin');await next;assert.equal(auth.isAdmin(),true);
+ const revoked=auth.verify();resolve('user');await revoked;assert.equal(auth.isAdmin(),false);
+});

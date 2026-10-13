@@ -1,8 +1,8 @@
-export const adminPaths = ["/admin", "/admin/appointments", "/admin/doctors", "/admin/news"] as const;
+export const adminPaths = ["/admin", "/admin/appointments", "/admin/doctors", "/admin/services", "/admin/news"] as const;
 export function safeAdminReturn(value: unknown): string | null {
   if (typeof value !== "string" || value.length > 1800 || /[\\\s#?%]/.test(value)) return null;
   if ((adminPaths as readonly string[]).includes(value)) return value;
-  if (/^\/admin\/(appointments\/new|doctors\/(new|profile\/clinic\.doctorBio|manage\/[0-9a-f-]{36})|news\/(new|edit\/created\.news\.[0-9a-f-]{36}|news\.[a-z0-9.-]+))$/.test(value)) return value;
+  if (/^\/admin\/(appointments\/new|doctors\/(new|profile\/clinic\.doctorBio|manage\/[0-9a-f-]{36})|news\/(new|edit\/(?:created\.news\.[0-9a-f-]{36}|news\.[a-z0-9.-]+)|news\.[a-z0-9.-]+))$/.test(value)) return value;
   return null;
 }
 export type AccessState =
@@ -92,7 +92,13 @@ export function createAuthority(
       return "guest";
     }
     if (pending && same(identity, pending.identity)) return pending.promise;
-    invalidate("checking");
+    // Recheck the server without discarding an existing proof for identical
+    // credentials. A changed token still requires verification before API use.
+    const retain = state === "admin" && same(proof, identity);
+    version++;
+    controller?.abort();
+    pending = undefined;
+    if (!retain) { proof = null; publish("checking"); }
     const current = version;
     controller = new AbortController();
     const signal = controller.signal;
