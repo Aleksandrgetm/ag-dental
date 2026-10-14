@@ -49,7 +49,9 @@ for (const locale of ["lv", "ru", "en"]) {
             // Verified proper names and postal addresses retain their official spelling.
             const prose = paragraph
               .replaceAll("AG Zobārstniecība", "")
-              .replaceAll("Ūnijas iela", "");
+              .replaceAll("Ūnijas iela", "")
+              .replaceAll("Andas Gutovskas privātprakse", "")
+              .replaceAll("Rīga", "");
             assert.doesNotMatch(prose, /[āčēģīķļņšūž]/iu);
           });
         });
@@ -86,3 +88,13 @@ test("vue-i18n switches whole documents and renders literal email addresses with
   assert.deepEqual(errors, []);
   assert.equal(legalReview.status, "CLIENT_CONFIRMATION_REQUIRED");
 });
+
+for (const locale of ["lv", "ru", "en"]) {
+  test(`${locale}: confirmed controller, distinct addresses and real storage inventory`, () => {
+    const privacy = JSON.stringify(legalDocuments[locale].privacy);
+    for (const value of ['Andas Gutovskas privātprakse', '40103915017', 'Ūnijas iela 21', 'Ūnijas iela 25', 'Supabase', 'sessionStorage', '1000']) assert.ok(privacy.includes(value));
+    const cookies = JSON.stringify(legalDocuments[locale].cookies);
+    for (const key of ['ag-booking-intent-v1', 'ag-welcome-seen', 'ag-hero-preferences-v1', 'auth-token']) assert.ok(cookies.includes(key));
+    assert.ok(legalDocuments[locale].cookies.notice);
+  });
+}

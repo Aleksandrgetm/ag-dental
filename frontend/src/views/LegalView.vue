@@ -2,10 +2,20 @@
 import { computed } from "vue";
 import { useRoute } from "vue-router";
 import { POLICY_UPDATED, type LegalDocument } from "../content/legal";
+import { legalDocuments } from "../i18n/legalDocuments";
+import { privacyAndContact } from "../i18n/privacyAndContact";
 import { useI18n } from "vue-i18n";
 import { useCookieConsentStore } from "../stores/cookieConsent";
 const route = useRoute(),
-  { t, tm, rt, d, locale } = useI18n(),
+  // Reviewed legal copy must not be replaced by older published CMS translations.
+  { t, tm, rt, d, locale } = useI18n({
+    useScope: "local",
+    messages: {
+      lv: { legalDocuments: legalDocuments.lv, legal: privacyAndContact.lv.legal },
+      ru: { legalDocuments: legalDocuments.ru, legal: privacyAndContact.ru.legal },
+      en: { legalDocuments: legalDocuments.en, legal: privacyAndContact.en.legal },
+    },
+  }),
   consent = useCookieConsentStore();
 const isCookie = computed(() => route.meta.legal === "cookies");
 const document = computed(
