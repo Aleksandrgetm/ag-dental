@@ -8,11 +8,11 @@ checkpoint history and TEST_REPORT.md for actual environments/results.
 
 ## Delivered client interface
 
-Appointments, Specialists and News are the three clinic-facing sections. Service,
-price and generic CMS infrastructure is retained, but service creation and
-price/duration editing are not exposed to clinic staff. Schedules, breaks and
-vacations live inside each specialist editor; images live inside Specialist/News
-editors. See ADMIN_USER_GUIDE.md for current actions.
+Appointments, Specialists, Services & Prices and News are the four clinic-facing sections.
+Services & Prices supports the approved unified catalog; editorial catalog publication
+is separate from operational Booking eligibility. Schedules, breaks, individual working
+dates and vacations live inside each specialist editor; photos live inside Specialist/News
+editors. There is no separate Media Library navigation section.
 
 Real isolated Auth, PostgreSQL, Go/Vue and Storage acceptance is documented in
 FINAL_E2E_ACCEPTANCE.md. Production and hosted readiness are separate claims.
@@ -33,7 +33,7 @@ CHANGED_FILES.md: historical checkpoint inventory; not the final release list.
    separate approval; Git delivery is not production activation.
 2. Obtain current production schema/data/ledger fingerprints and a fresh encrypted
    recovery point. Historical backup verification is not a current recovery claim.
-3. Migrations 001–006 have historical approved activation evidence. Verify the current
+3. Migrations 001–008 have historical approved activation evidence. Verify the current
    ledger read-only before any future authorized deployment; do not replay them.
 4. Select/approve Go hosting and secret manager, configure verified TLS/CORS/Auth.
    Deploy only on explicit approval; test health, public CMS and role denial.
@@ -72,3 +72,14 @@ not email attachments, source files or this handover document, for secrets.
 - [ ] Email expectations explicitly recorded as deferred.
 
 Unchecked hosted gates mean this handover is **not** a claim of production readiness.
+
+## Current review — 14 October 2026
+
+Use FINAL_TECHNICAL_AUDIT.md and its current test results before historical counts.
+The employer supplies hosting, domain ownership, TLS, CORS, Auth redirect allowlists,
+monitoring, secret management and deployment verification. This audit did not query
+production. Migration 008 and catalog activation are documented historical operations;
+local uploads were separately approved, not blanket approval for hosted uploads.
+The approved Hero architecture is retained, but real clinic footage is still missing.
+Privacy policies remain CLIENT_CONFIRMATION_REQUIRED. Real-device Safari/Android,
+Search Console and hosted route verification remain external acceptance steps.

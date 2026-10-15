@@ -1,5 +1,5 @@
 {
-  "crawled_at": "2026-10-10T12:28:09.612253+00:00",
+  "crawled_at": "2026-10-14T10:49:24.645352+00:00",
   "limit": 500,
   "remaining": 0,
   "search_console_available": false,
@@ -23,7 +23,7 @@
       "final_url": "https://www.zobarstnieciba-ag.lv/",
       "redirects": [],
       "content_type": "text/html; charset=UTF-8",
-      "sha256": "35f345620550978df7982a28df20a457091eed576a07f4f2f38beed75afb138a",
+      "sha256": "47cb3e8853a9856bc2012d34863624cfbcac02bf549d184ba3d886308e2e50fd",
       "title": "Zobārstniecība Rīgā | Zobu higiēna + dāvanā zobu apstrāde ar AirFlow",
       "description": "Zobu higiēna ar sodas strūklu iekļautu jau pakalpojuma cenā - tikai 80 EUR. ",
       "headings": [
@@ -170,7 +170,7 @@
       "final_url": "https://www.zobarstnieciba-ag.lv/pakalpojumi/",
       "redirects": [],
       "content_type": "text/html; charset=UTF-8",
-      "sha256": "3b8834e2979f823d940c5c0a5ebb73883138c9e314b33c5343cbad1230849e80",
+      "sha256": "a17cc218c1726b67aed0b689df03658d39e3158b6a655a12533eba5686456bb6",
       "title": "Zobārstniecība, zobu higiēna Rīgā, zobu higiēna Teikā, zobārsts Rīgā",
       "description": "Zobārstniecība, kura draudzīga budžetam un pieejama ikvienam! Mūsu klīnikas speciālistiem ir svarīgi pēc iespējas ātrāk novērst problēmu un atrast izdevīgāko risinājumu ikvienam. Esi vesels ar veselu smaidu!  ",
       "headings": [
@@ -739,7 +739,7 @@
       "final_url": "https://www.zobarstnieciba-ag.lv/jaunumi/",
       "redirects": [],
       "content_type": "text/html; charset=UTF-8",
-      "sha256": "c78082cb7061f6fbdb33445e1ce5a49c13d4cd0bec57378e555c335f87cd374c",
+      "sha256": "bcc54070b45b173c8cbc4acb07f5fdb26737d2fe562ea6c7c5950898507bf99d",
       "title": "Jaunumi un akcijas / AG zobārstniecībā Rīgā / Zobārstniecība Teikā / VEF kvartāls",
       "description": "Zobu higiēna ar AirFlow jeb sodas strūklu dāvanā tikai pa 90 EUR! Uzdāvini sev vai kādam tīrāku, baltāku, veselāku smaidu! ",
       "headings": [
@@ -834,7 +834,7 @@
       "final_url": "https://www.zobarstnieciba-ag.lv/par-mums/",
       "redirects": [],
       "content_type": "text/html; charset=UTF-8",
-      "sha256": "871bdab0fed06bd800877a2215c318dddbf3818bcbaddcef3a9b87fea1515ac7",
+      "sha256": "ca3b420c845f33fe67be806ef9221d690b1b0278eec4fe49785395262f7de009",
       "title": "AG zobārstniecība - rūpes, maigums, iejūtīgums un kvalitāte vienu viet!",
       "description": "Zobārstniecība Teikā - zobārstniecība bez bailēm un ar maigumu! Aizmirsti par bailēm, jo pie mums Tu jutīsies droši, ērti un saprasts. Rūpes par Jūsu zobu veselību un skaistu smaidu visai ģimenei. ",
       "headings": [],
@@ -881,7 +881,7 @@
       "final_url": "https://www.zobarstnieciba-ag.lv/kontakti/",
       "redirects": [],
       "content_type": "text/html; charset=UTF-8",
-      "sha256": "01c41392f7262ab93d39760d8abdf4ac4672de407595b7a76a31c07a80d159f9",
+      "sha256": "5f49c06adcf1dee89a9b1ab9355e8cfd23b57f69e80bbc1beb722c7d79c0eda0",
       "title": "Zobārstniecība Rīgā",
       "description": "Piesakies vizītei zvanot vai rakstot uz tel. 28229925.  Klīnikai pieejama bezmaksas autostāvvieta un ērta piekļuve ar sabiedrisko transportu. ",
       "headings": [
@@ -933,7 +933,7 @@
       "final_url": "https://www.zobarstnieciba-ag.lv/jaunumi/params/post/5259478/zobu-higiena-kas-pieejama-ikvienam",
       "redirects": [],
       "content_type": "text/html; charset=UTF-8",
-      "sha256": "19bd4cde2723553f5fb2cca7c2547f3854c67b72a306e1e775eb62524139d69a",
+      "sha256": "46baf9f67931d15d2f29abbd7b231bbcff4753e1a2be1b2e5d5509700d8831e9",
       "title": "Zobu higiēna, kas pieejama ikvienam - Jaunumi un akcijas / AG zobārstniecībā Rīgā / Zobārstniecība Teikā / VEF kvartāls",
       "description": "Mūsu klīnikā pilna mutes dobuma higiēna turpmāk pieejama par pastāvīgu cenu - 80€, cenā jau iekļaujot arī sodas strūklu.\r\nProfesionāla zobu higiēna ir viens no svarīgākajiem soļiem ceļā uz veselīgu",
       "headings": [
@@ -994,7 +994,7 @@
       "final_url": "https://www.zobarstnieciba-ag.lv/jaunumi/params/post/5259473/zobu-protezes-un-protezesana",
       "redirects": [],
       "content_type": "text/html; charset=UTF-8",
-      "sha256": "8b08d797f064c9bc5be44d8e6fb6f2872853827982de450d15cd3539f3048018",
+      "sha256": "5388b0941f8c8860b608d2282b4c6a44832cd9a4e15db902eade44ac2b8828d4",
       "title": "Zobu protēzes un protezēšana - Jaunumi un akcijas / AG zobārstniecībā Rīgā / Zobārstniecība Teikā / VEF kvartāls",
       "description": "Dzirdot vārdus “zobu protēzes”, daudziem joprojām rodas asociācijas ar senajiem stereotipiem - “zobi glāzītē”. Taču mūsdienu zobu protezēšana ir pilnībā mainījusies.Šodien protezēšana ir estētiska",
       "headings": [
@@ -1068,7 +1068,7 @@
       "final_url": "https://www.zobarstnieciba-ag.lv/jaunumi/params/post/5159831/zobu-higiena",
       "redirects": [],
       "content_type": "text/html; charset=UTF-8",
-      "sha256": "2262741dbbc6073d7473489aea6d59e7a9fcdf807524b3ccc52ca370d5878444",
+      "sha256": "a70d06d1369e42921c9764530999ab299bf39614b42ade420d577b868cff4a6e",
       "title": "Zobu higiēna, kuru izbaudīsi - maiga un bez sāpēm!",
       "description": "Zobu higiēna - gaišāki, tīrāki zobi. Un pierakstoties pie mums uz higiēnu - dāvānā AirFlow jeb sodas strūkla. Ierobežots laika piedāvājums!",
       "headings": [
@@ -1127,7 +1127,7 @@
       "final_url": "https://www.zobarstnieciba-ag.lv/jaunumi/params/post/4689080/aktualitates",
       "redirects": [],
       "content_type": "text/html; charset=UTF-8",
-      "sha256": "d6c855eae4bd8ac58c919de1becda79498c5870583ae6ed846e2d7707b97f8c4",
+      "sha256": "428cda9202065fe2f940f2235da6a6fd008d5ac27e665104f305082fc1ec51da",
       "title": "Aktualitātes - Jaunumi un akcijas / AG zobārstniecībā Rīgā / Zobārstniecība Teikā / VEF kvartāls",
       "description": "Turpmāk šeit būs izvietota informācija par mūsu uzņēmumu, kā arī dažādi jaunumi un piedāvājumi",
       "headings": [
@@ -1184,7 +1184,7 @@
       "final_url": "https://www.zobarstnieciba-ag.lv/cdn-cgi/l/email-protection",
       "redirects": [],
       "content_type": "text/html",
-      "sha256": "65068f0d30dd8630b9038aad57a7dec957fd3ca440793a74903e571c9ab4c58b",
+      "sha256": "55829f2c47257db59f399f45fa43e6f6a5a87cad0db6b4dfd806e6d6a631bbd1",
       "title": "Email Protection | Cloudflare",
       "description": "",
       "headings": [
@@ -1206,7 +1206,7 @@
         "https://developers.cloudflare.com/fundamentals/setup/account/create-account/",
         "https://www.cloudflare.com/5xx-error-landing"
       ],
-      "text": "Email Protection | Cloudflare Please enable cookies. Email Protection You are unable to access this email address zobarstnieciba-ag.lv The website from which you got to this page is protected by Cloudflare. Email addresses on that page have been hidden in order to keep them from being accessed by malicious bots. You must enable Javascript in your browser in order to decode the e-mail address . If you have a website and are interested in protecting it in a similar way, you can sign up for Cloudflare . How does Cloudflare protect email addresses on website from spammers? Can I sign up for Cloudflare? Cloudflare Ray ID: a4859f51aa25e1bb • Your IP: Click to reveal 81.198.159.39 • Performance & security by Cloudflare"
+      "text": "Email Protection | Cloudflare Please enable cookies. Email Protection You are unable to access this email address zobarstnieciba-ag.lv The website from which you got to this page is protected by Cloudflare. Email addresses on that page have been hidden in order to keep them from being accessed by malicious bots. You must enable Javascript in your browser in order to decode the e-mail address . If you have a website and are interested in protecting it in a similar way, you can sign up for Cloudflare . How does Cloudflare protect email addresses on website from spammers? Can I sign up for Cloudflare? Cloudflare Ray ID: a4a6042a7e94f582 • Your IP: Click to reveal [redacted] • Performance & security by Cloudflare"
     }
   ]
 }

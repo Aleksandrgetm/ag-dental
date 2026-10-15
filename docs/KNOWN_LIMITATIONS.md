@@ -1,3 +1,29 @@
+# Current limitations — 14 October 2026
+
+This section supersedes conflicting historical notes below. See FINAL_TECHNICAL_AUDIT.md.
+
+- Employer: Go hosting, HTTPS/CORS, real API URL, Auth redirect allowlists, monitoring,
+  Vercel packaging/301/404/noindex and real-device validation are not deployed/verified here.
+- Clinic: real AG Dental Hero footage is not approved/provided. Rejected footage is not
+  rendered; source files remain in the repository/public asset tree for preservation.
+- Clinic/legal: controller identity is confirmed, but retention, bases, privacy contact,
+  processors/transfers and final LV/RU/EN text remain approval-required.
+- Clinic + separate production authorization: configure three procedures/two specialists,
+  Wednesday/Friday hours and individual monthly dates, manual confirmation and advance
+  notice. Public Booking is inactive. The Monday schedule is test data, not clinic hours.
+- Historical production reports record migrations 001–008 and 8/6/69 catalog activation.
+  This audit does not verify current live fingerprints or authorize migration replay.
+- Local image uploads were approved previously; hosted upload activation needs its own
+  verification/approval. No additional production upload was performed.
+- Four admin sections now include Services & Prices. News supports reversible archival.
+- General questions have no backend delivery. Booking emails/WhatsApp/Resend are absent;
+  Supabase Auth recovery/confirmation is separate.
+- Search Console and field CWV unavailable. Browser emulation is not physical-device QA.
+- Current automated contrast findings, bundle cost and all test limitations are detailed
+  in the final audit. No complete WCAG or production-readiness certification is claimed.
+
+## Historical checkpoint notes (not current activation instructions)
+
 # Remaining limitations and activation gates
 
 ## Must resolve before affected production features

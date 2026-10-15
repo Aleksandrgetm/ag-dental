@@ -137,3 +137,35 @@ The added deployment-guard test brings the unit/HTTP total to109. The News brows
 regression now explicitly requires the chosen registered image to be present and
 loaded on the public article. No rendering fix was needed: the shared loader already
 maps approved registered images. Production remains untouched.
+
+## Final technical audit — 2026-10-14 (current)
+
+Branch feature/final-audit, baseline bcefafd. See FINAL_TECHNICAL_AUDIT.md for exact
+failure history, fixes and environment distinctions; FINAL_TECHNICAL_LAB_RESULTS.json
+for automated public accessibility/performance findings. Earlier counts remain historical.
+
+Fresh results: frontend build; 153 frontend tests (from frontend cwd); Go test/vet;
+full disposable PostgreSQL; dedicated 008 preservation/repeat/rollback; real isolated
+Auth/Booking/Specialist/News/Storage/security/public48; real Booking staging; real
+catalog6; Auth96; public480; SEO120; Booking172 layouts/31 flows; four-section admin9;
+role denial12; session refresh; News validation6; specialist editor24/absence6/inline
+portrait6; legal12; contact24+24; unified article48; missing API132+6; Hero locks15,
+synthetic motion24 and rejected-media2 all PASS.
+
+Confirmed CMS/legal shape regression fixed and verified with failing-before/passing-after
+browser evidence plus full real API rerun. Disposable PostgreSQL startup race fixed.
+Standalone media-browser.cjs remains FAILED/obsolete because /admin/media is intentionally
+removed; supported inline workflows and real Storage pass. Initial synthetic Auth hostname,
+wrong-cwd unit invocation and overlapping isolated-service port failures are documented,
+not presented as successes. The exact Booking suite now completes successfully; the earlier
+calendar timeout's original cause is not conclusively reproduced.
+
+Axe: 42 sampled cases, contrast and desktop target-size findings remain. No overflow,
+no rejected media requests. Raw startup shift remains high; INP/field CWV and actual
+mobile devices unverified. No production queries/writes or deployment in this audit.
+
+Mocked suites require VITE_API_URL=/api, VITE_SUPABASE_URL=https://integration-test.supabase.co,
+a synthetic publishable key and VITE_BOOKING_DEMO=false on a localhost Vite server.
+Never run them against a production origin. Run real acceptance scripts serially because
+they reserve fixed loopback ports. Browser tooling requires Playwright + Chrome; set
+PLAYWRIGHT_MODULE to its installed module path. Frontend tests run from frontend/.

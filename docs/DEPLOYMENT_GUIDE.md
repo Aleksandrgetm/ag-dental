@@ -90,7 +90,7 @@ Do not change old hosting/DNS or redirect unrelated URLs to the homepage.
 
 ## Migrations and activation
 
-Prior tasks reported migrations 001–005 applied. This task did not reconnect to
+Prior authorized tasks recorded migrations 001–008 applied (see individual activation reports). This task did not reconnect to
 production or alter that ledger. Inspect fresh project identity, TLS, ledger,
 checksums, schema/data fingerprints and recovery evidence before any approved write.
 Existing runner: `cd backend && go run ./cmd/migrate`; it knows only 001–005.
@@ -150,3 +150,41 @@ Local equivalent-server tests cannot prove Vercel packaging or deployed behavior
 without deploying it. Other branches retain their existing behavior. Do not remove
 this guard or trigger a manual deployment without explicit approval.
 Reference: https://vercel.com/docs/project-configuration/git-configuration
+
+## Current handover gates — 14 October 2026
+
+The employer's team owns deployment. No deployment, DNS or Vercel changes were made in
+this audit. The committed Vercel Git deployment map disables feature/final-development
+and feature/hero-mobile-fix only; it does **not** disable every possible branch. Review
+preview automation before any future push of feature/final-audit. No push is authorized here.
+
+Existing database: inspect ledger/checksums and do not replay completed migrations.
+For a separately approved fresh target, the runner's ordinary operation covers 001–005;
+006, 007 and 008 require `--apply-admin-operations`, `--apply-news-archive` and
+`--apply-booking-horizon`, respectively, in that order. Do not run these commands merely
+from reading this guide. Do not use AutoMigrate or development fixtures in production.
+The migration runner uses its supplied DSN; the operator must explicitly supply verified
+TLS (`verify-full` with the trusted readable CA), independently of API TLS validation.
+
+Local upload activation is historical evidence, not permission to enable an employer's
+hosted backend. Keep privileged Storage keys backend-only and verify private bucket,
+JWT/role denials, file validation and public publication-gated delivery on the actual host.
+Never copy local .env into Git, frontend artifacts or deployment images.
+
+Before public Booking activation: confirm the three service durations and two specialists,
+actual schedules, manual confirmation, one calendar month and advance-notice semantics;
+remove the owner's test Monday schedule only after dependency checks and explicit approval.
+No automatic appointment email or WhatsApp exists. General questions have no delivery API.
+Supabase Auth's account confirmation/recovery emails are a distinct provider feature.
+
+Approved real clinic Hero footage, legal approval, actual iOS/Android checks, backup
+ownership, incident response and hosted HTTP/SEO/Auth tests remain acceptance gates.
+
+
+## Save-point update — 15 October 2026
+
+The technical audit is paused by the owner before photography integration. Completed CMS compatibility, mobile menu/service-grid spacing and SVG arrow fixes are being saved with their tested evidence. The earlier audit findings remain dated evidence: contrast, startup layout shifts, initial bundle reduction and replacement of the obsolete standalone Media Library test are still unfinished. No performance experiments or photo integration are included.
+
+The branch's reviewed `frontend/vercel.json` now explicitly sets `git.deploymentEnabled["feature/final-audit"]` to false, alongside the two existing disabled branches. The matching regression test protects the exact map. This supersedes the earlier warning that this branch was not covered; other branches are unchanged. Vercel documents this as preventing automatic deployments for the named branch: https://vercel.com/docs/project-configuration/git-configuration . No repository GitHub Actions workflows or repository webhooks were found. Only this branch may be pushed under the current authorization; no deployment or merge is authorized.
+
+See WORK_SAVE_REVIEW.md for the current file inventory, test evidence and save-point limitations.
