@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import DesktopExternalArrow from "../common/DesktopExternalArrow.vue";
 import { cmsLiteral } from "../../services/cms/content";
 import { useCookieConsentStore } from "../../stores/cookieConsent";
 import { clinic } from "../../services/cms/content";
 import { useContent } from "../../content/useContent";
 const { t } = useContent();
 const consent = useCookieConsentStore();
+// Imported CMS labels contain a decorative Unicode suffix. Keep the words and
+// stored content untouched; render the decoration deterministically instead.
+const externalLabel = (key: string) => cmsLiteral(key).replace(/\s*\u2197[\uFE0E\uFE0F]?\s*$/u, "");
 </script>
 <template>
   <footer class="site-footer content-design">
@@ -23,7 +27,7 @@ const consent = useCookieConsentStore();
         <a :href="clinic.tel">{{ clinic.phone }}</a
         ><a :href="`mailto:${clinic.email}`">{{ clinic.email }}</a
         ><a :href="clinic.map" target="_blank" rel="noopener noreferrer"
-          >{{ cmsLiteral('literal.1ee975dd.3') }}</a
+          >{{ externalLabel('literal.1ee975dd.3') }} <DesktopExternalArrow /></a
         >
       </div>
       <div>
@@ -46,9 +50,9 @@ const consent = useCookieConsentStore();
       <span>© {{ new Date().getFullYear() }}{{ cmsLiteral('literal.1ee975dd.7') }}</span>
       <div>
         <a :href="clinic.instagram" target="_blank" rel="noopener noreferrer"
-          >{{ cmsLiteral('literal.1ee975dd.8') }}</a
+          >{{ externalLabel('literal.1ee975dd.8') }} <DesktopExternalArrow /></a
         ><a :href="clinic.facebook" target="_blank" rel="noopener noreferrer"
-          >{{ cmsLiteral('literal.1ee975dd.9') }}</a
+          >{{ externalLabel('literal.1ee975dd.9') }} <DesktopExternalArrow /></a
         >
       </div>
       <span>{{ cmsLiteral('literal.1ee975dd.10') }}</span>
@@ -98,6 +102,9 @@ const consent = useCookieConsentStore();
   outline-offset: 3px;
 }
 @media (max-width: 600px) {
+  .footer-grid a { display: flex; align-items: center; min-height: 44px; }
+  .footer-bottom a { display: inline-flex; align-items: center; min-height: 44px; }
+  .site-footer :deep(.desktop-external-arrow) { margin-inline-start: .2em; }
   .footer-legal {
     gap: 0 24px;
   }

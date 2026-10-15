@@ -113,7 +113,7 @@ function status(date: string) {
           :aria-label="t('booking.previousMonth')"
           @click="emit('month', -1)"
         >
-          <span aria-hidden="true">‹</span>
+          <svg class="calendar-chevron" aria-hidden="true" focusable="false" viewBox="0 -800 300 1000" fill="currentColor"><path d="M236 -40L59 -189Q55 -194 55 -201Q55 -208 59 -212L236 -361Q238 -364 241.5 -361Q245 -358 243 -356L121 -201L243 -46Q244 -44 241 -40.5Q238 -37 236 -40Z" /></svg>
         </button>
         <button
           type="button"
@@ -121,7 +121,7 @@ function status(date: string) {
           :aria-label="t('booking.nextMonth')"
           @click="emit('month', 1)"
         >
-          <span aria-hidden="true">›</span>
+          <svg class="calendar-chevron" aria-hidden="true" focusable="false" viewBox="0 -800 300 1000" fill="currentColor"><path d="M68 -361L245 -212Q250 -208 250 -201Q250 -194 245 -189L68 -40Q67 -37 63.5 -40Q60 -43 61 -46L183 -200L61 -356Q60 -358 63.5 -361Q67 -364 68 -361Z" /></svg>
         </button>
       </div>
     </div>
@@ -185,6 +185,8 @@ function status(date: string) {
   </section>
 </template>
 <style scoped>
+/* Outlines from the existing Cormorant Garamond desktop glyphs. */
+.calendar-chevron { width: 9px; height: 30px; vertical-align: middle; position: relative; top: -2px; }
 .booking-calendar {
   max-width: 540px;
 }

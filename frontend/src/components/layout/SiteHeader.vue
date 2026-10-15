@@ -21,6 +21,8 @@ const open = ref(false),
   header = ref<HTMLElement>(),
   panel = ref<HTMLElement>(),
   toggle = ref<HTMLButtonElement>();
+const menuTop = ref(0);
+function measureMenuTop() { menuTop.value = Math.max(0, header.value?.getBoundingClientRect().bottom || 0); }
 const links = [
   ["/", "home"],
   ["/pakalpojumi", "services"],
@@ -86,8 +88,10 @@ watch(
 watch(open, async (value) => {
   document.body.style.overflow = value ? "hidden" : "";
   if (value) {
+    measureMenuTop();
     await nextTick();
-    panel.value?.querySelector<HTMLElement>("a")?.focus();
+    if (panel.value) panel.value.scrollTop = 0;
+    panel.value?.querySelector<HTMLElement>("a")?.focus({ preventScroll: true });
   } else toggle.value?.focus();
 });
 function keydown(event: KeyboardEvent) {
@@ -113,17 +117,20 @@ function keydown(event: KeyboardEvent) {
 onMounted(() => {
   observeBoundary();
   headerSize = new ResizeObserver(() => {
+    measureMenuTop();
     if (route.path === "/" && header.value?.offsetHeight !== boundaryEdge)
       observeBoundary();
   });
   if (header.value) headerSize.observe(header.value);
   document.addEventListener("keydown", keydown);
+  window.visualViewport?.addEventListener("resize", measureMenuTop);
 });
 onBeforeUnmount(() => {
   ++boundaryVersion;
   boundary?.disconnect();
   headerSize?.disconnect();
   document.removeEventListener("keydown", keydown);
+  window.visualViewport?.removeEventListener("resize", measureMenuTop);
   document.body.style.overflow = "";
 });
 </script>
@@ -188,6 +195,7 @@ onBeforeUnmount(() => {
       id="mobile-menu"
       ref="panel"
       class="mobile-menu refined-menu"
+      :style="{ '--menu-top': `${menuTop}px` }"
       role="dialog"
       aria-modal="true"
       :aria-label="t('ui.menu')"
@@ -228,6 +236,24 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+/* Bound the scrollport below the measured header, including after rotation.
+   Padding is breathing room, not a guessed header-height offset. */
+.mobile-menu.refined-menu {
+  top: var(--menu-top);
+  bottom: auto;
+  height: calc(100vh - var(--menu-top));
+  height: calc(100dvh - var(--menu-top));
+  padding-top: 20px;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(var(--gutter), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--gutter), env(safe-area-inset-right, 0px));
+  align-content: start;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.mobile-menu.refined-menu .language-switch button { min-width: 44px; min-height: 44px; }
+
 .site-header {
   transition:
     background-color 360ms var(--ease),

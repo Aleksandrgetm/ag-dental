@@ -88,3 +88,10 @@ watchEffect(() => {
     <ContactBand /></template
   ><NotFoundView v-else />
 </template>
+
+<style scoped>
+@media (max-width: 800px) {
+  /* Percentage row gaps overflow an intrinsically sized one-column grid. */
+  .service-detail-grid { row-gap: 32px; }
+}
+</style>

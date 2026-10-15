@@ -38,6 +38,8 @@ const localizedArticles = computed(() =>
   <ContactBand />
 </template>
 <style scoped>
+/* Keep the approved desktop SVG size at every breakpoint. */
+.journal-list .row-arrow :deep(.arrow-icon) { width: 28px; height: 28px; }
 @media (max-width: 600px) {
   .journal-list .journal-row { grid-template-columns: minmax(0, 1fr) 27px; }
   .journal-row > div { min-width: 0; }

@@ -162,7 +162,7 @@ onBeforeUnmount(() => {
           </h1>
           <p class="tour-description">{{ t("hero.sub") }}</p>
           <RouterLink class="button button-light" to="/pieraksts"
-            >{{ t("common.bookAppointment") }} <span aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 19 19 5M5 5h14v14" /></svg></span></RouterLink
+            >{{ t("common.bookAppointment") }} <span aria-hidden="true"><svg viewBox="0 -800 1000 1000" fill="currentColor"><path d="M75 78L861 -711L871 -500H900C902 -622 909 -690 930 -810C810 -789 742 -782 620 -780V-751L831 -741L46 49Z" /></svg></span></RouterLink
           >
         </div>
       </div>
