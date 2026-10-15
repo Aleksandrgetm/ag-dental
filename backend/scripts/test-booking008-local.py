@@ -16,8 +16,10 @@ try:
     r = docker('run', '-d', '--pull=never', '--name', name, '--network=none', '--log-driver=none', '--tmpfs', '/var/lib/postgresql/data:rw,nosuid,size=384m', '-e', 'POSTGRES_HOST_AUTH_METHOD=trust', image)
     assert r.returncode == 0, 'Cannot start isolated container'
     for _ in range(30):
-        if docker('exec', name, 'pg_isready', '-U', 'postgres').returncode == 0: break
+        if docker('exec', name, 'pg_isready', '-h', '127.0.0.1', '-U', 'postgres').returncode == 0: break
         time.sleep(.3)
+    else:
+        raise RuntimeError('Disposable PostgreSQL TCP listener did not become ready')
     info = json.loads(docker('inspect', name).stdout)[0]
     assert info['HostConfig']['NetworkMode']=='none' and not info['HostConfig']['PortBindings']
     sql((root/'testdata/bootstrap.sql').read_text())
