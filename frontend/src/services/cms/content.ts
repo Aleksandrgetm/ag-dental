@@ -159,6 +159,10 @@ export function acceptPublished(response: unknown): boolean {
   for (const row of body.documents) {
     if (!row || typeof row.key !== "string" || seen.has(row.key)) return false;
     seen.add(row.key);
+    // LegalView owns reviewed, locale-reactive policy copy. Historical CMS legal
+    // paragraphs may have a different shape and must not reject unrelated content.
+    // Do not apply them or relax validation for any other published document.
+    if (row.key === "messages.legalDocuments") continue;
     if(row.key==="catalog.services"){if(!validServiceCatalog(row.payload))return false;catalog=copy(row.payload);continue;}
     if(createdKey.test(row.key)){if(!validCreated(row.payload))return false;created.push(copy(row));continue;}
     const binding = bindings.find((b) => b.key === row.key);
