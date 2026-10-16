@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { clinicPhoto, clinicPhotoMetadata } from "../content/clinicPhotography";
+import { publicImageAlt } from "../services/hero/publicMedia";
 import ArrowIcon from "../components/common/ArrowIcon.vue";
 import { cmsLiteral } from "../services/cms/content";
 import ContactQuestionForm from "../components/ContactQuestionForm.vue";
@@ -7,7 +9,7 @@ import { clinic } from "../services/cms/content";
 import { useContent } from "../content/useContent";
 import { useCookieConsentStore } from "../stores/cookieConsent";
 import { computed } from "vue";
-const { t } = useContent();
+const { t, locale } = useContent();
 const consent = useCookieConsentStore();
 // Reuse the verified address query. No guessed coordinates or private API key.
 const mapSource = computed(() => `https://www.google.com/maps?q=${encodeURIComponent(new URL(clinic.map).searchParams.get("query") || clinic.address)}&output=embed`);
@@ -74,13 +76,19 @@ const mapSource = computed(() => `https://www.google.com/maps?q=${encodeURICompo
           referrerpolicy="no-referrer"
           allowfullscreen
         />
-        <div v-else class="map-placeholder">
+        <div v-else class="map-photo-placeholder">
+          <picture class="arrival-photo">
+            <source media="(max-width: 700px)" :srcset="clinicPhotoMetadata(clinicPhoto('entrance'))?.srcset" sizes="35vw" />
+            <img :src="clinicPhoto('exterior')" :srcset="clinicPhotoMetadata(clinicPhoto('exterior'))?.srcset" sizes="45vw" :alt="publicImageAlt(clinicPhoto('exterior'), locale, '')" width="2400" height="1600" loading="lazy" />
+          </picture>
+          <div class="map-placeholder">
           <p class="eyebrow">{{ cmsLiteral('literal.2925fd0e.5') }}</p>
           <h3>{{ t("contact.mapConsent") }}</h3>
           <p>{{ t("cookie.mapsText") }}</p>
           <button class="button" @click="consent.settingsOpen = true">
             {{ t("legal.settings") }}
           </button>
+          </div>
         </div>
       </div>
       <button
@@ -179,6 +187,10 @@ const mapSource = computed(() => `https://www.google.com/maps?q=${encodeURICompo
   height: 100%;
   border: 0;
 }
+.map-photo-placeholder { display: grid; grid-template-columns: 45% 1fr; height: 100%; }
+.arrival-photo { min-width: 0; overflow: hidden; }
+.arrival-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 55% center; }
+@media (max-width: 700px) { .map-photo-placeholder { grid-template-columns: 35% 1fr; } .map-photo-placeholder .map-placeholder { padding: 14px; } }
 .map-placeholder {
   display: flex;
   height: 100%;

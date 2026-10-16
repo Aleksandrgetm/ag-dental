@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import ArrowIcon from "../components/common/ArrowIcon.vue";
-import { publicMedia as media, publicImageAlt as cmsMediaAlt } from "../services/hero/publicMedia";
+import { publicMedia as media, publicImageAlt as cmsMediaAlt, servicePhoto } from "../services/hero/publicMedia";
 import {visiblePriceRows} from "../services/cms/priceRows";
 import { cmsMediaSrcset } from "../services/cms/content";
 import { computed, watchEffect } from "vue";
@@ -40,12 +40,12 @@ watchEffect(() => {
         v-if="service.image"
         class="service-detail-image"
         data-reveal="image"
-        :src="media[service.image as keyof typeof media]"
-        :srcset="cmsMediaSrcset(media[service.image as keyof typeof media])"
+        :src="servicePhoto(media[service.image as keyof typeof media], service.slug)"
+        :srcset="cmsMediaSrcset(servicePhoto(media[service.image as keyof typeof media], service.slug))"
         sizes="(max-width: 768px) 100vw, 60vw"
         :alt="
           cmsMediaAlt(
-            media[service.image as keyof typeof media],
+            servicePhoto(media[service.image as keyof typeof media], service.slug),
             locale,
             local(service.title),
           )

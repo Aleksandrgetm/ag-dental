@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { publicMedia as media } from "../../services/hero/publicMedia";
+import { publicMedia as media, servicePhoto } from "../../services/hero/publicMedia";
 import { cmsMediaSrcset } from "../../services/cms/content";
 import { cmsLiteral } from "../../services/cms/content";
 import { computed, ref } from "vue";
@@ -34,8 +34,8 @@ const current = computed(() => services[selected.value]||services[0]);
         >
           <div class="service-index-images">
             <template v-for="(s, i) in services" :key="s.slug"><img v-if="s.image"
-              :src="media[s.image as keyof typeof media]"
-              :srcset="cmsMediaSrcset(media[s.image as keyof typeof media])"
+              :src="servicePhoto(media[s.image as keyof typeof media], s.slug, 'index')"
+              :srcset="cmsMediaSrcset(servicePhoto(media[s.image as keyof typeof media], s.slug, 'index'))"
               sizes="(max-width: 768px) 100vw, 60vw"
               alt=""
               loading="lazy"

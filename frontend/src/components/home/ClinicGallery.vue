@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import { clinicPhoto } from "../../content/clinicPhotography";
+import { computed } from "vue";
 import { publicMedia as media, publicImageAlt as cmsMediaAlt } from "../../services/hero/publicMedia";
 import { cmsMediaSrcset } from "../../services/cms/content";
 import { cmsLiteral } from "../../services/cms/content";
 import { useI18n } from "vue-i18n";
 const { locale } = useI18n();
+const clinicImage = computed(() => media.detail === clinicPhoto("room") ? clinicPhoto("signage") : media.detail);
 </script>
 
 <template>
@@ -25,19 +28,19 @@ const { locale } = useI18n();
 
         <figure class="clinic-about-photo" data-reveal="image">
           <img
-            :src="media.detail"
-            :srcset="cmsMediaSrcset(media.detail)"
+            :src="clinicImage"
+            :srcset="cmsMediaSrcset(clinicImage)"
             sizes="(max-width: 768px) 100vw, 60vw"
             :alt="
               cmsMediaAlt(
-                media.detail,
+                clinicImage,
                 locale,
                 cmsLiteral('literal.811f7800.4'),
               )
             "
             loading="lazy"
-            width="1280"
-            height="720"
+            width="2400"
+            height="1600"
           />
         </figure>
 

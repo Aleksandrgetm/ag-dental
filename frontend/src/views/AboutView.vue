@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { publicMedia as media, publicImageAlt as cmsMediaAlt } from "../services/hero/publicMedia";
+import { publicMedia as media, publicImageAlt as cmsMediaAlt, sectionPhoto } from "../services/hero/publicMedia";
 import { cmsMediaSrcset } from "../services/cms/content";
 import { cmsLiteral } from "../services/cms/content";
 import { about, philosophy, doctorBio } from "../services/cms/content";
@@ -14,14 +14,14 @@ const { t, local, locale } = useContent();
   <section class="about-page-section container">
     <img
       data-reveal="image"
-      :src="media.original"
-      :srcset="cmsMediaSrcset(media.original)"
+      :src="sectionPhoto(media.original, 'consultation')"
+      :srcset="cmsMediaSrcset(sectionPhoto(media.original, 'consultation'))"
       sizes="(max-width: 768px) 100vw, 60vw"
       :alt="
-        cmsMediaAlt(media.original, locale, cmsLiteral('literal.ca8a2c47.0'))
+        cmsMediaAlt(sectionPhoto(media.original, 'consultation'), locale, cmsLiteral('literal.ca8a2c47.0'))
       "
-      width="526"
-      height="526"
+      width="1600"
+      height="2400"
     />
     <div>
       <p class="eyebrow">{{ t("home.introLabel") }}</p>

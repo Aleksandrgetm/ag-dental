@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import ArrowIcon from "../components/common/ArrowIcon.vue";
-import { publicMedia as media, publicImageAlt as cmsMediaAlt } from "../services/hero/publicMedia";
+import { publicMedia as media, publicImageAlt as cmsMediaAlt, sectionPhoto } from "../services/hero/publicMedia";
 import { cmsMediaSrcset } from "../services/cms/content";
 import { cmsLiteral, cmsInline } from "../services/cms/content";
 import ScrollClinicHero from "../components/home/ScrollClinicHero.vue";
@@ -60,13 +60,13 @@ const preview = services.filter((s) =>
       <div class="about-editorial-image" data-reveal="image">
         <img
           v-photo-parallax
-          :src="media.room"
-          :srcset="cmsMediaSrcset(media.room)"
+          :src="sectionPhoto(media.room, 'room-tall')"
+          :srcset="cmsMediaSrcset(sectionPhoto(media.room, 'room-tall'))"
           sizes="(max-width: 768px) 100vw, 60vw"
-          alt=""
+          :alt="cmsMediaAlt(sectionPhoto(media.room, 'room-tall'), locale, '')"
           loading="lazy"
-          width="1280"
-          height="720"
+          width="1600"
+          height="2400"
         /><span class="image-annotation">{{
           cmsLiteral("literal.dceb04b2.3")
         }}</span>

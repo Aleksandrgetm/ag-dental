@@ -1,3 +1,4 @@
+import { clinicPhotoMetadata } from '../../content/clinicPhotography';
 import { reactive } from "vue";
 import { API_URL } from "../api";
 import { publicMediaURL } from "./mediaReference";
@@ -32,7 +33,7 @@ export function cmsMediaAlt(value: string, locale: string, fallback: string) {
   return publishedMedia[value]?.alt[locale] || fallback;
 }
 export function cmsMediaSrcset(value: string) {
-  return publishedMedia[value]?.srcset || undefined;
+  return clinicPhotoMetadata(value)?.srcset || publishedMedia[value]?.srcset || undefined;
 }
 
 export function cmsMediaDimensions(value:string) { return {width:publishedMedia[value]?.width,height:publishedMedia[value]?.height}; }
