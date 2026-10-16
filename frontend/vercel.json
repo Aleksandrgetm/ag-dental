@@ -212,7 +212,8 @@
     "deploymentEnabled": {
       "feature/final-development": false,
       "feature/hero-mobile-fix": false,
-      "feature/final-audit": false
+      "feature/final-audit": false,
+      "feature/clinic-photography": false
     }
   }
 }
