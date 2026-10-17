@@ -12,6 +12,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -75,8 +76,16 @@ func TestImagePipeline(t *testing.T) {
 	}
 	var jpg bytes.Buffer
 	jpeg.Encode(&jpg, image.NewRGBA(image.Rect(0, 0, 48, 32)), nil)
-	if _, e = p.Process(context.Background(), "photo.jpg", jpg.Bytes()); e != nil {
-		t.Fatal("JPEG decode", e)
+	for _, name := range []string{"photo.jpg", "photo.jpeg", "PHOTO.JPG", "PHOTO.JPEG", "9015c0599221e0ce58dadc50a822b9a9.jpg"} {
+		processed, err := p.Process(context.Background(), name, jpg.Bytes())
+		if err != nil || processed.Metadata.MIME != "image/jpeg" || processed.Files[0].Name != "original.jpg" {
+			t.Fatal("JPEG extension/signature/Storage normalization", name, err)
+		}
+	}
+	for _, invalid := range [][]byte{[]byte("not an image, renamed to JPG"), pngBytes(), append([]byte{0xff, 0xd8, 0xff}, make([]byte, 64)...), append(jpg.Bytes(), make([]byte, ImageLimit)...)} {
+		if _, err := p.Process(context.Background(), "fake.jpg", invalid); err == nil {
+			t.Fatal("invalid, mismatched, truncated or oversized JPEG accepted")
+		}
 	}
 	// Synthetic 48x32 solid-color fixture generated with avifenc, no clinic content.
 	avifBytes, e := os.ReadFile("testdata/still.avif")
@@ -137,5 +146,21 @@ func TestVideoAndDimensions(t *testing.T) {
 	var b limitedOutput
 	if _, e := b.Write(make([]byte, (1<<20)+1)); e == nil || b.Len() != 0 {
 		t.Fatal("unbounded tool output")
+	}
+}
+
+func TestOptionalUploadAlt(t *testing.T) {
+	for _, alt := range []map[string]string{nil, {}, {"lv": "", "ru": "", "en": ""}, {"lv": "Attēls"}} {
+		if !ValidOptionalAlt(alt) {
+			t.Fatal("optional metadata rejected")
+		}
+		if ValidAlt(alt) {
+			t.Fatal("publication validation weakened")
+		}
+	}
+	for _, alt := range []map[string]string{{"fr": "text"}, {"en": "<script>"}, {"lv": strings.Repeat("a", 301)}} {
+		if ValidOptionalAlt(alt) {
+			t.Fatal("unsafe metadata accepted")
+		}
 	}
 }

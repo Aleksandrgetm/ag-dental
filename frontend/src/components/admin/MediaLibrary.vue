@@ -60,6 +60,8 @@ const detail = computed(() => assets.value.find((a) => a.id === routeID.value));
 const selection = ref<File>(),
   localURL = ref(""),
   alt = ref<Record<string, string>>({ lv: "", ru: "", en: "" }),
+  decorative = ref(false),
+  savingMetadata = ref(false),
   key = ref(""),
   progress = ref(0),
   uploading = ref(false);
@@ -77,7 +79,7 @@ const imageSrc = (a: MediaAsset, large = false) =>
         ? a.url
         : "";
 const description = (a: MediaAsset) =>
-  a.metadata.alt?.[locale.value] || a.metadata.filename;
+  a.metadata.decorative ? "" : a.metadata.alt?.[locale.value] || "";
 const canArchive = (a: MediaAsset) =>
   a.origin === "upload" &&
   !a.protected &&
@@ -170,6 +172,8 @@ function back() {
 }
 watch(detail, async (a) => {
   if (!a) return;
+  alt.value = { lv: "", ru: "", en: "", ...a.metadata.alt };
+  decorative.value = a.metadata.decorative === true;
   await loadMediaPreview(a, "display.webp").catch(() => {});
   heading.value?.focus();
   if (a.metadata.kind === "video") {
@@ -189,8 +193,10 @@ function choose(files: FileList | null) {
   error.value = "";
   notice.value = "";
   if (files.length !== 1 || checkFile(files[0]!, props.picker)) {
+    const file = files[0]!;
     resetFile();
-    error.value = "invalid_file";
+    const supported = /\.(jpe?g|png|webp|avif|mp4|webm)$/i.test(file.name) && (!props.picker || !/\.(mp4|webm)$/i.test(file.name));
+    error.value = !supported ? "unsupported_file" : file.size > (/\.(mp4|webm)$/i.test(file.name) ? 32 : 12) * 1024 * 1024 ? "file_too_large" : "invalid_file";
     return;
   }
   const file = files[0]!;
@@ -199,13 +205,10 @@ function choose(files: FileList | null) {
   localURL.value = URL.createObjectURL(file);
   key.value = crypto.randomUUID();
   progress.value = 0;
+  void upload();
 }
 async function upload() {
   if (!selection.value || uploading.value || !enabled.value) return;
-  if (Object.values(alt.value).some((v) => !v.trim() || v.length > 300)) {
-    error.value = "invalid_file";
-    return;
-  }
   controller = new AbortController();
   uploading.value = true;
   error.value = "";
@@ -214,7 +217,7 @@ async function upload() {
   try {
     const result = await uploadMedia(
       selection.value,
-      alt.value,
+      {},
       key.value,
       (n) => (progress.value = n),
       controller.signal,
@@ -233,6 +236,24 @@ async function upload() {
   } finally {
     if (alive) uploading.value = false;
   }
+}
+async function saveMetadata() {
+  const asset = detail.value;
+  if (!asset || savingMetadata.value) return;
+  if (Object.values(alt.value).some(v => [...v].length > 300 || /[\x00-\x1f<>]/.test(v))) {
+    error.value = "invalid_metadata"; return;
+  }
+  savingMetadata.value = true;
+  error.value = "";
+  try {
+    const result = await mediaRequest("/" + asset.id + "/metadata", "PATCH", undefined, {
+      alt: { ...alt.value }, decorative: decorative.value, expected_updated_at: asset.updated_at,
+    });
+    if (!alive) return;
+    assets.value = assets.value.map(a => a.id === asset.id ? { ...result.asset, usages: a.usages } : a);
+    notice.value = t("media.metadataSaved");
+  } catch(e) { if (alive) error.value = safeMediaError((e as Error).message); }
+  finally { if (alive) savingMetadata.value = false; }
 }
 async function select(a: MediaAsset) {
   if (!selectableMedia(a)) return;
@@ -315,19 +336,19 @@ onBeforeUnmount(() => {
     </p>
     <p v-if="error" class="media-error" role="alert">
       {{ t("media." + error) }}
-      <button type="button" @click="load">{{ t("media.reload") }}</button>
+      <button v-if="error === 'media_unavailable' && !selection" type="button" @click="load">{{ t("media.reload") }}</button>
     </p>
     <p class="media-feedback" role="status" aria-live="polite">{{ notice }}</p>
     <details
       v-if="enabled"
       class="media-upload"
-      :open="!!selection"
+      open
       @dragover.prevent
       @drop.prevent="choose($event.dataTransfer?.files || null)"
     >
       <summary>{{ t("media.upload") }}</summary>
       <p>{{ t("media.drop") }}</p>
-      <p>{{ t("media.limits") }}</p>
+      <p>{{ t(picker ? "media.imageLimits" : "media.limits") }}</p>
       <label :for="inputID" class="media-file-label">{{
         t("media.choose")
       }}</label
@@ -349,20 +370,6 @@ onBeforeUnmount(() => {
           playsinline
         />
         <img v-else :src="localURL" alt="" class="media-upload-preview" />
-        <p>{{ t("media.altHelp") }}</p>
-        <div class="media-alt-fields">
-          <label v-for="lang in ['lv', 'ru', 'en']" :key="lang"
-            >{{ t("media.alt") }} · {{ lang.toUpperCase()
-            }}<textarea
-              v-model="alt[lang]"
-              :lang="lang"
-              maxlength="300"
-              rows="2"
-              :disabled="uploading"
-              required
-            />
-          </label>
-        </div>
         <template v-if="uploading"
           ><progress
             :value="progress"
@@ -463,15 +470,23 @@ onBeforeUnmount(() => {
           )
         }}
       </p>
-      <p
-        v-for="lang in ['lv', 'ru', 'en']"
-        v-show="detail.metadata.alt?.[lang]"
-        :key="lang"
-        :lang="lang"
-      >
-        <strong>{{ t("media.alt") }} · {{ lang.toUpperCase() }}</strong>
-        {{ detail.metadata.alt?.[lang] }}
-      </p>
+      <template v-if="detail.origin === 'registered' && !detail.protected">
+        <p v-for="lang in ['lv', 'ru', 'en']" v-show="detail.metadata.alt?.[lang]" :key="lang" :lang="lang">
+          <strong>{{ t('media.alt') }} · {{ lang.toUpperCase() }}</strong> {{ detail.metadata.alt?.[lang] }}
+        </p>
+      </template>
+      <details v-if="!detail.protected && detail.origin === 'upload' && detail.state === 'ready'" class="media-metadata">
+        <summary>{{ t("media.optionalMetadata") }}</summary>
+        <p>{{ t("media.altHelp") }}</p>
+        <p v-if="detail.published_at">{{ t("media.sharedMetadata") }}</p>
+        <label v-if="detail.metadata.kind === 'image'" class="media-decorative"><input v-model="decorative" type="checkbox" :disabled="savingMetadata" /> {{ t("media.decorative") }}</label>
+        <div class="media-alt-fields">
+          <label v-for="lang in ['lv', 'ru', 'en']" :key="lang">{{ t("media.alt") }} · {{ lang.toUpperCase() }}
+            <textarea v-model="alt[lang]" :lang="lang" maxlength="300" rows="2" :disabled="savingMetadata || decorative" />
+          </label>
+        </div>
+        <button type="button" :disabled="savingMetadata" @click="saveMetadata">{{ t("media.saveMetadata") }}</button>
+      </details>
       <ul v-if="!picker">
         <li
           v-for="u in detail.usages"
@@ -644,6 +659,9 @@ onBeforeUnmount(() => {
   </div>
 </template>
 <style scoped>
+.media-library .media-decorative { display:flex; align-items:center; gap:10px; min-height:44px; }
+.media-library .media-decorative input { width:20px; height:20px; min-height:20px; flex:0 0 20px; margin:0; }
+
 .media-library {
   min-width: 0;
   color: var(--ink);

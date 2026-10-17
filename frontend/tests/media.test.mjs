@@ -75,3 +75,8 @@ test("inline photo pickers reject videos even when dragged past the file input a
   for (const name of ["clip.mp4", "clip.WEBM"]) assert.equal(checkFile({name, size:1024}, true), "invalid_file");
   for (const name of ["photo.jpg", "photo.png", "photo.webp", "photo.avif"]) assert.equal(checkFile({name,size:1024}, true), null);
 });
+
+test("both JPEG extensions and casing pass preflight; descriptions are not a file-selection requirement", () => {
+ for(const name of ["photo.jpg","photo.jpeg","PHOTO.JPG","PHOTO.JPEG","9015c0599221e0ce58dadc50a822b9a9.jpg"])
+  assert.equal(checkFile({name,size:25*1024},true),null);
+});

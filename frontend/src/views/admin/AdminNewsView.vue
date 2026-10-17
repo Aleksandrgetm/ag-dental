@@ -9,6 +9,7 @@ import {cmsRequest} from '../../services/cms/admin';
 import {emptyCreated,createdKey} from '../../services/cms/created';
 import {newsDocs} from '../../services/cms/catalog';
 import {media,refreshPublished} from '../../services/cms/content';
+import {mediaID} from '../../services/cms/mediaReference';
 import {suggestSlug} from '../../services/admin/slug';
 import {trapDialogFocus} from '../../services/dialogFocus';
 import AdminPageHeader from '../../components/admin/AdminPageHeader.vue';
@@ -29,7 +30,7 @@ const imported=computed(()=>key.value.startsWith('news.'));
 const dirty=computed(()=>editing.value&&!!original.value&&JSON.stringify(payload.value)!==original.value);
 const issues=ref<NewsIssue[]>([]);
 const issueFor=(field:string)=>issues.value.find(i=>i.field===field&&(!i.language||i.language===language.value));
-const issueText=(i:NewsIssue)=>t('newsAdmin.fields.'+i.field,{language:i.language?.toUpperCase()||''});
+const issueText=(i:NewsIssue)=>i.field==='image'&&error.value==='imageAssociation'?t('newsAdmin.imageAssociation'):t('newsAdmin.fields.'+i.field,{language:i.language?.toUpperCase()||''});
 async function focusIssue(){const i=issues.value[0];if(!i)return;if(i.language)language.value=i.language;await nextTick();document.getElementById('news-'+i.field)?.focus()}
 const missing=ref<string[]>([]),bodyDraft=ref<Record<Lang,string>>({lv:'',ru:'',en:''});
 let controller=new AbortController();
@@ -53,7 +54,7 @@ function update(field:NewsField,value:string){
 }
 const image=computed(()=>imported.value?payload.value.lv?.image||'':payload.value.image||'');
 const date=computed({get:()=>imported.value?payload.value.lv?.date||'':payload.value.date,set:(v:string)=>{if(imported.value)for(const l of langs)payload.value[l].date=v;else payload.value.date=v}});
-function imageRef(value:string){return (media as Record<string,string>)[value]||value}
+function imageRef(value:string){return mediaID(value)?value:(media as Record<string,string>)[value]||value}
 function select(asset:any){const value=asset.origin==='upload'?'cms-media:'+asset.id:asset.url;if(imported.value)for(const l of langs)payload.value[l].image=value;else payload.value.image=value;closePicker()}
 function closePicker(){picker.value?.close();picking.value=false}
 async function load(){newsTrace('list.load');controller.abort();controller=new AbortController();const own=controller;busy.value=true;error.value='';try{
@@ -87,7 +88,7 @@ watch(()=>[route.fullPath,auth.verifiedAdmin],()=>{
  if(auth.verifiedAdmin&&loadedPath!==route.fullPath){void load()}
 },{immediate:true});
 onBeforeUnmount(()=>{newsTrace('component.unmount');controller.abort();window.removeEventListener('beforeunload',unload)});
-const message=computed(()=>issues.value.length?issueText(issues.value[0]):t('newsAdmin.'+(['incomplete','conflict','invalid','unauthorized','archiveUnavailable','publicationRejected'].includes(error.value)?error.value:'unavailable'),{languages:missing.value.map(l=>l.toUpperCase()).join(', ')}));
+const message=computed(()=>issues.value.length?issueText(issues.value[0]):t('newsAdmin.'+(['incomplete','conflict','invalid','unauthorized','archiveUnavailable','publicationRejected','imageAssociation','articleSaveFailed'].includes(error.value)?error.value:'unavailable'),{languages:missing.value.map(l=>l.toUpperCase()).join(', ')}));
 </script>
 <template><section class="news-admin"><AdminPageHeader :title="t(editing?(key?'newsAdmin.edit':'newsAdmin.add'):(archived?'newsAdmin.archivedItems':'newsAdmin.title'))"><template #actions><RouterLink v-if="!editing" class="button" to="/admin/news/new">{{t('newsAdmin.add')}}</RouterLink></template></AdminPageHeader>
 <p v-if="notice&&!editing" role="status">{{notice}}</p><p v-if="busy" role="status">{{t('newsAdmin.loading')}}</p><div v-if="error" role="alert">{{message}} <button v-if="!editing" @click="load">{{t('newsAdmin.retry')}}</button></div>

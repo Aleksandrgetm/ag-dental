@@ -154,6 +154,7 @@ module.exports.createCMSFixture = async function (
             .map((a) => ({
               id: a.id,
               alt: a.metadata.alt,
+              decorative: a.metadata.decorative,
               variants: a.metadata.variants,
             })),
           documents: state.empty
@@ -219,6 +220,7 @@ module.exports.createCMSFixture = async function (
           state: "ready",
           usages: [],
           created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
           metadata: {
             filename: name,
             kind: "image",
@@ -257,6 +259,14 @@ module.exports.createCMSFixture = async function (
       const asset = state.mediaRows.find((a) => a.id === id);
       if (!asset || asset.protected || (pub && !asset.published_at))
         return route.fulfill({ status: 404, json: { error: "media_missing" } });
+      if (req.method() === "PATCH" && variant === "metadata") {
+        const body = req.postDataJSON();
+        if (body.expected_updated_at !== asset.updated_at) return route.fulfill({status:409,json:{error:"media_conflict"}});
+        asset.metadata.alt = body.alt;
+        asset.metadata.decorative = body.decorative;
+        asset.updated_at = new Date().toISOString();
+        return route.fulfill({json:{asset}});
+      }
       if (req.method() === "POST" || req.method() === "DELETE") {
         const used = [...state.rows.values()].some((r) =>
           r.revisions.some((v) =>
@@ -337,6 +347,7 @@ module.exports.createCMSFixture = async function (
           id: rev,
           payload: body.payload,
           created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
           published_at: null,
         });
         row.document.draft_revision = rev;

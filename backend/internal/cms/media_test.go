@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/Aleksandrgetm/Dental/internal/media"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
@@ -13,6 +14,7 @@ import (
 	"gorm.io/gorm/logger"
 	"image"
 	"image/color"
+	"image/jpeg"
 	"image/png"
 	"io"
 	"mime/multipart"
@@ -23,6 +25,7 @@ import (
 	"strings"
 	"sync"
 	"testing"
+	"time"
 )
 
 type memoryStorage struct {
@@ -80,7 +83,7 @@ func testPNG(seed uint8) []byte {
 }
 func TestMediaAuth(t *testing.T) {
 	gin.SetMode(gin.TestMode)
-	for _, endpoint := range []struct{ method, path string }{{"GET", "/api/admin/cms/media"}, {"POST", "/api/admin/cms/media"}, {"POST", "/api/admin/cms/media/media.1a179d8d90f66b15/archive"}, {"DELETE", "/api/admin/cms/media/anything"}, {"GET", "/api/admin/cms/media/anything/display.webp"}} {
+	for _, endpoint := range []struct{ method, path string }{{"PATCH", "/api/admin/cms/media/upload.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/metadata"}, {"GET", "/api/admin/cms/media"}, {"POST", "/api/admin/cms/media"}, {"POST", "/api/admin/cms/media/media.1a179d8d90f66b15/archive"}, {"DELETE", "/api/admin/cms/media/anything"}, {"GET", "/api/admin/cms/media/anything/display.webp"}} {
 		for _, tc := range []struct {
 			token, role string
 			want        int
@@ -138,12 +141,16 @@ func TestMediaPostgres(t *testing.T) {
 	r := gin.New()
 	RegisterMedia(r, &s, verifier{}, roles{"admin", nil}, MediaConfig{storage, processor, true})
 	Register(r, &s, verifier{}, roles{"admin", nil})
+	uploadAlt := `{"lv":"Testa attēls","ru":"Тестовое изображение","en":"Test image"}`
+	uploadName := "test.png"
 	upload := func(data []byte, key string) *httptest.ResponseRecorder {
 		var body bytes.Buffer
 		form := multipart.NewWriter(&body)
-		file, _ := form.CreateFormFile("file", "test.png")
+		file, _ := form.CreateFormFile("file", uploadName)
 		file.Write(data)
-		form.WriteField("alt", `{"lv":"Testa attēls","ru":"Тестовое изображение","en":"Test image"}`)
+		if uploadAlt != "" {
+			form.WriteField("alt", uploadAlt)
+		}
 		form.Close()
 		req := httptest.NewRequest("POST", "/api/admin/cms/media", &body)
 		req.Header.Set("Content-Type", form.FormDataContentType())
@@ -174,9 +181,19 @@ func TestMediaPostgres(t *testing.T) {
 	if asset.State != "ready" || len(storage.objects) != 4 {
 		t.Fatal("metadata/storage mismatch")
 	}
+	uploadAlt = "" // A retry without descriptions must retain existing metadata.
 	if w = upload(testPNG(45), "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"); w.Code != 200 || w.Header().Get("Idempotency-Replayed") != "true" {
 		t.Fatal("idempotency")
 	}
+	var replay struct {
+		Asset MediaRow `json:"asset"`
+	}
+	json.Unmarshal(w.Body.Bytes(), &replay)
+	if !bytes.Equal(replay.Asset.Metadata, asset.Metadata) {
+		t.Fatal("retry erased existing metadata")
+	}
+	uploadAlt = `{"lv":"Testa attēls","ru":"Тестовое изображение","en":"Test image"}`
+
 	if w = upload(testPNG(46), "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa"); w.Code != 409 {
 		t.Fatal("key reused with different bytes", w.Code)
 	}
@@ -246,12 +263,145 @@ func TestMediaPostgres(t *testing.T) {
 	if e = Validate("clinic.media", changed(t, "clinic.media", []string{"poster"}, asset.URL)); e == nil {
 		t.Fatal("Hero mutation")
 	}
+	// Real image processing + HTTP uploads with no metadata, then secure edits.
+	uploadAlt = ""
+	for i, ext := range []string{"png", "jpg", "jpeg", "webp", "avif"} {
+		data := testPNG(uint8(80 + i))
+		if ext == "jpg" || ext == "jpeg" {
+			img, _ := png.Decode(bytes.NewReader(data))
+			var out bytes.Buffer
+			jpeg.Encode(&out, img, nil)
+			data = out.Bytes()
+		}
+		if ext == "webp" {
+			input := t.TempDir() + "/source.png"
+			os.WriteFile(input, data, 0600)
+			converted, err := exec.Command(cw, "-quiet", input, "-o", "-").Output()
+			if err != nil {
+				t.Fatal(err)
+			}
+			data = converted
+		}
+		if ext == "avif" {
+			var err error
+			data, err = os.ReadFile("../media/testdata/still.avif")
+			if err != nil {
+				t.Fatal(err)
+			}
+		}
+		uploadName = "optional." + ext
+		response := upload(data, fmt.Sprintf("eeeeeeee-eeee-4eee-8eee-%012d", i))
+		if response.Code != 200 {
+			t.Fatalf("metadata-free %s: %d %s", ext, response.Code, response.Body.String())
+		}
+		var optional struct {
+			Asset MediaRow `json:"asset"`
+		}
+		json.Unmarshal(response.Body.Bytes(), &optional)
+		before := optional.Asset
+		if before.PublishedAt != nil {
+			t.Fatal("upload published automatically")
+		}
+		if request("GET", "/api/cms/media/"+before.ID+"/display.webp", false).Code != 404 {
+			t.Fatal("private upload exposed")
+		}
+		patch := func(alt map[string]string, version time.Time) *httptest.ResponseRecorder {
+			body, _ := json.Marshal(map[string]any{"alt": alt, "expected_updated_at": version})
+			req := httptest.NewRequest("PATCH", "/api/admin/cms/media/"+before.ID+"/metadata", bytes.NewReader(body))
+			req.Header.Set("Authorization", "Bearer verified")
+			req.Header.Set("Content-Type", "application/json")
+			out := httptest.NewRecorder()
+			r.ServeHTTP(out, req)
+			return out
+		}
+
+		// A draft may refer to an incomplete upload, but publication must reject it.
+		doc, _, _ := s.Detail(ctx, "service.konsultacija")
+		pending, err := s.Change(ctx, doc.Key, actor, "draft_saved", "", doc.Version, changed(t, doc.Key, []string{"image"}, before.URL))
+		if err != nil {
+			t.Fatal("optional-media draft", err)
+		}
+		if _, err = s.Change(ctx, doc.Key, actor, "published", *pending.DraftRevision, pending.Version, nil); err == nil {
+			t.Fatal("informative image without alt published")
+		}
+		descriptions := map[string]string{"lv": "Sintētisks attēls", "ru": "Синтетическое изображение", "en": "Synthetic image"}
+		edited := patch(descriptions, before.UpdatedAt)
+		if edited.Code != 200 {
+			t.Fatalf("metadata edit: %d %s", edited.Code, edited.Body.String())
+		}
+		if patch(descriptions, before.UpdatedAt).Code != 409 {
+			t.Fatal("stale metadata overwrite allowed")
+		}
+		after, _ := s.Media(ctx, before.ID)
+		var oldMD, newMD map[string]any
+		json.Unmarshal(before.Metadata, &oldMD)
+		json.Unmarshal(after.Metadata, &newMD)
+		oldMD["alt"], oldMD["decorative"] = newMD["alt"], newMD["decorative"]
+		oldJSON, _ := json.Marshal(oldMD)
+		newJSON, _ := json.Marshal(newMD)
+		if !bytes.Equal(oldJSON, newJSON) || after.PublishedAt != nil {
+			t.Fatal("metadata edit changed other fields/publication")
+		}
+		if _, err = s.Change(ctx, doc.Key, actor, "published", *pending.DraftRevision, pending.Version, nil); err != nil {
+			t.Fatal("described image publication", err)
+		}
+		current, _ := s.Media(ctx, before.ID)
+		if _, err = s.UpdateMediaMetadata(ctx, before.ID, actor, current.UpdatedAt, nil, false); !errors.Is(err, ErrMediaMetadata) {
+			t.Fatal("published alt erased", err)
+		}
+		decorated, err := s.UpdateMediaMetadata(ctx, before.ID, actor, current.UpdatedAt, descriptions, true)
+		if err != nil {
+			t.Fatal("decorative metadata", err)
+		}
+		var decor media.Metadata
+		json.Unmarshal(decorated.Metadata, &decor)
+		if !decor.Decorative || decor.Alt["en"] != "Synthetic image" {
+			t.Fatal("decorative edit erased descriptions")
+		}
+		emptyDecor, err := s.UpdateMediaMetadata(ctx, before.ID, actor, decorated.UpdatedAt, nil, true)
+		if err != nil {
+			t.Fatal("empty decorative alt rejected", err)
+		}
+		publishedRows, _ := s.Published(ctx)
+		publicMetadata, err := s.PublishedMedia(ctx, publishedRows)
+		found := false
+		for _, item := range publicMetadata {
+			if item.ID == emptyDecor.ID {
+				found = item.Decorative && len(item.Alt) == 0
+			}
+		}
+		if err != nil || !found {
+			t.Fatal("decorative public metadata lost", err)
+		}
+
+	}
+
+	var optionalJPEG bytes.Buffer
+	jpeg.Encode(&optionalJPEG, image.NewRGBA(image.Rect(0, 0, 54, 38)), nil)
+	uploadName = "optional-metadata.jpeg"
+	uploadAlt = `{"lv":"Sintētisks attēls"}`
+	metadataUpload := upload(optionalJPEG.Bytes(), "ffffffff-ffff-4fff-8fff-ffffffffffff")
+	if metadataUpload.Code != 200 {
+		t.Fatal("JPEG with optional partial metadata", metadataUpload.Code)
+	}
+	var metadataResult struct {
+		Asset MediaRow `json:"asset"`
+	}
+	json.Unmarshal(metadataUpload.Body.Bytes(), &metadataResult)
+	var metadataJPEG media.Metadata
+	json.Unmarshal(metadataResult.Asset.Metadata, &metadataJPEG)
+	if metadataJPEG.Alt["lv"] != "Sintētisks attēls" || len(metadataJPEG.Alt) != 1 {
+		t.Fatal("optional JPEG metadata changed")
+	}
+	uploadName = "test.png"
+	uploadAlt = `{"lv":"Testa attēls","ru":"Тестовое изображение","en":"Test image"}`
+
 	storage.failAfter = len(storage.objects) + 2
 	w = upload(testPNG(47), "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb")
-	if w.Code != 503 {
-		t.Fatal("fake upload success")
+	if w.Code != 503 || !strings.Contains(w.Body.String(), "storage_failed") {
+		t.Fatal("storage failure classification", w.Code, w.Body.String())
 	}
-	if len(storage.objects) != 6 {
+	if len(storage.objects) != storage.failAfter {
 		t.Fatal("partial upload fixture did not retain first two objects")
 	}
 	storage.failAfter = 0
@@ -299,5 +449,53 @@ func TestMediaPostgres(t *testing.T) {
 	db.Raw(`SELECT (SELECT count(*) FROM services)+(SELECT count(*) FROM doctors)+(SELECT count(*) FROM appointments)`).Scan(&n)
 	if n != 0 {
 		t.Fatal("booking altered")
+	}
+}
+
+func TestMediaStageErrors(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	for _, tc := range []struct {
+		err    error
+		status int
+		code   string
+	}{
+		{errors.New("sensitive SQL details"), 503, "media_record_failed"},
+		{ErrProtected, 403, "media_protected"}, {ErrConflict, 409, "media_conflict"},
+	} {
+		w := httptest.NewRecorder()
+		c, _ := gin.CreateTestContext(w)
+		mediaRecordFailure(c, tc.err)
+		if w.Code != tc.status || !strings.Contains(w.Body.String(), tc.code) || strings.Contains(w.Body.String(), "sensitive") {
+			t.Fatal("unsafe stage response", w.Code, w.Body.String())
+		}
+	}
+	w := httptest.NewRecorder()
+	c, _ := gin.CreateTestContext(w)
+	failure(c, &FieldError{Field: "image", Code: "image_association_failed"})
+	if w.Code != 422 || w.Body.String() != `{"error":"image_association_failed","field":"image"}` {
+		t.Fatal("association response", w.Body.String())
+	}
+}
+func TestNewsImageContext(t *testing.T) {
+	imported := map[string]any{}
+	for _, lang := range []string{"lv", "ru", "en"} {
+		imported[lang] = map[string]any{"title": "Existing title " + lang}
+	}
+	if !newsImageContextAvailable(Definition{Target: "articles"}, imported) {
+		t.Fatal("existing localized titles rejected")
+	}
+	if newsImageContextAvailable(Definition{Target: "other"}, imported) {
+		t.Fatal("unrelated content bypass")
+	}
+	delete(imported, "ru")
+	if newsImageContextAvailable(Definition{Target: "articles"}, imported) {
+		t.Fatal("missing language accepted")
+	}
+	created := map[string]any{"title": map[string]any{"lv": "Title lv", "ru": "Title ru", "en": "Title en"}}
+	if !newsImageContextAvailable(Definition{Target: "created", Group: "news"}, created) {
+		t.Fatal("created news fallback")
+	}
+	if newsImageContextAvailable(Definition{Target: "created", Group: "pages"}, created) {
+		t.Fatal("non-news fallback")
 	}
 }

@@ -31,7 +31,7 @@ export async function cmsRequest(
       signal: AbortSignal.any([signal, AbortSignal.timeout(12000)]),
     });
   } catch {
-    throw Error("unavailable");
+    throw Error(path.endsWith("/save-publish") ? "articleSaveFailed" : "unavailable");
   }
   if (
     !current()
@@ -54,6 +54,8 @@ export async function cmsRequest(
   if (response.status === 422 && path.endsWith('/save-publish')) {
     const failure = await response.json().catch(() => null);
     const field = failure?.field;
+    if (failure?.error === 'image_association_failed' && field === 'image')
+      throw Object.assign(Error('imageAssociation'), {field:'image'});
     if (typeof field === 'string' && /^(image|date|(title|body|summary|category|author|seo_title|seo_description)\.(lv|ru|en))$/.test(field))
       throw Object.assign(Error('invalid'), {field});
     throw Error('publicationRejected');
@@ -64,7 +66,7 @@ export async function cmsRequest(
         ? "conflict"
         : response.status === 422
           ? "invalid"
-          : "unavailable",
+          : path.endsWith("/save-publish") ? "articleSaveFailed" : "unavailable",
     );
   try {
     const result=await response.json();

@@ -24,7 +24,11 @@ func failure(c *gin.Context, e error) {
 	code, message := SafeError(e)
 	var field *FieldError
 	if errors.As(e, &field) {
-		c.JSON(422, gin.H{"error": "invalid_content", "field": field.Field})
+		code := "invalid_content"
+		if field.Code == "image_association_failed" {
+			code = field.Code
+		}
+		c.JSON(422, gin.H{"error": code, "field": field.Field})
 		return
 	}
 	c.JSON(code, gin.H{"error": message})

@@ -30,9 +30,12 @@ async function specialist(page,evidence){
  // Real inline portrait upload and reference-safe replacement; disposable database only.
  const {mediaMessages}=await import('../src/i18n/media.ts');const m=mediaMessages.en;
  async function portraitUpload(file){
-  await page.getByRole('button',{name:o.portrait,exact:true}).click();await page.locator('.media-upload summary').click();await page.locator('input[type=file]').setInputFiles(file);await page.locator('.media-upload-preview').waitFor();
-  for(const l of ['lv','ru','en'])await page.locator(`textarea[lang="${l}"]`).fill('Synthetic portrait '+l);
-  const pending=page.waitForResponse(r=>r.url().endsWith('/api/admin/cms/media')&&r.request().method()==='POST');await page.getByRole('button',{name:m.start,exact:true}).click();const r=await pending;assert.equal(r.status(),200);const {asset}=await r.json();await page.getByRole('button',{name:m.select,exact:true}).click();await page.locator('.doctor-heading img').waitFor();
+  await page.getByRole('button',{name:o.portrait,exact:true}).click();
+  const pending=page.waitForResponse(r=>r.url().endsWith('/api/admin/cms/media')&&r.request().method()==='POST');
+  await page.locator('input[type=file]').setInputFiles(file);const r=await pending;assert.equal(r.status(),200);const {asset}=await r.json();
+  if(!await page.locator('.media-metadata').evaluate(e=>e.open))await page.locator('.media-metadata summary').click();for(const l of ['lv','ru','en'])await page.locator(`textarea[lang="${l}"]`).fill('Synthetic portrait '+l);
+  await page.getByRole('button',{name:m.saveMetadata,exact:true}).click();await page.getByText(m.metadataSaved,{exact:true}).waitFor();
+  await page.getByRole('button',{name:m.select,exact:true}).click();await page.locator('.doctor-heading img').waitFor();
   await page.getByRole('button',{name:t.save,exact:true}).click();await page.getByText(t.saved,{exact:true}).waitFor();assert.equal(sql(`SELECT portrait_id FROM doctor_profiles WHERE doctor_id='${id}'`),asset.id);return {asset,authorization:r.request().headers().authorization};
  }
  const firstPortrait=await portraitUpload(process.env.QA_IMAGE),nextPortrait=await portraitUpload(process.env.QA_IMAGE_REPLACEMENT);assert.notEqual(firstPortrait.asset.id,nextPortrait.asset.id);

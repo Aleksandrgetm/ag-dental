@@ -15,6 +15,8 @@ import (
 
 const mediaLock = 714092005
 
+var ErrMediaMetadata = errors.New("invalid_metadata")
+
 var ErrReferenced = errors.New("media_referenced")
 var ErrProtected = errors.New("media_protected")
 
@@ -27,7 +29,7 @@ type MediaRow struct {
 	Origin      string          `json:"origin"`
 	State       string          `json:"state"`
 	CreatedAt   time.Time       `json:"created_at"`
-	UpdatedAt   time.Time       `json:"-"`
+	UpdatedAt   time.Time       `json:"updated_at"`
 	PublishedAt *time.Time      `json:"published_at"`
 	UploadKey   *string         `json:"-"`
 	Usages      []MediaUsage    `json:"usages" gorm:"-"`
@@ -119,7 +121,10 @@ func attachMedia(tx *gorm.DB, key, revision string, payload json.RawMessage, pub
 		}
 		var md media.Metadata
 		json.Unmarshal(row.Metadata, &md)
-		if q.RowsAffected == 0 || row.Protected || row.State != "ready" || md.Kind != "image" || !media.ValidAlt(md.Alt) {
+		if q.RowsAffected == 0 || row.Protected || row.State != "ready" || md.Kind != "image" {
+			return &FieldError{Field: "image", Code: "image_association_failed"}
+		}
+		if publish && !md.Decorative && !media.ValidAlt(md.Alt) && !newsImageContextAvailable(d, value) {
 			return invalidField("image")
 		}
 		if e := tx.Exec(`INSERT INTO public.cms_media_references(revision_id,media_id,field_path) VALUES (?::uuid,?,?) ON CONFLICT DO NOTHING`, revision, id, strings.Join(f.Path, ".")).Error; e != nil {
@@ -338,9 +343,10 @@ func storagePath(id, name string) string {
 }
 
 type PublicMedia struct {
-	ID       string            `json:"id"`
-	Alt      map[string]string `json:"alt"`
-	Variants []media.Variant   `json:"variants"`
+	ID         string            `json:"id"`
+	Alt        map[string]string `json:"alt"`
+	Decorative bool              `json:"decorative,omitempty"`
+	Variants   []media.Variant   `json:"variants"`
 }
 
 func (s *Store) PublishedMedia(ctx context.Context, documents []Published) ([]PublicMedia, error) {
@@ -376,7 +382,7 @@ func (s *Store) PublishedMedia(ctx context.Context, documents []Published) ([]Pu
 		if json.Unmarshal(row.Metadata, &md) != nil {
 			return nil, ErrInvalid
 		}
-		item := PublicMedia{ID: id, Alt: md.Alt}
+		item := PublicMedia{ID: id, Alt: md.Alt, Decorative: md.Decorative}
 		for _, v := range md.Variants {
 			if !strings.HasPrefix(v.Name, "original.") {
 				item.Variants = append(item.Variants, v)
@@ -386,4 +392,69 @@ func (s *Store) PublishedMedia(ctx context.Context, documents []Published) ([]Pu
 	}
 	sort.Slice(result, func(i, j int) bool { return result[i].ID < result[j].ID })
 	return result, nil
+}
+
+// Patch only editable metadata, preserving variants, references and existing fields.
+// The timestamp prevents a stale editor from erasing another administrator's work.
+func (s *Store) UpdateMediaMetadata(ctx context.Context, id, actor string, expected time.Time, alt map[string]string, decorative bool) (MediaRow, error) {
+	var row MediaRow
+	if !media.IDPattern.MatchString(id) || !media.ValidOptionalAlt(alt) {
+		return row, ErrMediaMetadata
+	}
+	e := s.DB.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if e := freshAdmin(tx, actor); e != nil {
+			return e
+		}
+		if e := tx.Exec("SELECT pg_advisory_xact_lock(?)", mediaLock).Error; e != nil {
+			return e
+		}
+		q := tx.Raw("SELECT "+mediaColumns+" FROM public.cms_media WHERE id=? FOR UPDATE", id).Scan(&row)
+		if q.Error != nil {
+			return q.Error
+		}
+		if q.RowsAffected == 0 {
+			return ErrMissing
+		}
+		if row.Protected || row.Origin != "upload" || row.State != "ready" {
+			return ErrProtected
+		}
+		if !row.UpdatedAt.Equal(expected) {
+			return ErrConflict
+		}
+		// Already-public assets must never lose their accessibility metadata.
+		if row.PublishedAt != nil && !decorative && !media.ValidAlt(alt) {
+			return ErrMediaMetadata
+		}
+		var md map[string]any
+		if json.Unmarshal(row.Metadata, &md) != nil {
+			return ErrMediaMetadata
+		}
+		md["alt"], md["decorative"] = alt, decorative
+		payload, e := json.Marshal(md)
+		if e != nil {
+			return e
+		}
+		return tx.Raw("UPDATE public.cms_media SET metadata=?::jsonb,updated_at=clock_timestamp() WHERE id=? RETURNING "+mediaColumns, string(payload), id).Scan(&row).Error
+	})
+	return row, e
+}
+
+// Match the public News template's localized title fallback for uploaded featured images.
+// This does not invent or persist media descriptions, and does not relax other content types.
+func newsImageContextAvailable(d Definition, value any) bool {
+	if d.Target != "articles" && !(d.Target == "created" && d.Group == "news") {
+		return false
+	}
+	for _, lang := range []string{"lv", "ru", "en"} {
+		var text string
+		if d.Target == "articles" {
+			text, _ = at(value, []string{lang, "title"}).(string)
+		} else {
+			text, _ = at(value, []string{"title", lang}).(string)
+		}
+		if strings.TrimSpace(text) == "" {
+			return false
+		}
+	}
+	return true
 }

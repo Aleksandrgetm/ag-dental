@@ -253,3 +253,16 @@ func ValidAlt(alt map[string]string) bool {
 	}
 	return true
 }
+
+// Upload metadata is optional. Public use is validated separately by ValidAlt.
+func ValidOptionalAlt(alt map[string]string) bool {
+	for lang, value := range alt {
+		if lang != "lv" && lang != "ru" && lang != "en" {
+			return false
+		}
+		if len([]rune(value)) > 300 || altForbidden.MatchString(value) {
+			return false
+		}
+	}
+	return true
+}

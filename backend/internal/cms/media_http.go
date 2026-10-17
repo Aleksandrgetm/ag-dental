@@ -36,6 +36,8 @@ func mediaFailure(c *gin.Context, e error) {
 	c.Header("Cache-Control", "no-store")
 	status, code := 503, "media_unavailable"
 	switch {
+	case errors.Is(e, ErrMediaMetadata):
+		status, code = 422, "invalid_metadata"
 	case errors.Is(e, media.ErrInvalid) || errors.Is(e, ErrInvalid):
 		status, code = 422, "invalid_file"
 	case errors.Is(e, media.ErrBusy):
@@ -81,6 +83,27 @@ func RegisterMedia(r *gin.Engine, s *Store, v auth.Verifier, roles auth.Roles, c
 		}
 		c.JSON(200, gin.H{"assets": rows, "upload_enabled": enabled, "image_limit": media.ImageLimit, "video_limit": media.VideoLimit, "video_slots": false})
 	})
+	admin.PATCH("/:id/metadata", func(c *gin.Context) {
+		var request struct {
+			Alt               map[string]string `json:"alt"`
+			Decorative        bool              `json:"decorative"`
+			ExpectedUpdatedAt time.Time         `json:"expected_updated_at"`
+		}
+		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, 8192)
+		if c.ShouldBindJSON(&request) != nil || request.ExpectedUpdatedAt.IsZero() || !media.ValidOptionalAlt(request.Alt) {
+			c.JSON(422, gin.H{"error": "invalid_metadata"})
+			return
+		}
+		actor, _ := auth.Current(c)
+		row, e := s.UpdateMediaMetadata(c.Request.Context(), c.Param("id"), actor.ID, request.ExpectedUpdatedAt, request.Alt, request.Decorative)
+		if e != nil {
+			mediaFailure(c, e)
+			return
+		}
+		c.Header("Cache-Control", "no-store")
+		c.JSON(200, gin.H{"asset": row})
+	})
+
 	processing := make(chan struct{}, 1)
 	admin.POST("", func(c *gin.Context) {
 		if !config.Uploads || config.Storage == nil || config.Processor == nil {
@@ -100,7 +123,7 @@ func RegisterMedia(r *gin.Engine, s *Store, v auth.Verifier, roles auth.Roles, c
 			return
 		}
 		if e := config.Storage.Check(c.Request.Context()); e != nil {
-			mediaFailure(c, e)
+			c.JSON(503, gin.H{"error": "storage_failed"})
 			return
 		}
 		c.Request.Body = http.MaxBytesReader(c.Writer, c.Request.Body, media.VideoLimit+65536)
@@ -114,7 +137,8 @@ func RegisterMedia(r *gin.Engine, s *Store, v auth.Verifier, roles auth.Roles, c
 			return
 		}
 		var alt map[string]string
-		if json.Unmarshal([]byte(c.Request.FormValue("alt")), &alt) != nil || !media.ValidAlt(alt) {
+		rawAlt := c.Request.FormValue("alt")
+		if (rawAlt != "" && json.Unmarshal([]byte(rawAlt), &alt) != nil) || !media.ValidOptionalAlt(alt) {
 			mediaFailure(c, media.ErrInvalid)
 			return
 		}
@@ -138,7 +162,7 @@ func RegisterMedia(r *gin.Engine, s *Store, v auth.Verifier, roles auth.Roles, c
 		actor, _ := auth.Current(c)
 		row, replayed, e := s.ReserveMedia(c.Request.Context(), result, actor.ID, key)
 		if e != nil {
-			mediaFailure(c, e)
+			mediaRecordFailure(c, e)
 			return
 		}
 		if !replayed {
@@ -152,19 +176,19 @@ func RegisterMedia(r *gin.Engine, s *Store, v auth.Verifier, roles auth.Roles, c
 			}()
 			for _, file := range result.Files {
 				if e = config.Storage.Put(c.Request.Context(), storagePath(row.ID, file.Name), file.MIME, file.Data); e != nil {
-					mediaFailure(c, e)
+					c.JSON(503, gin.H{"error": "storage_failed"})
 					return
 				}
 			}
 			if e = s.FinishMedia(c.Request.Context(), row.ID, actor.ID, true); e != nil {
-				mediaFailure(c, e)
+				mediaRecordFailure(c, e)
 				return
 			}
 			success = true
 		}
 		row, e = s.Media(c.Request.Context(), row.ID)
 		if e != nil {
-			mediaFailure(c, e)
+			mediaRecordFailure(c, e)
 			return
 		}
 		c.Header("Idempotency-Replayed", map[bool]string{true: "true", false: "false"}[replayed])
@@ -261,4 +285,14 @@ func RegisterMedia(r *gin.Engine, s *Store, v auth.Verifier, roles auth.Roles, c
 	}
 	admin.GET("/:id/:variant", serve(false))
 	r.GET("/api/cms/media/:id/:variant", serve(true))
+}
+
+// Preserve authorization/conflict responses, but never label database failures as bad images.
+func mediaRecordFailure(c *gin.Context, e error) {
+	if errors.Is(e, ErrProtected) || errors.Is(e, ErrConflict) || errors.Is(e, ErrMissing) || errors.Is(e, ErrInvalid) || errors.Is(e, media.ErrInvalid) {
+		mediaFailure(c, e)
+		return
+	}
+	c.Header("Cache-Control", "no-store")
+	c.JSON(503, gin.H{"error": "media_record_failed"})
 }

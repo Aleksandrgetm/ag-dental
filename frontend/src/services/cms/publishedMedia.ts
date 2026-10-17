@@ -3,7 +3,7 @@ import { reactive } from "vue";
 import { API_URL } from "../api";
 import { publicMediaURL } from "./mediaReference";
 export const publishedMedia = reactive<
-  Record<string, { alt: Record<string, string>; srcset: string; width?:number; height?:number }>
+  Record<string, { alt: Record<string, string>; decorative?: boolean; srcset: string; width?:number; height?:number }>
 >({});
 export function acceptMediaMetadata(rows: any[]) {
   for (const row of rows) {
@@ -26,11 +26,11 @@ export function acceptMediaMetadata(rows: any[]) {
       .map((v: any) => `${publicMediaURL(API_URL, ref, v.name)} ${v.width}w`)
       .join(", ");
     const dimensions=(row.variants||[]).find((v:any)=>v.name==='display.webp'&&Number.isSafeInteger(v.width)&&v.width>0&&Number.isSafeInteger(v.height)&&v.height>0);
-    publishedMedia[ref] = publishedMedia[url] = { alt: row.alt || {}, srcset, width:dimensions?.width, height:dimensions?.height };
+    publishedMedia[ref] = publishedMedia[url] = { alt: row.alt || {}, decorative: row.decorative === true, srcset, width:dimensions?.width, height:dimensions?.height };
   }
 }
 export function cmsMediaAlt(value: string, locale: string, fallback: string) {
-  return publishedMedia[value]?.alt[locale] || fallback;
+  return publishedMedia[value]?.decorative ? "" : publishedMedia[value]?.alt[locale] || fallback;
 }
 export function cmsMediaSrcset(value: string) {
   return clinicPhotoMetadata(value)?.srcset || publishedMedia[value]?.srcset || undefined;

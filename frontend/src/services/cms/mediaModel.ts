@@ -6,6 +6,7 @@ export interface MediaAsset {
   origin: "registered" | "upload";
   state: string;
   created_at?: string;
+  updated_at?: string;
   published_at?: string;
   references?: number;
   usages: {
@@ -22,6 +23,7 @@ export interface MediaAsset {
     height?: number;
     duration?: number;
     alt?: Record<string, string>;
+    decorative?: boolean;
     usages?: string[];
     usage_groups?: string[];
     variants?: {

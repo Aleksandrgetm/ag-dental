@@ -1,4 +1,16 @@
 const en = {
+ storage_failed:"Image storage failed. The file has not been attached to any content. Retry the upload.",
+ media_record_failed:"The media record could not be saved. Retry with the same file; do not publish yet.",
+  imageLimits: "JPEG, PNG, WebP or AVIF images, up to 12 MB.",
+  optionalMetadata: "Optional image details",
+  saveMetadata: "Save image details",
+  metadataSaved: "Image details saved.",
+  decorative: "Decorative image — empty alternative text",
+  sharedMetadata: "These details apply wherever this image is used.",
+  invalid_metadata: "Use plain text, up to 300 characters per language. Published informative images need descriptions in all three languages.",
+  unsupported_file: "Unsupported format. Choose a JPEG, PNG, WebP or AVIF image.",
+  file_too_large: "The file is too large. Images: up to 12 MB; videos: up to 32 MB.",
+
   title: "Media library",
   more: "Show more media",
   intro: "Choose a photograph, see where it appears, or upload something new.",
@@ -26,12 +38,12 @@ const en = {
   duration: "Duration",
   alt: "Alternative text",
   altHelp:
-    "Describe what is visible in each language. Do not include patient or medical information.",
+    "Optional now; informative images need meaningful descriptions in all three languages before publication. Describe only what is visible. Do not include patient or medical information.",
   start: "Upload",
   processing: "Validating and preparing media…",
   cancel: "Cancel upload",
   retry: "Retry",
-  ready: "Upload complete. Select a location, save a draft, then publish.",
+  ready: "Upload complete. The image is in the library; it has not been published.",
   duplicate: "This file already exists. The existing asset was kept.",
   empty: "No matching media.",
   unavailable:
@@ -75,7 +87,7 @@ const en = {
   historyUsage: "Revision history",
   noApi: "The media service is unavailable. Try again; nothing has been saved.",
   invalid_file:
-    "Choose a supported, valid file within the size, duration and dimension limits. Complete all three descriptions.",
+    "Choose a supported, valid file within the size, duration and dimension limits.",
   media_unavailable:
     "The upload or media service is unavailable. You can retry with the same file.",
   media_busy: "Media processing is busy. Please retry shortly.",
@@ -83,7 +95,7 @@ const en = {
   media_referenced:
     "This file is needed by content or revision history and cannot be removed.",
   media_conflict:
-    "This upload conflicts with an earlier attempt. Choose the file again.",
+    "The file changed in another session. Reopen the library before editing again.",
   media_missing: "This file is unavailable or no longer exists.",
   cancelled:
     "Upload cancelled. A completed server upload may appear after refreshing the library.",
@@ -92,6 +104,18 @@ const en = {
     "Uploading does not publish an image. Save and publish the section separately.",
 };
 const lv: Record<keyof typeof en, string> = {
+ storage_failed:"Attēla saglabāšana failu krātuvē neizdevās. Fails nav pievienots saturam. Atkārtojiet augšupielādi.",
+ media_record_failed:"Mediju ierakstu neizdevās saglabāt. Atkārtojiet ar to pašu failu; vēl nepublicējiet.",
+  imageLimits: "JPEG, PNG, WebP vai AVIF attēli, līdz 12 MB.",
+  optionalMetadata: "Attēla informācija (neobligāti)",
+  saveMetadata: "Saglabāt attēla informāciju",
+  metadataSaved: "Attēla informācija saglabāta.",
+  decorative: "Dekoratīvs attēls — tukšs alternatīvais teksts",
+  sharedMetadata: "Šī informācija attiecas uz visām attēla lietošanas vietām.",
+  invalid_metadata: "Izmantojiet vienkāršu tekstu, līdz 300 rakstzīmēm katrā valodā. Publicētiem informatīviem attēliem vajag aprakstus visās trīs valodās.",
+  unsupported_file: "Neatbalstīts formāts. Izvēlieties JPEG, PNG, WebP vai AVIF attēlu.",
+  file_too_large: "Fails ir pārāk liels. Attēli: līdz 12 MB; video: līdz 32 MB.",
+
   title: "Mediju bibliotēka",
   more: "Rādīt vairāk failu",
   intro:
@@ -120,13 +144,13 @@ const lv: Record<keyof typeof en, string> = {
   duration: "Ilgums",
   alt: "Alternatīvais teksts",
   altHelp:
-    "Katrā valodā aprakstiet redzamo. Neiekļaujiet pacientu vai medicīnisku informāciju.",
+    "Neobligāti tagad; informatīviem attēliem pirms publicēšanas vajag jēgpilnus aprakstus visās trīs valodās. Aprakstiet redzamo. Neiekļaujiet pacientu vai medicīnisku informāciju.",
   start: "Augšupielādēt",
   processing: "Pārbaudām un sagatavojam failu…",
   cancel: "Atcelt augšupielādi",
   retry: "Mēģināt vēlreiz",
   ready:
-    "Fails augšupielādēts. Izvēlieties vietu, saglabājiet melnrakstu un publicējiet.",
+    "Fails ir bibliotēkā. Attēls nav publicēts.",
   duplicate: "Šis fails jau ir bibliotēkā. Saglabāts esošais fails.",
   empty: "Atbilstošu failu nav.",
   unavailable:
@@ -171,7 +195,7 @@ const lv: Record<keyof typeof en, string> = {
   noApi:
     "Mediju pakalpojums nav pieejams. Mēģiniet vēlreiz; nekas nav saglabāts.",
   invalid_file:
-    "Izvēlieties derīgu atbalstīta veida failu atļautajos apjoma, ilguma un izmēru ierobežojumos. Aizpildiet aprakstus visās trīs valodās.",
+    "Izvēlieties derīgu atbalstīta veida failu atļautajos apjoma, ilguma un izmēru ierobežojumos.",
   media_unavailable:
     "Augšupielāde vai mediju pakalpojums nav pieejams. Varat atkārtot ar to pašu failu.",
   media_busy: "Failu apstrāde ir aizņemta. Pēc brīža mēģiniet vēlreiz.",
@@ -179,7 +203,7 @@ const lv: Record<keyof typeof en, string> = {
   media_referenced:
     "Fails nepieciešams saturam vai versiju vēsturei, un to nevar noņemt.",
   media_conflict:
-    "Augšupielāde konfliktē ar iepriekšējo mēģinājumu. Izvēlieties failu vēlreiz.",
+    "Fails mainīts citā sesijā. Pirms rediģēšanas atkārtoti atveriet bibliotēku.",
   media_missing: "Fails nav pieejams vai vairs nepastāv.",
   cancelled:
     "Augšupielāde atcelta. Serverī jau pabeigts fails var parādīties pēc bibliotēkas atjaunošanas.",
@@ -188,6 +212,18 @@ const lv: Record<keyof typeof en, string> = {
     "Augšupielāde nepublicē attēlu. Saglabājiet un publicējiet sadaļu atsevišķi.",
 };
 const ru: Record<keyof typeof en, string> = {
+ storage_failed:"Не удалось сохранить изображение в хранилище. Файл не прикреплён к контенту. Повторите загрузку.",
+ media_record_failed:"Не удалось сохранить запись изображения. Повторите с тем же файлом; пока не публикуйте.",
+  imageLimits: "Изображения JPEG, PNG, WebP или AVIF, до 12 МБ.",
+  optionalMetadata: "Сведения об изображении (необязательно)",
+  saveMetadata: "Сохранить сведения",
+  metadataSaved: "Сведения сохранены.",
+  decorative: "Декоративное изображение — пустой альтернативный текст",
+  sharedMetadata: "Эти сведения применяются везде, где используется изображение.",
+  invalid_metadata: "Используйте простой текст до 300 символов на язык. Опубликованным информативным изображениям нужны описания на трёх языках.",
+  unsupported_file: "Неподдерживаемый формат. Выберите JPEG, PNG, WebP или AVIF.",
+  file_too_large: "Файл слишком большой. Изображения: до 12 МБ; видео: до 32 МБ.",
+
   title: "Медиатека",
   more: "Показать ещё файлы",
   intro:
@@ -216,12 +252,12 @@ const ru: Record<keyof typeof en, string> = {
   duration: "Длительность",
   alt: "Альтернативный текст",
   altHelp:
-    "Опишите изображение на каждом языке. Не указывайте данные пациентов или медицинские сведения.",
+    "Сейчас необязательно; перед публикацией информативным изображениям нужны осмысленные описания на трёх языках. Не указывайте данные пациентов или медицинские сведения.",
   start: "Загрузить",
   processing: "Проверяем и подготавливаем файл…",
   cancel: "Отменить загрузку",
   retry: "Повторить",
-  ready: "Файл загружен. Выберите место, сохраните черновик и опубликуйте.",
+  ready: "Изображение загружено в библиотеку, но не опубликовано.",
   duplicate: "Этот файл уже есть в медиатеке. Существующий файл сохранён.",
   empty: "Подходящих файлов нет.",
   unavailable:
@@ -265,7 +301,7 @@ const ru: Record<keyof typeof en, string> = {
   historyUsage: "История версий",
   noApi: "Медиасервис недоступен. Попробуйте снова; ничего не сохранено.",
   invalid_file:
-    "Выберите корректный файл поддерживаемого типа в пределах ограничений размера, длительности и разрешения. Заполните описания на трёх языках.",
+    "Выберите корректный файл поддерживаемого типа в пределах ограничений размера, длительности и разрешения.",
   media_unavailable:
     "Загрузка или медиасервис недоступны. Можно повторить с тем же файлом.",
   media_busy: "Обработка файлов занята. Повторите попытку немного позже.",
@@ -273,7 +309,7 @@ const ru: Record<keyof typeof en, string> = {
   media_referenced:
     "Файл нужен для контента или истории версий, его нельзя удалить.",
   media_conflict:
-    "Загрузка конфликтует с предыдущей попыткой. Выберите файл заново.",
+    "Файл изменён в другой сессии. Откройте библиотеку заново перед редактированием.",
   media_missing: "Файл недоступен или больше не существует.",
   cancelled:
     "Загрузка отменена. Уже обработанный сервером файл может появиться после обновления медиатеки.",

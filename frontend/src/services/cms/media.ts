@@ -28,6 +28,7 @@ export async function mediaRequest(
   path = "",
   method = "GET",
   signal?: AbortSignal,
+  body?: unknown,
 ) {
   const initial = credentials(),
     auth = useAuthStore();
@@ -35,7 +36,8 @@ export async function mediaRequest(
   try {
     response = await fetch(`${API_URL}/admin/cms/media${path}`, {
       method,
-      headers: { Authorization: `Bearer ${initial.token}` },
+      headers: { Authorization: `Bearer ${initial.token}`, ...(body ? {"Content-Type":"application/json"} : {}) },
+      body: body ? JSON.stringify(body) : undefined,
       cache: "no-store",
       credentials: "omit",
       signal: signal || AbortSignal.timeout(15000),
@@ -59,7 +61,12 @@ export async function mediaRequest(
   return response.status === 204 ? null : response.json();
 }
 const codes = [
+  "storage_failed",
+  "media_record_failed",
   "invalid_file",
+  "invalid_metadata",
+  "unsupported_file",
+  "file_too_large",
   "media_unavailable",
   "media_busy",
   "media_protected",

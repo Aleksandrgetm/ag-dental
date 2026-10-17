@@ -105,7 +105,7 @@ try:
  run(['ffmpeg','-v','error','-f','lavfi','-i','color=c=red:s=800x800','-frames:v','1','-y',str(TMP/'replacement.png')])
  run(['ffmpeg','-v','error','-f','lavfi','-i','color=c=green:s=800x800','-frames:v','1','-y',str(TMP/'deletable.png')])
  testenv={**env,'QA_ADVANCE_REVIEW':os.environ.get('QA_ADVANCE_REVIEW','appointment'),'QA_IMAGE_DELETABLE':str(TMP/'deletable.png'),'QA_IMAGE_REPLACEMENT':str(TMP/'replacement.png'),'QA_IMAGE':str(TMP/'synthetic.png'),'AG_ACCEPTANCE':'disposable','QA_PASSWORD':password,'QA_SPki':spki,'NODE_EXTRA_CA_CERTS':str(TMP/'cert.pem'),'QA_CA':str(TMP/'cert.pem'),'QA_PG_CONTAINER':NAME+'-pg','QA_USER_TOKEN':user['access_token'],'QA_ANON_KEY':anon,'PLAYWRIGHT_MODULE':os.environ.get('PLAYWRIGHT_MODULE','playwright')}
- script='tests/real-booking-staging.cjs' if os.environ.get('QA_REAL_BOOKING')=='1' else 'tests/catalog-real-browser.cjs' if os.environ.get('QA_CATALOG_ONLY')=='1' else 'tests/news-real-browser.cjs' if os.environ.get('QA_NEWS_ONLY')=='1' else 'tests/acceptance-real-browser.cjs'
+ script='tests/media-upload-real-browser.cjs' if os.environ.get('QA_MEDIA_ONLY')=='1' else 'tests/real-booking-staging.cjs' if os.environ.get('QA_REAL_BOOKING')=='1' else 'tests/catalog-real-browser.cjs' if os.environ.get('QA_CATALOG_ONLY')=='1' else 'tests/news-real-browser.cjs' if os.environ.get('QA_NEWS_ONLY')=='1' else 'tests/acceptance-real-browser.cjs'
  result=subprocess.run(['node',script],cwd=ROOT/'frontend',env=testenv)
  if result.returncode:raise RuntimeError('Browser acceptance failed; see sanitized test output')
 finally:

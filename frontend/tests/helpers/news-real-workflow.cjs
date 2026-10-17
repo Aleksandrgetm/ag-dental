@@ -16,7 +16,14 @@ module.exports=async function newsWorkflow(page,evidence){
  assert.equal(await importedPage.locator('.article-prose p').count(),1);await importedPage.close();
  await page.goto(BASE+'/admin/news?lang=en');await page.locator('.news-card').first().waitFor();assert.equal(await page.locator('.news-card').count(),4);await page.getByRole('link',{name:t.add,exact:true}).click();
  for(const l of ['lv','ru','en']){await page.getByRole('combobox',{name:t.language,exact:true}).selectOption(l);await page.getByLabel(t.name,{exact:true}).fill('Synthetic news '+l);await page.getByLabel(t.body,{exact:true}).fill('Synthetic text '+l);await page.getByLabel(t.introduction,{exact:true}).fill('Synthetic introduction '+l);await page.getByLabel(t.category,{exact:true}).fill('Synthetic category '+l);await page.getByLabel(t.author,{exact:true}).fill('Synthetic author '+l)}
- async function upload(file){await page.getByRole('button',{name:t.image,exact:true}).click();await page.locator('.media-upload summary').click();await page.locator('input[type=file]').setInputFiles(file);await page.locator('.media-upload-preview').waitFor();for(const l of ['lv','ru','en'])await page.locator(`textarea[lang="${l}"]`).fill('Synthetic image '+l);const pending=page.waitForResponse(r=>r.url().endsWith('/api/admin/cms/media')&&r.request().method()==='POST');await page.getByRole('button',{name:m.start,exact:true}).click();const r=await pending;assert.equal(r.status(),200);const {asset,duplicate}=await r.json();await page.getByText(duplicate?m.duplicate:m.ready,{exact:true}).waitFor();await page.getByRole('button',{name:m.select,exact:true}).click();return asset}
+ async function upload(file){
+  await page.getByRole('button',{name:t.image,exact:true}).click();
+  const pending=page.waitForResponse(r=>r.url().endsWith('/api/admin/cms/media')&&r.request().method()==='POST');
+  await page.locator('input[type=file]').setInputFiles(file);const r=await pending;assert.equal(r.status(),200);
+  const {asset,duplicate}=await r.json();if(!duplicate)assert.ok(!asset.metadata.alt||Object.keys(asset.metadata.alt).length===0);await page.getByText(duplicate?m.duplicate:m.ready,{exact:true}).waitFor();
+  await page.getByRole('button',{name:m.select,exact:true}).click();return asset;
+ }
+
  const asset=await upload(process.env.QA_IMAGE);evidence.media={id:asset.id};
  const pending=page.waitForResponse(r=>r.url().endsWith('/save-publish'));await page.getByRole('button',{name:t.publish,exact:true}).click();const response=await pending;assert.equal(response.status(),200);const saved=await response.json(),key=saved.key;assert.match(key,/^created.news.[a-f0-9-]{36}$/);await page.waitForURL(BASE+'/admin/news');await page.getByRole('heading',{name:'Synthetic news en',exact:true}).waitFor();assert.equal(sql(`SELECT count(*) FROM cms_revisions WHERE document_key='${key}'`),'1');
  const token=response.request().headers().authorization;const retry=await context.request.post(response.url(),{headers:{Authorization:token},data:response.request().postDataJSON()});assert.equal(retry.status(),200);assert.equal(sql(`SELECT count(*) FROM cms_revisions WHERE document_key='${key}'`),'1');
@@ -26,7 +33,7 @@ module.exports=async function newsWorkflow(page,evidence){
   if(field==='date')data.payload.date='2026-02-30';else if(field==='image')data.payload.image='cms-media:upload.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';else {const [name,lang]=field.split('.');data.payload[name][lang]=''}
   const invalidKey='created.news.'+require('node:crypto').randomUUID();
   const invalid=await context.request.post(BASE+'/api/admin/cms/documents/'+invalidKey+'/save-publish',{headers:{Authorization:token},data});
-  assert.equal(invalid.status(),422);assert.deepEqual(await invalid.json(),{error:'invalid_content',field});assert.equal(sql(`SELECT count(*) FROM cms_documents WHERE key='${invalidKey}'`),'0');
+  assert.equal(invalid.status(),422);assert.deepEqual(await invalid.json(),{error:field==='image'?'image_association_failed':'invalid_content',field});assert.equal(sql(`SELECT count(*) FROM cms_documents WHERE key='${invalidKey}'`),'0');
  }
  evidence.publicationValidation='PASS 422 exact field title.lv/body.ru/date/image; atomic rejection without leaked draft; valid multilingual direct publication';
  // Concurrent identical creation requests must share one document/revision.

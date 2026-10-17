@@ -37,16 +37,17 @@ type Variant struct {
 	SHA    string `json:"sha256"`
 }
 type Metadata struct {
-	Filename string            `json:"filename"`
-	Kind     string            `json:"kind"`
-	MIME     string            `json:"mime"`
-	Bytes    int64             `json:"bytes"`
-	Width    int               `json:"width"`
-	Height   int               `json:"height"`
-	Duration float64           `json:"duration,omitempty"`
-	Alt      map[string]string `json:"alt"`
-	Variants []Variant         `json:"variants"`
-	Prefix   string            `json:"-"`
+	Filename   string            `json:"filename"`
+	Kind       string            `json:"kind"`
+	MIME       string            `json:"mime"`
+	Bytes      int64             `json:"bytes"`
+	Width      int               `json:"width"`
+	Height     int               `json:"height"`
+	Duration   float64           `json:"duration,omitempty"`
+	Alt        map[string]string `json:"alt"`
+	Decorative bool              `json:"decorative,omitempty"`
+	Variants   []Variant         `json:"variants"`
+	Prefix     string            `json:"-"`
 }
 type File struct {
 	Variant
