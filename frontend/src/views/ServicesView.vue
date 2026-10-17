@@ -12,11 +12,11 @@ const { t, local, locale } = useContent();
   </header>
   <section class="container services-directory">
     <RouterLink
-      v-for="(s, i) in services"
+      v-for="s in services"
       :key="s.slug"
       :to="{path:`/pakalpojumi/${s.slug}`,query:locale==='lv'?{}:{lang:locale}}"
       class="service-row"
-      ><span class="service-number">0{{ i + 1 }}</span>
+      >
       <div>
         <h2>
           <span class="editorial-link-title">{{ local(s.title) }}</span>

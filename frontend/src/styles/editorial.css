@@ -167,11 +167,6 @@
   padding-top: 20px;
   margin-top: 20px;
 }
-.content-design .service-index-caption > span {
-  flex-shrink: 0;
-  font-size: 10px;
-  padding-top: 5px;
-}
 .content-design .service-index-caption > p {
   font: italic 28px/1.2 var(--serif);
   max-width: 280px;
@@ -182,7 +177,7 @@
 }
 .content-design .index-entry {
   display: grid;
-  grid-template-columns: 28px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 18px;
   align-items: center;
   padding: 24px 0;
@@ -194,10 +189,6 @@
 }
 .content-design .index-entry h3 {
   font-size: clamp(27px, 2.45vw, 38px);
-}
-.content-design .index-number {
-  font: 10px/1.4 var(--sans);
-  color: var(--editorial-caption);
 }
 .content-design .index-entry.is-selected {
   color: #667651;
@@ -460,13 +451,10 @@
 }
 .content-design .price-preview {
   display: grid;
-  grid-template-columns: 18px 1fr auto;
+  grid-template-columns: 1fr auto;
   gap: 18px;
   align-items: center;
   padding: 25px 0;
-}
-.content-design .price-preview > .index-number {
-  font: 10px var(--sans);
 }
 .content-design .price-preview a {
   font-size: 14px;
@@ -717,7 +705,7 @@
   color: var(--editorial-caption);
 }
 .content-design .service-row {
-  grid-template-columns: 50px minmax(0, 1fr) 240px;
+  grid-template-columns: minmax(0, 1fr) 240px;
   padding: 25px 0;
   gap: 35px;
 }
@@ -1136,7 +1124,7 @@
     height: 370px;
   }
   .content-design .index-entry {
-    grid-template-columns: 18px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     padding: 22px 0;
     gap: 10px;
   }
@@ -1255,7 +1243,7 @@
     font-size: 48px;
   }
   .content-design .service-row {
-    grid-template-columns: 25px minmax(0, 1fr) 150px;
+    grid-template-columns: minmax(0, 1fr) 150px;
     gap: 20px;
   }
   .content-design .service-row h2 {
@@ -1379,7 +1367,7 @@
   }
   .content-design .index-entry {
     padding: 21px 0;
-    grid-template-columns: 25px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     gap: 12px;
   }
   .content-design .index-entry h3 {
@@ -1466,7 +1454,7 @@
   }
   .content-design .price-preview {
     gap: 12px;
-    grid-template-columns: 16px 1fr auto;
+    grid-template-columns: 1fr auto;
     padding: 24px 0;
   }
   .content-design .price-preview a {
@@ -1584,7 +1572,7 @@
     font-size: 16px;
   }
   .content-design .service-row {
-    grid-template-columns: 22px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
     gap: 12px;
     padding: 26px 0;
   }

@@ -375,10 +375,6 @@ small {
   padding: 13px 0;
   border-bottom: 1px solid var(--line);
 }
-.mobile-menu nav small {
-  font: 10px var(--sans);
-  color: var(--muted);
-}
 .mobile-menu-bottom {
   max-width: 700px;
   margin: 30px auto 0;
@@ -572,12 +568,6 @@ small {
   align-items: baseline;
   gap: 22px;
   padding: 24px 0 30px;
-}
-.service-number {
-  font-size: 10px;
-  letter-spacing: 0.05em;
-  color: var(--muted);
-  flex-shrink: 0;
 }
 .service-feature-text p {
   font-size: 11px;
@@ -948,7 +938,7 @@ small {
 }
 .service-row {
   display: grid;
-  grid-template-columns: 50px 1fr 200px 40px;
+  grid-template-columns: 1fr 200px 40px;
   align-items: center;
   gap: 40px;
   border-top: 1px solid var(--line);
@@ -1460,7 +1450,7 @@ small {
     padding-bottom: 55px;
   }
   .service-row {
-    grid-template-columns: 25px 1fr 130px 25px;
+    grid-template-columns: 1fr 130px 25px;
     gap: 20px;
   }
   .service-row h2 {
@@ -1813,7 +1803,7 @@ small {
     font-size: 8px;
   }
   .service-row {
-    grid-template-columns: 20px 1fr 22px;
+    grid-template-columns: 1fr 22px;
     gap: 15px;
     padding: 26px 0;
   }

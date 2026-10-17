@@ -9,7 +9,7 @@ const open = ref<number | null>(1);
   <section class="section journey-section">
     <div class="container journey-layout">
       <div class="journey-intro" data-reveal>
-        <p class="eyebrow">{{ cmsLiteral('literal.caf66a73.0') }}{{ t("home.journeyLabel") }}</p>
+        <p class="eyebrow">{{ t("home.journeyLabel") }}</p>
         <h2>{{ t("home.journeyTitle") }}</h2>
         <RouterLink class="text-link" to="/pieraksts"
           >{{ t("common.bookAppointment") }} </RouterLink

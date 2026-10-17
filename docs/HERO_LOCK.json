@@ -1,6 +1,6 @@
 {
   "frontend/src/components/home/ScrollClinicHero.vue": "899b977f06cb96e9a598040af34b0fdc6b217d80f4107ee7deeae436757988e5",
-  "frontend/src/style.css": "d7ea8f1c36eae8c03c53a032aa2c7319303b1fcdef215ea08949aae0048034d2",
+  "frontend/src/style.css": "dfdfdf16e984c336ff0987ff37a64625dbde6e9b5bc04130a0e68b4effdea13b",
   "frontend/src/fonts.css": "6f9273ecbfbbfbc562a6c2c742f346467f26e0ae081a849db5c4896639ab1619",
   "frontend/src/content/clinic.ts": "39306e53ccdf4e72ad31b44f7d102ed5564071ab36d1cf65bda2fd51f4840a1e",
   "frontend/src/content/useContent.ts": "1c230c671eede93c1135c6eccefefd1ae68b71f2f5ee68492d0af831fc887790",

@@ -16,12 +16,15 @@ test('Hero corrupt or blocked storage safely follows system motion preference',(
  assert.deepEqual(readPreferences(blocked,false),{animation:true,video:true});
 });
 
-test('only explicitly authorized component lock changes; source footage and other 14 locks remain',async()=>{
+test('only authorized component and numbering stylesheet locks change; other 13 locks remain',async()=>{
  const {readFileSync}=await import('node:fs');
  const original=JSON.parse(readFileSync(new URL('../../docs/HERO_LOCK_PRE_MOBILE.json',import.meta.url)));
  const current=JSON.parse(readFileSync(new URL('../../docs/HERO_LOCK.json',import.meta.url)));
  assert.equal(Object.keys(current).length,15);
- for(const key of Object.keys(original))if(!key.endsWith('/ScrollClinicHero.vue'))assert.equal(current[key],original[key],key);
+ for(const key of Object.keys(original)) {
+  if(key==='frontend/src/style.css') assert.equal(current[key],'dfdfdf16e984c336ff0987ff37a64625dbde6e9b5bc04130a0e68b4effdea13b','Approved numbering-only stylesheet baseline');
+  else if(!key.endsWith('/ScrollClinicHero.vue')) assert.equal(current[key],original[key],key);
+ }
 });
 
 test('public arrow controls use SVG rather than emoji-dependent characters',async()=>{

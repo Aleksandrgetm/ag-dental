@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { newsImage } from "../services/cms/newsImage";
+import { cmsMediaAlt as newsImageAlt } from "../services/cms/publishedMedia";
 import ArrowIcon from "../components/common/ArrowIcon.vue";
 import { publicMedia as media, publicImageAlt as cmsMediaAlt, sectionPhoto } from "../services/hero/publicMedia";
 import { cmsMediaSrcset } from "../services/cms/content";
@@ -16,10 +18,11 @@ import {
   doctorBio,
   services,
 } from "../services/cms/content";
-import { articles } from "../services/cms/content";
+import { usePublicNews } from "../composables/usePublicNews";
 import { refinement as copy } from "../services/cms/content";
 import { useContent } from "../content/useContent";
 const { t, local, date, locale } = useContent();
+const articles = usePublicNews(locale, () => t("nav.news"));
 const preview = services.filter((s) =>
   ["konsultacija", "zobu-higiena", "bernu-zobarstnieciba"].includes(s.slug),
 );
@@ -31,7 +34,7 @@ const preview = services.filter((s) =>
       <div class="container">
         <div class="intro-masthead">
           <p class="eyebrow">
-            {{ cmsLiteral("literal.dceb04b2.0") }}{{ t("home.introLabel") }}
+            {{ t("home.introLabel") }}
           </p>
           <span class="tiny-label">{{ local(copy.welcome) }}</span>
         </div>
@@ -73,7 +76,7 @@ const preview = services.filter((s) =>
       </div>
       <div class="about-editorial-copy" data-reveal>
         <p class="eyebrow">
-          {{ cmsLiteral("literal.dceb04b2.4") }}{{ t("home.aboutLabel") }}
+          {{ t("home.aboutLabel") }}
         </p>
         <h2>{{ t("home.aboutTitle") }}</h2>
         <p>{{ local(about) }}</p>
@@ -86,7 +89,7 @@ const preview = services.filter((s) =>
       <div class="container">
         <div class="doctor-feature-top" data-reveal>
           <p class="eyebrow">
-            {{ cmsLiteral("literal.dceb04b2.5") }}{{ t("home.doctorLabel") }}
+            {{ t("home.doctorLabel") }}
           </p>
           <h2>
             {{ cmsLiteral("literal.dceb04b2.6")
@@ -139,7 +142,6 @@ const preview = services.filter((s) =>
             data-reveal
             :data-delay="(i % 2) * 80"
           >
-            <span class="index-number">0{{ i + 1 }}</span>
             <h3>{{ t(`home.why${i + 1}`) }}</h3>
             <p>{{ local(description) }}</p>
           </article>
@@ -151,7 +153,7 @@ const preview = services.filter((s) =>
       <div class="container prices-editorial">
         <div data-reveal>
           <p class="eyebrow">
-            {{ cmsLiteral("literal.dceb04b2.11") }}{{ t("home.pricesLabel") }}
+            {{ t("home.pricesLabel") }}
           </p>
           <h2>{{ t("home.pricesTitle") }}</h2>
           <p class="section-aside">{{ t("page.pricesIntro") }}</p>
@@ -166,9 +168,8 @@ const preview = services.filter((s) =>
               }}{{ t("nav.prices") }}</span
             ><span>{{ cmsLiteral("literal.dceb04b2.13") }}</span>
           </div>
-          <div class="price-preview" v-for="(s, i) in preview" :key="s.slug">
-            <span class="index-number">0{{ i + 1 }}</span
-            ><RouterLink :to="`/pakalpojumi/${s.slug}`">{{
+          <div class="price-preview" v-for="s in preview" :key="s.slug">
+            <RouterLink :to="`/pakalpojumi/${s.slug}`">{{
               s.slug === "bernu-zobarstnieciba"
                 ? local(cmsInline("inline.home.0"))
                 : s.slug === "zobu-higiena"
@@ -187,7 +188,7 @@ const preview = services.filter((s) =>
         <div class="section-heading" data-reveal>
           <div>
             <p class="eyebrow">
-              {{ cmsLiteral("literal.dceb04b2.15") }}{{ t("home.newsLabel") }}
+              {{ t("home.newsLabel") }}
             </p>
             <h2>{{ t("home.newsTitle") }}</h2>
           </div>
@@ -195,24 +196,21 @@ const preview = services.filter((s) =>
             >{{ t("common.allNews") }}
           </RouterLink>
         </div>
-        <p v-if="locale !== 'lv'" class="source-note">
-          {{ t("ui.sourceLanguage") }}
-        </p>
         <div v-if="articles.length" class="journal-home">
           <RouterLink
             :to="`/jaunumi/${articles[0]!.slug}`"
             class="journal-feature"
             data-reveal
-            ><div class="journal-feature-image">
+            ><div v-if="newsImage(articles[0]!.image)" class="journal-feature-image">
               <img
-                :src="media.original"
-                :srcset="cmsMediaSrcset(media.original)"
+                :src="newsImage(articles[0]!.image)"
+                :srcset="cmsMediaSrcset(newsImage(articles[0]!.image)!)"
                 sizes="(max-width: 768px) 100vw, 60vw"
                 :alt="
-                  cmsMediaAlt(
-                    media.original,
+                  newsImageAlt(
+                    newsImage(articles[0]!.image)!,
                     locale,
-                    cmsLiteral('literal.dceb04b2.16'),
+                    articles[0]!.title,
                   )
                 "
                 loading="lazy"
@@ -224,9 +222,9 @@ const preview = services.filter((s) =>
               <time :datetime="articles[0]!.date">{{
                 date(articles[0]!.date)
               }}</time
-              ><span lang="lv">{{ articles[0]!.category }}</span>
+              ><span :lang="locale">{{ articles[0]!.category }}</span>
             </div>
-            <h3 lang="lv">
+            <h3 :lang="locale">
               <span class="editorial-link-title">{{ articles[0]!.title }}</span>
             </h3></RouterLink
           >
@@ -238,10 +236,10 @@ const preview = services.filter((s) =>
               class="journal-compact"
               data-reveal
               ><time :datetime="article.date">{{ date(article.date) }}</time>
-              <h3 lang="lv">
+              <h3 :lang="locale">
                 <span class="editorial-link-title">{{ article.title }}</span>
               </h3>
-              <p lang="lv">{{ article.excerpt }}</p>
+              <p :lang="locale">{{ article.excerpt }}</p>
               <span class="text-link"
                 >{{ t("common.read") }} <span aria-hidden="true"><ArrowIcon direction="right" /></span></span
               ></RouterLink

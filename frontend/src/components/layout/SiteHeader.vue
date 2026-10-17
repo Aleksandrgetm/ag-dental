@@ -206,7 +206,6 @@ onBeforeUnmount(() => {
           :style="{ '--menu-index': index }"
           :key="path"
           :to="path!"
-          ><small>0{{ index + 1 }}</small
           >{{ t(`nav.${key}`) }}</RouterLink
         >
       </nav>

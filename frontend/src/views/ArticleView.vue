@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import ArrowIcon from "../components/common/ArrowIcon.vue";
-import { publicMedia as media, publicImageAlt as cmsMediaAlt } from "../services/hero/publicMedia";
+import { cmsMediaAlt } from "../services/cms/publishedMedia";
+import { newsImage } from "../services/cms/newsImage";
 import {computed,ref,onMounted} from 'vue';
 import {useRoute} from 'vue-router';
 import {articles,localizeArticle,createdContent,refreshPublished,cmsMediaSrcset,cmsLiteral} from '../services/cms/content';
@@ -18,7 +19,7 @@ const article=computed(()=>{
  const created=createdContent.value.find(r=>r.key.startsWith('created.news.')&&r.payload.slug===route.params.slug);
  return created?createdArticle(created.payload,locale.value as ArticleLocale):undefined;
 });
-const image=computed(()=>article.value?(media as Record<string,string>)[article.value.image]:undefined);
+const image=computed(()=>article.value?newsImage(article.value.image):undefined);
 const dimensions=computed(()=>cmsMediaDimensions(image.value||''));
 const portrait=computed(()=>article.value?.image==='doctor');
 onMounted(async()=>{await refreshPublished();loaded.value=true});
@@ -36,12 +37,12 @@ onMounted(async()=>{await refreshPublished();loaded.value=true});
       <h1 data-reveal>{{article.title}}</h1><p v-if="article.introduction" class="article-lead">{{article.introduction}}</p>
      </header>
      <figure v-if="image" class="article-photograph" :class="{portrait}">
-      <div class="article-image-frame" data-reveal="image"><img :src="image" :srcset="cmsMediaSrcset(image)" sizes="(max-width: 700px) 100vw, 60vw" :alt="cmsMediaAlt(image,locale,article.caption||article.title)" :width="dimensions.width||(portrait?840:undefined)" :height="dimensions.height||(portrait?1120:undefined)" decoding="async" fetchpriority="high"/></div>
+      <div class="article-image-frame" data-reveal="image"><img :src="image" :srcset="cmsMediaSrcset(image)" sizes="(max-width: 700px) 100vw, 60vw" :alt="cmsMediaAlt(image,locale,article.image.startsWith('cms-media:')?article.title:article.caption||article.title)" :width="dimensions.width||(portrait?840:undefined)" :height="dimensions.height||(portrait?1120:undefined)" decoding="async" fetchpriority="high"/></div>
       <figcaption v-if="article.caption">{{article.caption}}</figcaption>
      </figure>
      <div class="article-reading-grid" :class="{'is-brief':!article.body.length&&!article.quote}">
       <aside class="article-margin">
-       <p class="eyebrow"><template v-if="articleIndex>=0">{{String(articleIndex+1).padStart(2,'0')}} / </template>{{t('nav.news')}}</p>
+       <p class="eyebrow">{{t('nav.news')}}</p>
        <p v-if="article.category" class="article-margin-category">{{article.category}}</p>
        <p v-if="article.author&&!image" class="article-margin-category">{{article.author}}</p>
        <a v-if="article.source" class="text-link article-source" :href="`https://www.zobarstnieciba-ag.lv/jaunumi/params/post/${article.source}`" target="_blank" rel="noopener noreferrer">{{t('ui.source')}}</a>

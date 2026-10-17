@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { publicMedia as media, servicePhoto } from "../../services/hero/publicMedia";
 import { cmsMediaSrcset } from "../../services/cms/content";
-import { cmsLiteral } from "../../services/cms/content";
 import { computed, ref } from "vue";
 import { services } from "../../services/cms/content";
 import { useContent } from "../../content/useContent";
@@ -20,7 +19,7 @@ const current = computed(() => services[selected.value]||services[0]);
       <div class="section-heading" data-reveal>
         <div>
           <p class="eyebrow">
-            {{ cmsLiteral("literal.2d23801e.0") }}{{ t("home.servicesLabel") }}
+            {{ t("home.servicesLabel") }}
           </p>
           <h2>{{ t("home.servicesTitle") }}</h2>
         </div>
@@ -45,9 +44,6 @@ const current = computed(() => services[selected.value]||services[0]);
             /></template>
           </div>
           <div class="service-index-caption">
-            <span
-              >0{{ selected + 1 }}{{ cmsLiteral("literal.2d23801e.2") }}</span
-            >
             <p>{{ local(current.short) }}</p>
           </div>
         </div>
@@ -61,7 +57,7 @@ const current = computed(() => services[selected.value]||services[0]);
             :class="{ 'is-selected': selected === i }"
             @mouseenter="selectPreview(i)"
             @focus="selectPreview(i)"
-            ><span class="index-number">0{{ i + 1 }}</span>
+            >
             <h3>{{ local(s.title) }}</h3> </RouterLink
           ><RouterLink class="text-link" to="/pakalpojumi"
             >{{ t("common.allServices") }}

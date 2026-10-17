@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {visiblePriceRows} from "../services/cms/priceRows";
-import { cmsLiteral } from "../services/cms/content";
 import { computed, ref, watch, onMounted, onBeforeUnmount } from "vue";
 import { localizedPrices } from "../services/cms/content";
 import { useContent } from "../content/useContent";
@@ -145,7 +144,6 @@ onBeforeUnmount(() => {
           "
           @click="selectedCategory = category.index"
         >
-          <span class="category-number">0{{ category.index + 1 }}</span>
           <span class="category-name">{{ category.title }}</span>
           <span class="category-count">{{ category.items.length }}</span></a
         >
@@ -166,7 +164,7 @@ onBeforeUnmount(() => {
         :data-category="category.index"
       >
         <div class="price-category-title">
-          <span class="eyebrow">0{{ category.index + 1 }}{{ cmsLiteral('literal.29417b3a.2') }}</span>
+          <span class="eyebrow">EUR</span>
           <h2 :lang="locale">{{ category.title }}</h2>
         </div>
         <PriceList :items="category.items" :language="locale" />
@@ -268,7 +266,7 @@ onBeforeUnmount(() => {
 .pricing-layout nav a {
   position: relative;
   display: grid;
-  grid-template-columns: 22px minmax(0, 1fr) 24px;
+  grid-template-columns: minmax(0, 1fr) 24px;
   gap: 14px;
   align-items: baseline;
   padding-block: 20px;
@@ -278,7 +276,6 @@ onBeforeUnmount(() => {
     color 200ms ease,
     border-color 200ms ease;
 }
-.category-number,
 .category-count {
   font-size: 11px;
   line-height: 1.6;

@@ -1,15 +1,10 @@
 <script setup lang="ts">
 import ArrowIcon from "../components/common/ArrowIcon.vue";
-import { computed } from "vue";
-import { createdContent } from "../services/cms/content";
-import { localizeArticle } from "../services/cms/content";
-import { articles } from "../services/cms/content";
+import { usePublicNews } from "../composables/usePublicNews";
 import { useContent } from "../content/useContent";
 import ContactBand from "../components/ContactBand.vue";
 const { t, date, locale } = useContent();
-const localizedArticles = computed(() =>
-  [...articles.map((article) => localizeArticle(article, locale.value)),...createdContent.value.filter(r=>r.key.startsWith("created.news.")).sort((a,b)=>a.payload.order-b.payload.order).map(({payload:p})=>({slug:p.slug,date:p.date,category:p.category?.[locale.value as "lv"|"ru"|"en"]||t("nav.news"),title:p.title[locale.value as "lv"|"ru"|"en"],excerpt:p.summary[locale.value as "lv"|"ru"|"en"]}))].sort((a,b)=>b.date.localeCompare(a.date)),
-);
+const localizedArticles = usePublicNews(locale, () => t("nav.news"));
 </script>
 <template>
   <header class="page-head container">
@@ -17,13 +12,12 @@ const localizedArticles = computed(() =>
   </header>
   <section class="container journal-list">
     <RouterLink
-      v-for="(a, i) in localizedArticles"
+      v-for="a in localizedArticles"
       :key="a.slug"
       :to="`/jaunumi/${a.slug}`"
       class="journal-row"
       ><div>
-        <span class="service-number">0{{ i + 1 }}</span
-        ><time :datetime="a.date">{{ date(a.date) }}</time>
+        <time :datetime="a.date">{{ date(a.date) }}</time>
       </div>
       <div :lang="locale">
         <p class="eyebrow">{{ a.category }}</p>
@@ -38,11 +32,13 @@ const localizedArticles = computed(() =>
   <ContactBand />
 </template>
 <style scoped>
+.journal-list .journal-row { grid-template-columns: minmax(110px, 140px) minmax(0, 1fr) 28px; column-gap: clamp(24px, 4vw, 56px); }
+.journal-row > div { min-width: 0; }
+.journal-list .journal-row h2 { overflow-wrap: anywhere; }
 /* Keep the approved desktop SVG size at every breakpoint. */
 .journal-list .row-arrow :deep(.arrow-icon) { width: 28px; height: 28px; }
-@media (max-width: 600px) {
+@media (max-width: 768px) {
   .journal-list .journal-row { grid-template-columns: minmax(0, 1fr) 27px; }
-  .journal-row > div { min-width: 0; }
-  .journal-row h2 { overflow-wrap: anywhere; }
+  .journal-row > div:first-child { grid-column: 1 / -1; }
 }
 </style>
