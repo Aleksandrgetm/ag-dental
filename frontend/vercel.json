@@ -213,7 +213,8 @@
       "feature/final-development": false,
       "feature/hero-mobile-fix": false,
       "feature/final-audit": false,
-      "feature/clinic-photography": false
+      "feature/clinic-photography": false,
+      "feature/remove-section-numbering": false
     }
   }
 }
